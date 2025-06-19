@@ -91,7 +91,7 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/unit/ -v
-          pytest tests/integration/ -v
+          pytest tests/integration/ -v --asyncio-mode=auto
 
       - name: Generate test coverage report
         run: |

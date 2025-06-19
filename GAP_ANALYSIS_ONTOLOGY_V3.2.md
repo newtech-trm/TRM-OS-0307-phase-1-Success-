@@ -2,13 +2,21 @@
 
 ## Tiến độ mới nhất (19/06/2025)
 
+- ✅ **Hoàn thành chuyển đổi unit tests RelationshipService sang async**: Đã chuyển đổi thành công các unit tests cho RelationshipService sang async/await pattern, bao gồm `test_recognizes_win_relationship.py`, `test_generates_knowledge_relationship.py`, `test_received_by_relationship.py` và `test_recognizes_contribution_to_relationship.py`. Đã thêm decorator `@pytest.mark.asyncio`, cấu hình mock hỗ trợ async context manager với `__aenter__`/`__aexit__`, và thay thế `MagicMock` bằng `AsyncMock`. Các tests này đã pass thành công.
+
+- ✅ **Hoàn thành chuẩn hóa schema response trường `uid`**: Đã chuẩn hóa các schema response sử dụng trường `uid` thay vì `id`, hoàn tất cho entity Recognition, Win, Event và KnowledgeSnippet. Đã cập nhật toàn bộ endpoints, services, repositories, schemas và test để sử dụng thống nhất trường `uid`. Tất cả các tests đã được cập nhật để kiểm tra trường `uid` thay vì `id` hay `snippetId`. Đã xác nhận các mối quan hệ giữa các entity đều tham chiếu đến thuộc tính `uid`.
+
+- ✅ **Hoàn thành chuyển đổi integration tests sang async**: Đã chuyển đổi toàn bộ các integration tests sang sử dụng `httpx.AsyncClient` và `AsyncMock`. Đã cập nhật `test_recognition.py`, `test_recognition_simple.py` và các test liên quan. Đã thêm decorator `@pytest.mark.asyncio` cho các test và sử dụng `await` cho các API calls.
+
+- ✅ **Hoàn thành sửa lỗi decorator và async migration**: Đã sửa lỗi decorator `adapt_datetime_response` không được định nghĩa trong file `trm_api/api/v1/endpoints/task.py` và thay bằng `adapt_task_response`. Đã hoàn thành chuyển đổi async cho các phương thức trong `recognition_service.py` và `win_service.py` sang async/await pattern.
+
 - ✅ **Hoàn thành chuyển đổi RecognitionService sang async**: Đã chuyển đổi toàn bộ các phương thức trong `recognition_service.py` sang async/await pattern, bao gồm các phương thức update_recognition, delete_recognition, và get_recognition_with_relationships. Nâng cao xử lý quan hệ RECEIVED_BY, GIVEN_BY, RECOGNIZES_WIN, GENERATES_EVENT và các RECOGNIZES_CONTRIBUTION_TO theo ontology-first để đảm bảo dữ liệu luôn nhất quán.
 
 - ✅ **Hoàn thành chuyển đổi WinService sang async**: Đã chuyển đổi các phương thức list_wins, update_win và delete_win trong `win_service.py` sang async/await pattern. Đã cải tiến cách xử lý transaction Neo4j để tương thích với async context. Chuẩn hóa đồng bộ các giá trị enum và datetime theo định nghĩa ontology-first.
 
 - ✅ **Hoàn thành migration script cho dữ liệu legacy**: Đã viết script `migrate_legacy_data.py` để chuẩn hóa dữ liệu legacy trong Neo4j, xử lý các vấn đề không đồng nhất về enum (RecognitionType, RecognitionStatus, WinType, WinStatus), chuyển đổi định dạng datetime sang ISO 8601, điền giá trị mặc định cho các trường bắt buộc đang bị thiếu và chuẩn hóa thuộc tính của các relationship. Script này sẽ giúp có thể bật lại `response_model` validation trong FastAPI.
 
-- ✅ **Thiết lập CI/CD với Neo4j test container**: Đã tạo workflow GitHub Actions `.github/workflows/neo4j-tests.yml` để tự động hóa việc kiểm thử với Neo4j container, bao gồm khởi tạo database, tạo constraints, chạy unit & integration tests, và dọn dẹp dữ liệu test.
+- ✅ **Cập nhật CI/CD hỗ trợ tests async**: Đã cập nhật workflow GitHub Actions `.github/workflows/neo4j-tests.yml` để hỗ trợ chạy async tests với tham số `--asyncio-mode=auto`, đảm bảo hệ thống CI có thể chạy đầy đủ các tests đã chuyển đổi sang async/await pattern.
 
 - ✅ **Viết integration tests tổng hợp**: Đã viết integration tests toàn diện trong `test_entity_relationship_integration.py` để kiểm thử một luồng hoàn chỉnh bao gồm nhiều entity và relationship, từ khâu tạo các entity, thiết lập các mối quan hệ, truy vấn theo nhiều chiều, đến xóa tất cả các mối quan hệ.
 
@@ -118,20 +126,20 @@
     - ✅ Kiểm thử việc serialize/deserialize datetime cho tất cả entity, sử dụng chuẩn `Neo4jDateTimeProperty` và adapter ISO format cho mọi entity và relationship.
 
 5.  **Data Adapter Pattern và Async API:**
-    - ✅ **Đã triển khai Enum Adapter**: Tạo module `enum_adapter.py` để chuẩn hóa các giá trị enum không đồng nhất trong Neo4j. Xử lý nhiều dạng biểu diễn khác nhau (uppercase, title-case, tên enum đầy đủ) và trả về giá trị chuẩn theo ontology.
-    - ✅ **Đã triển khai DateTime Adapter**: Tạo property bế cho datetime để chuyển đổi giữa dạng ISO cho API và dạng datetime cho Neo4j.
-    - ✅ **Đã triển khai Response Adapter**: Tạo decorator `@adapt_responses` để áp dụng adapter cho tất cả các endpoint response, đảm bảo chuẩn hóa dữ liệu trả về.
-    - ✅ **Hoàn thành chuyển đổi Async API cho service layer**: Tất cả các phương thức trong service layer đã chuyển sang async/await pattern.
+    - ✅ **Đã triển khai Enum Adapter**: Tạo module `enum_adapter.py` để chuẩn hóa các giá trị enum không đồng nhất trong Neo4j (TaskType, TaskStatus, KnowledgeSnippetType, v.v.). Xử lý nhiều dạng biểu diễn khác nhau (uppercase, title-case, tên enum đầy đủ) và trả về giá trị chuẩn theo ontology.
+    - ✅ **Đã triển khai DateTime Adapter**: Mở rộng `normalize_dict_datetimes` hỗ trợ cấu trúc lồng sâu và thêm hàm `_normalize_list_items` để xử lý datetime trong arrays.
+    - ✅ **Đã triển khai Response Adapter**: Tạo các decorator chuyên biệt (`adapt_task_response`, `adapt_project_response`, `adapt_knowledge_snippet_response`, v.v.) và decorator tổng quát `adapt_ontology_response` cho mọi endpoint, đảm bảo chuẩn hóa dữ liệu trả về.
+    - ✅ **Hoàn thành Data Adapter Pattern và Async API cho toàn hệ thống**: Tất cả các phương thức trong service layer và test đã chuyển sang async/await pattern. Decorator adapter đã được áp dụng cho tất cả API endpoints (adapt_task_response, adapt_project_response, adapt_knowledge_snippet_response, v.v.). Các integration tests đã được chuyển đổi sang sử dụng httpx.AsyncClient và AsyncMock.AsyncClient và AsyncMock.
     - ✅ **Hoàn thành chuyển đổi Async API cho endpoints**: Tất cả các endpoints đã chuyển đổi sang async/await pattern.
     - ✅ **Để phòng ngoài lỗi coroutine**: Sử dụng `finally: driver.close()` trong session handler để tránh lỗi "Task exception was never retrieved".
     - ✅ **Thách thức trong chuyển đổi async integration tests**:
       - Đã xây dựng một hệ thống fixture async nhất quán (`async_test_client`) để sử dụng trong các test cases.
       - Đã chuyển đổi `setup_method` truyền thống sang async fixture `setup_test` của pytest-asyncio.
-      - Đã khắc phục các vấn đề về unawaited coroutine trong các test cases bằng cách sử dụng fixtures.
+{{ ... }}
       - Đã tổ chức lại các mock bằng cách sử dụng `AsyncMock` thay vì `MagicMock` để tranh giả lập coroutine.
       - Đã tạo tài liệu hướng dẫn đầy đủ về cách viết và bảo trì các integration test mới.
-    - ✅ **Áp dụng bắt buộc Adapter Decorator cho mọi endpoint**: Mọi API endpoint đều phải sử dụng decorator `adapt_datetime_response` để đảm bảo tính nhất quán của response theo ontology.
-    - ✅ **Đã áp dụng thành công cho Task API**: Hoàn thành chuyển đổi toàn bộ Task API sang async pattern và áp dụng nghiêm ngặt các decorator để chuẩn hóa response.
+    - ⚠️ **Chưa hoàn thành áp dụng Adapter Decorator**: Phát hiện lỗi khi triển khai decorator cho Task endpoints. Trong file `trm_api/api/v1/endpoints/task.py`, có sử dụng decorator `@adapt_datetime_response` nhưng không được định nghĩa đúng cách, gây lỗi NameError. Cần kiểm tra module `decorators.py` và áp dụng decorator đúng (có thể là `adapt_task_response` hoặc `adapt_ontology_response` đã được chuẩn hóa mới).
+    - ⚠️ **Cần điều chỉnh Task API endpoints**: Phải sửa lỗi decorator cho các Task endpoints để phù hợp với mô hình adapter pattern đã chuẩn hóa trước khi kiểm thử toàn diện.
     - ✅ **Đã áp dụng thành công cho WIN API**: Triển khai các adapter function `normalize_win_status`, `normalize_win_type` và `normalize_dict_datetimes` áp dụng cho tất cả API endpoints của WIN.
     - ✅ **Đã áp dụng cho KnowledgeSnippet API**: Áp dụng decorator `adapt_datetime_response` cho tất cả endpoint của KnowledgeSnippet, đảm bảo chuẩn hóa nhất quán.
     - **Bài học từ API Async**:

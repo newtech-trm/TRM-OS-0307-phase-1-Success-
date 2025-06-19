@@ -57,6 +57,16 @@ class RelationshipType(str, Enum):
 class Relationship(BaseModel):
     """
     Pydantic model representing a generic relationship between two nodes as returned by a Cypher query.
+    
+    Fields:
+        source_id: ID of the source node
+        source_type: Type of the source node
+        target_id: ID of the target node
+        target_type: Type of the target node
+        type: Type of relationship
+        createdAt: Timestamp when the relationship was created
+        contributionLevel: Optional level of contribution (1-5) for certain relationship types
+        directContribution: Optional boolean indicating if the contribution was direct
     """
     source_id: str
     source_type: str
@@ -64,6 +74,9 @@ class Relationship(BaseModel):
     target_type: str
     type: str
     createdAt: datetime
+    contributionLevel: int = None
+    directContribution: bool = None
+    relationshipId: str = None
 
     class Config:
         from_attributes = True

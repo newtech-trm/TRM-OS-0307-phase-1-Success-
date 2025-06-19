@@ -293,26 +293,38 @@ e:\tech\trm-os-branches\
    - Luôn seed dữ liệu mẫu sau khi triển khai entity mới
    - Kiểm tra tính chất graph traversal của Neo4j qua relationship
 
-## 6. Mục tiêu tiếp theo
+## 6. Tiến độ và vấn đề phát hiện gần đây
 
-Theo kế hoạch được cập nhật, mục tiêu tiếp theo là:
+### Ngày cập nhật: 19/06/2025
 
-1. **Refactor schema/service/Cypher query cho các entity còn lại**:
-   - Project
-   - Resource
-   - Task
-   - Recognition
-   - WIN
+**Vấn đề mới phát hiện cần khắc phục gấp:**
 
-2. **Đảm bảo tất cả entity và relationship đồng bộ với ontology V3.2**:
-   - Xem xét lại các relationship trong GAP Analysis
-   - Triển khai các entity còn thiếu
-   - Bổ sung property và relationship theo ontology
+Đã phát hiện lỗi khi chạy unit tests:
 
-3. **Liên tục cập nhật GAP Analysis**:
-   - Sau mỗi đợt triển khai entity mới
-   - Đánh dấu rõ trạng thái hoàn thành
-   - Mô tả cách triển khai chi tiết
+```
+NameError: name 'adapt_datetime_response' is not defined
+trm_api\api\v1\endpoints\task.py:111: in <module>
+    @adapt_datetime_response
+```
+
+Lỗi này xảy ra do decorator `adapt_datetime_response` được sử dụng trong file `task.py` nhưng không được định nghĩa hoặc import đúng cách. Đây là kết quả của quá trình chuẩn hóa adapter pattern có thể đã thay đổi tên các decorator. Cần kiểm tra module `decorators.py` và điều chỉnh import cho đúng.
+
+### Mục tiêu tiếp theo
+
+1. **Khắc phục lỗi decorator trong endpoints**:
+   - Sửa lỗi `adapt_datetime_response` trong `task.py`
+   - Kiểm tra các endpoints khác có vấn đề tương tự
+   - Đảm bảo tất cả endpoint sử dụng các decorator đã chuẩn hóa mới
+
+2. **Hoàn thiện Data Adapter Pattern**:
+   - Đảm bảo áp dụng decorator đúng cho mọi endpoint (Task, Project, Recognition, Win, KnowledgeSnippet)
+   - Kiểm tra lại decorator `adapt_task_response`, `adapt_knowledge_snippet_response`, `adapt_ontology_response`
+   - Cập nhật tài liệu về các adapter đã triển khai
+
+3. **Cập nhật và kiểm tra CI/CD pipeline**:
+   - Kiếm thử lại toàn bộ unit tests và integration tests sau khi sửa lỗi
+   - Đảm bảo workflow CI hỗ trợ đầy đủ các dependency cho tests async
+   - Đánh giá hiệu suất API sau khi chuyển đổi sang async pattern
 
 ## 5. Lưu ý quan trọng
 

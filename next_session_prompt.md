@@ -6,32 +6,43 @@ Hoàn thiện quá trình áp dụng nghiêm ngặt nguyên tắc ontology-first
 
 ## Tiến độ đạt được
 
+- ✅ **Hoàn thành chuyển đổi unit tests RelationshipService sang async**: Đã chuyển đổi thành công các unit tests cho RelationshipService sang async/await pattern, bao gồm `test_recognizes_win_relationship.py`, `test_generates_knowledge_relationship.py`, `test_received_by_relationship.py` và `test_recognizes_contribution_to_relationship.py`. Đã thêm decorator `@pytest.mark.asyncio`, cấu hình mock hỗ trợ async context manager với `__aenter__`/`__aexit__`, và thay thế `MagicMock` bằng `AsyncMock`. Các tests này đã pass thành công.
+
 - ✅ **Hoàn thành chuyển đổi RecognitionService**: Đã chuyển đổi toàn bộ các phương thức sang async/await pattern
 - ✅ **Hoàn thành chuyển đổi WinService**: Đã chuyển đổi các phương thức chính sang async
 - ✅ **API Endpoints async**: Đã cập nhật các endpoint trong router win.py, recognition.py và relationship.py
 - ✅ **Bật `response_model`**: Đã bật lại validation cho các endpoint relationship chính
+- ✅ **Sửa lỗi decorator trong task.py**: Đã thay thế `@adapt_datetime_response` bằng `@adapt_task_response` và thêm import phù hợp
+- ✅ **Cập nhật relationship.py**: Đã thay thế `@adapt_datetime_response` bằng `@adapt_ontology_response`
+- ✅ **Sửa lỗi import trong decorators.py**: Đã thêm import lazy cho `normalize_knowledge_snippet_type`
 
 ## Công việc chính cần tiếp tục
 
-1. **Hoàn thiện cập nhật các test integration còn lại**
-   - Đã hoàn thành việc cập nhật `test_received_by_api.py` và `test_given_by_api.py` sang async pattern
-   - Cần tiếp tục cập nhật các file test còn lại: 
-     - `test_win_api.py`
-     - `test_generates_knowledge_api.py`
-     - `test_leads_to_win_api.py`
-     - `test_recognition_api.py`
-   - Đảm bảo sử dụng AsyncMock thay vì MagicMock cho các test async
-   - Sử dụng nhất quán `httpx.AsyncClient` thay vì `TestClient`
+1. **Sửa các tests còn lỗi**: Hiện còn 20 tests fail cần được sửa:
+   - Sửa DateTimeAdapter: `normalize_dict_datetimes_with_deeply_nested_structure`, `normalize_list_items`
+   - Sửa EnumAdapter: `normalize_task_type`, `normalize_task_status`
+   - Sửa tests GivenByRelationship (mocks & assertions) để pass
+   - Sửa KnowledgeSnippetService trả về dict hoặc cập nhật tests (TypeError not subscriptable)
+   - Sửa bộ tests LeadsToWinRelationship (create/get/delete) để pass
 
-2. **Củng cố các adapter để đảm bảo tuân thủ nghiêm ngặt ontology**
-   - Kiểm tra lại các adapter đã triển khai (`datetime_adapter.py`, `enum_adapter.py`)
-   - Đảm bảo rằng các API endpoints đều đã áp dụng decorator chuẩn hóa phù hợp
-   - Phát hiện và sửa bất kỳ vấn đề normalization nào còn tồn tại
-   - Kiểm tra xem có trường hợp nào chưa áp dụng ontology-first nghiêm ngặt
+2. **Tiếp tục Phase 1 - Adapter Pattern Implementation**:
+   - Hoàn thiện adapter pattern cho các service còn lại
+   - Đảm bảo tất cả tests pass
+   - Kiểm tra tính nhất quán của các adapter
 
-3. **Kiểm tra toàn diện CI/CD pipeline**
-   - Chạy lại toàn bộ bộ test unit và integration
-   - Đảm bảo `.github/workflows/neo4j-tests.yml` hỗ trợ các test async
+3. **Cập nhật GAP_ANALYSIS_ONTOLOGY_V3.2.md** sau mỗi milestone
+
+4. **Luôn chạy toàn bộ unit & integration tests** sau mỗi thay đổi lớn
+
+5. **Tuân thủ nghiêm ngặt ontology-first**: Không sử dụng mock/demo/fake, đảm bảo tất cả các thành phần đều hoạt động thật
+
+## Lưu ý quan trọng
+
+- Tuân thủ nguyên tắc ontology-first trong mọi thay đổi
+- Đảm bảo tất cả các tests đều chạy thật, không có workaround
+- Cập nhật GAP_ANALYSIS_ONTOLOGY_V3.2.md sau mỗi milestone quan trọng
+- Luôn kiểm tra exit code của pytest để xác nhận tests pass (exit code 0)
+- Tiếp tục refactor các tests còn lại sang async pattern nhất quán
    - Cập nhật configuration nếu cần thiết
    - Tối ưu hóa thời gian chạy của pipeline
 

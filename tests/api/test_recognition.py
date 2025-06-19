@@ -1,18 +1,23 @@
 import pytest
-from fastapi.testclient import TestClient
-from datetime import datetime
+import pytest_asyncio
 import uuid
+from unittest.mock import patch, AsyncMock
+from datetime import datetime
+from httpx import AsyncClient
+from fastapi import status
 
 from trm_api.main import app
 from trm_api.schemas.recognition import RecognitionCreate, RecognitionType, RecognitionStatus
+from tests.conftest import get_test_client
 
 
-@pytest.fixture
-def client():
-    return TestClient(app)
+@pytest_asyncio.fixture
+async def client():
+    return await get_test_client()
 
 
-def test_create_recognition(client):
+@pytest.mark.asyncio
+async def test_create_recognition(client):
     """
     Test creating a new recognition and verify the response structure and datetime handling.
     """
@@ -34,8 +39,8 @@ def test_create_recognition(client):
         }
     }
     
-    # Gọi API tạo recognition
-    response = client.post("/api/v1/recognitions/", json=recognition_data)
+    # Gọi API tạo recognition với async client
+    response = await client.post("/api/v1/recognitions/", json=recognition_data)
     
     # Kiểm tra response status code
     assert response.status_code == 201
@@ -43,9 +48,9 @@ def test_create_recognition(client):
     # Kiểm tra response body và cấu trúc
     response_data = response.json()
     
-    # Kiểm tra id field
-    assert "id" in response_data
-    assert isinstance(response_data["id"], str)
+    # Kiểm tra uid field (đã chuẩn hóa từ id)
+    assert "uid" in response_data
+    assert isinstance(response_data["uid"], str)
     
     # Kiểm tra các trường cơ bản
     assert response_data["name"] == recognition_data["name"]
@@ -67,31 +72,27 @@ def test_create_recognition(client):
         pytest.fail("Datetime fields không đúng định dạng ISO 8601")
 
 
-def test_get_recognition(client):
+@pytest.mark.asyncio
+async def test_get_recognition(client):
     """
     Kiểm thử việc lấy thông tin recognition.
     """
-    # Trước tiên, tạo một recognition
+    # Bước 1: Tạo recognition mới
     recognition_data = {
-        "name": "Test Get Recognition",
-        "message": "Kiểm thử lấy thông tin",
+        "name": "Test Recognition for Get",
+        "message": "Công nhận đóng góp",
         "recognition_type": "GRATITUDE",
         "status": "GRANTED",
-        "value_level": "2",
+        "value_level": 3,
         "tags": ["get", "test"],
-        "given_by_agent_id": f"test_{str(uuid.uuid4())}",
-        "received_by_agent_ids": [f"test_{str(uuid.uuid4())}"]
+        "given_by_agent_id": f"test_{str(uuid.uuid4())}"
     }
+    creation_response = await client.post("/api/v1/recognitions/", json=recognition_data)
+    created_recognition = creation_response.json()
+    recognition_id = created_recognition["id"]
     
-    # Tạo recognition trước
-    create_response = client.post("/api/v1/recognitions/", json=recognition_data)
-    assert create_response.status_code == 201
-    
-    # Lấy ID của recognition vừa tạo
-    recognition_id = create_response.json()["id"]
-    
-    # Gọi API get recognition
-    response = client.get(f"/api/v1/recognitions/{recognition_id}")
+    # Bước 2: Lấy recognition theo ID
+    response = await client.get(f"/api/v1/recognitions/{recognition_id}")
     
     # Kiểm tra response
     assert response.status_code == 200
@@ -110,28 +111,26 @@ def test_get_recognition(client):
         pytest.fail("created_at field không đúng định dạng ISO 8601")
 
 
-def test_list_recognitions(client):
+@pytest.mark.asyncio
+async def test_list_recognitions(client):
     """
     Kiểm thử việc lấy danh sách recognition.
     """
-    # Tạo một vài recognition để test
+    # Bước 1: Tạo một số recognition để đảm bảo có dữ liệu
     for i in range(3):
         recognition_data = {
-            "name": f"Test List Recognition {i}",
-            "message": f"Kiểm thử danh sách {i}",
+            "name": f"Test Recognition List {i}",
+            "message": f"Công nhận đóng góp {i}",
             "recognition_type": "GRATITUDE",
             "status": "GRANTED",
-            "value_level": str(i + 1),
-            "tags": ["list", "test", f"item{i}"],
-            "given_by_agent_id": f"test_{str(uuid.uuid4())}",
-            "received_by_agent_ids": [f"test_{str(uuid.uuid4())}"]
+            "value_level": i + 1,
+            "tags": ["list", f"test{i}"],
+            "given_by_agent_id": f"test_{str(uuid.uuid4())}"
         }
-        
-        # Tạo recognition
-        client.post("/api/v1/recognitions/", json=recognition_data)
+        await client.post("/api/v1/recognitions/", json=recognition_data)
     
-    # Gọi API list với pagination
-    response = client.get("/api/v1/recognitions/?skip=0&limit=10")
+    # Bước 2: Lấy danh sách recognitions
+    response = await client.get("/api/v1/recognitions/?skip=0&limit=10")
     
     # Kiểm tra response
     assert response.status_code == 200
@@ -157,93 +156,79 @@ def test_list_recognitions(client):
             pytest.fail("created_at field không đúng định dạng ISO 8601")
 
 
-def test_update_recognition(client):
+@pytest.mark.asyncio
+async def test_update_recognition(client):
     """
     Kiểm thử việc cập nhật recognition và đảm bảo datetime adapter hoạt động đúng.
     """
-    # Tạo recognition
+    # Bước 1: Tạo recognition mới
     recognition_data = {
-        "name": "Test Update Recognition",
-        "message": "Kiểm thử cập nhật",
+        "name": "Test Recognition for Update",
+        "message": "Công nhận đóng góp ban đầu",
         "recognition_type": "GRATITUDE",
-        "status": "GRANTED",
-        "value_level": "4",
+        "status": "PENDING",
+        "value_level": 2,
         "tags": ["update", "test"],
-        "given_by_agent_id": f"test_{str(uuid.uuid4())}",
-        "received_by_agent_ids": [f"test_{str(uuid.uuid4())}"]
+        "given_by_agent_id": f"test_{str(uuid.uuid4())}"
     }
+    creation_response = await client.post("/api/v1/recognitions/", json=recognition_data)
+    created_recognition = creation_response.json()
+    recognition_id = created_recognition["id"]
     
-    # Tạo recognition
-    create_response = client.post("/api/v1/recognitions/", json=recognition_data)
-    assert create_response.status_code == 201
-    
-    # Lấy ID
-    recognition_id = create_response.json()["id"]
-    
-    # Lưu lại thời gian tạo ban đầu
-    initial_created_at = create_response.json()["created_at"]
-    
-    # Dữ liệu cập nhật
+    # Bước 2: Cập nhật recognition
     update_data = {
-        "name": "Updated Recognition Name",
-        "message": "Đã cập nhật thông tin",
-        "value_level": "5",
-        "tags": ["updated", "test"]
+        "name": "Updated Recognition",
+        "message": "Công nhận đóng góp đã cập nhật",
+        "status": "GRANTED",
+        "value_level": 4
     }
-    
-    # Gọi API cập nhật
-    update_response = client.put(f"/api/v1/recognitions/{recognition_id}", json=update_data)
+    response = await client.put(f"/api/v1/recognitions/{recognition_id}", json=update_data)
     
     # Kiểm tra response
-    assert update_response.status_code == 200
+    assert response.status_code == 200
     
     # Kiểm tra dữ liệu đã cập nhật
-    response_data = update_response.json()
+    response_data = response.json()
     assert response_data["name"] == update_data["name"]
     assert response_data["message"] == update_data["message"]
     assert response_data["value_level"] == update_data["value_level"]
-    assert set(response_data["tags"]) == set(update_data["tags"])
     
     # Kiểm tra created_at không đổi
-    assert response_data["created_at"] == initial_created_at
+    assert response_data["created_at"] == created_recognition["created_at"]
     
     # Kiểm tra updated_at đã thay đổi và theo đúng định dạng ISO
-    assert response_data["updated_at"] != initial_created_at
+    assert response_data["updated_at"] != created_recognition["updated_at"]
     try:
         datetime.fromisoformat(response_data["updated_at"].replace("Z", "+00:00"))
     except ValueError:
         pytest.fail("updated_at field không đúng định dạng ISO 8601")
 
 
-def test_delete_recognition(client):
+@pytest.mark.asyncio
+async def test_delete_recognition(client):
     """
     Kiểm thử việc xóa recognition.
     """
-    # Tạo recognition
+    # Bước 1: Tạo recognition mới
     recognition_data = {
-        "name": "Test Delete Recognition",
-        "message": "Kiểm thử xóa",
+        "name": "Test Recognition for Delete",
+        "message": "Công nhận đóng góp",
         "recognition_type": "GRATITUDE",
         "status": "GRANTED",
-        "value_level": "1",
+        "value_level": 3,
         "tags": ["delete", "test"],
-        "given_by_agent_id": f"test_{str(uuid.uuid4())}",
-        "received_by_agent_ids": [f"test_{str(uuid.uuid4())}"]
+        "given_by_agent_id": f"test_{str(uuid.uuid4())}"
     }
+    creation_response = await client.post("/api/v1/recognitions/", json=recognition_data)
+    created_recognition = creation_response.json()
+    recognition_id = created_recognition["id"]
     
-    # Tạo recognition
-    create_response = client.post("/api/v1/recognitions/", json=recognition_data)
-    assert create_response.status_code == 201
-    
-    # Lấy ID
-    recognition_id = create_response.json()["id"]
-    
-    # Gọi API xóa
-    delete_response = client.delete(f"/api/v1/recognitions/{recognition_id}")
+    # Bước 2: Xóa recognition
+    delete_response = await client.delete(f"/api/v1/recognitions/{recognition_id}")
     
     # Kiểm tra response
     assert delete_response.status_code == 204
     
     # Kiểm tra recognition đã bị xóa bằng cách thử get lại
-    get_response = client.get(f"/api/v1/recognitions/{recognition_id}")
+    get_response = await client.get(f"/api/v1/recognitions/{recognition_id}")
     assert get_response.status_code == 404

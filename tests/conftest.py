@@ -6,12 +6,19 @@ tuân theo nguyên tắc ontology-first, không mock/fake kết nối.
 """
 
 import pytest
-import pytest_asyncio
+# Chỉ import pytest_asyncio trong try-except để tránh lỗi khi chạy những test không cần nó
+try:
+    import pytest_asyncio
+except ImportError:
+    pass
+
 import httpx
 from datetime import datetime
 import neomodel
 from enum import Enum
-pytestmark = pytest.mark.asyncio
+
+# Áp dụng mark asyncio chọn lọc thay vì toàn bộ file
+# pytestmark = pytest.mark.asyncio
 
 from trm_api.main import app
 from trm_api.db.session import connect_to_db, get_driver
@@ -70,10 +77,10 @@ async def test_client():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         yield client
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def async_test_client():
     """
-    Fixture tạo client async để test các API endpoints, sử dụng với pytest-asyncio.
+    Fixture tạo client async để test các API endpoints.
     Sử dụng kết nối Neo4j thật từ fixture setup_neo4j_connection.
     """
     # Tạo client async mới cho mỗi test sử dụng ASGITransport cho FastAPI
@@ -103,6 +110,7 @@ def seed_test_data():
     from trm_api.graph_models.project import Project
     from trm_api.graph_models.task import Task
     from trm_api.graph_models.win import WIN as Win  # Class tên là WIN nhưng import lại alias là Win
+    from trm_api.graph_models.knowledge_snippet import KnowledgeSnippet
     
     # Tạo timestamp để đánh dấu các test data
     timestamp = datetime.now()  
@@ -178,6 +186,19 @@ def seed_test_data():
         updated_at=timestamp
     ).save()
     
+    # Tạo KnowledgeSnippet
+    test_knowledge_snippet = KnowledgeSnippet(
+        title="Test Knowledge Snippet",
+        content="This is a test knowledge snippet content",
+        snippet_type="Documentation",  # Sử dụng enum_adapter.KnowledgeSnippetType
+        tags=["test", "documentation", "knowledge"],
+        source="Test Suite",
+        source_url="https://example.com/test",
+        is_test_data=True,
+        created_at=timestamp,
+        updated_at=timestamp
+    ).save()
+    
     # Tạo các mối quan hệ giữa các entities
     # User1 quản lý Project
     # Bỏ properties vì User.managed_projects không có model định nghĩa
@@ -212,6 +233,7 @@ def seed_test_data():
         "project_id": test_project.uid,
         "task_id": test_task.uid,
         "win_id": test_win.uid,
+        "knowledge_snippet_id": test_knowledge_snippet.uid,  # Thêm uid của KnowledgeSnippet
         "timestamp": timestamp
     }
     

@@ -14,8 +14,10 @@ class TestKnowledgeSnippetService:
         self.service = KnowledgeSnippetService()
         
         # Create a sample snippet data
+        sample_id = str(uuid.uuid4())
         self.sample_snippet = {
-            "snippetId": str(uuid.uuid4()),
+            "uid": sample_id,  # Sử dụng uid làm trường định danh chính theo chuẩn mới
+            "snippetId": sample_id,  # Giữ lại snippetId cho tương thích ngược
             "content": "Test knowledge snippet content",
             "snippetType": "BestPractice",
             "sourceEntityId": "win_123",
@@ -70,11 +72,12 @@ class TestKnowledgeSnippetService:
         mock_get_driver.return_value = mock_driver
         
         # Call the service method
-        result = self.service.get_snippet_by_id(snippet_id=self.sample_snippet["snippetId"])
+        result = self.service.get_snippet_by_id(snippet_id=self.sample_snippet["uid"])
         
         # Assert expected behavior
         mock_session.read_transaction.assert_called_once()
-        assert result["snippetId"] == self.sample_snippet["snippetId"]
+        assert result["uid"] == self.sample_snippet["uid"]  # Kiểm tra trường uid
+        assert result["snippetId"] == self.sample_snippet["snippetId"]  # Kiểm tra cả trường snippetId
         assert result["content"] == self.sample_snippet["content"]
     
     @patch('trm_api.services.knowledge_snippet_service.get_driver')
@@ -120,14 +123,12 @@ class TestKnowledgeSnippetService:
     @patch('trm_api.services.knowledge_snippet_service.get_driver')
     def test_update_snippet(self, mock_get_driver):
         """Test updating a snippet."""
-        # Updated snippet data
-        updated_snippet = {
-            **self.sample_snippet,
-            "content": "Updated content",
-            "snippetType": "CodeExample",
-            "version": 2,
-            "updatedAt": datetime.utcnow()
-        }
+        # Create an updated snippet for the mock
+        updated_snippet = self.sample_snippet.copy()
+        updated_snippet["content"] = "Updated content"
+        updated_snippet["snippetType"] = "CodeExample"
+        updated_snippet["version"] = 2
+        updated_snippet["updatedAt"] = datetime.utcnow()
         
         # Mock setup
         mock_session = MagicMock()
@@ -138,14 +139,16 @@ class TestKnowledgeSnippetService:
         
         # Call the service method
         result = self.service.update_snippet(
-            snippet_id=self.sample_snippet["snippetId"],
+            snippet_id=self.sample_snippet["uid"],  # Sử dụng trường uid 
             snippet_update=self.update_data
         )
         
         # Assert expected behavior
         mock_session.write_transaction.assert_called_once()
-        assert result["content"] == "Updated content"
-        assert result["snippetType"] == "CodeExample"
+        assert result["uid"] == self.sample_snippet["uid"]  # Kiểm tra trường uid
+        assert result["snippetId"] == self.sample_snippet["snippetId"]  # Kiểm tra trường snippetId
+        assert result["content"] == updated_snippet["content"]
+        assert result["snippetType"] == updated_snippet["snippetType"]
         assert result["version"] == 2
     
     @patch('trm_api.services.knowledge_snippet_service.get_driver')

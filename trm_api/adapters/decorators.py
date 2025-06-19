@@ -253,3 +253,147 @@ def adapt_recognition_response(response_item_key: Optional[str] = None):
             {"field": "recognitionType", "adapter": normalize_recognition_type}
         ]
     )
+
+
+def adapt_task_response(response_item_key: Optional[str] = None):
+    """
+    Decorator đặc biệt cho Task API endpoints theo nguyên tắc ontology-first.
+    Tự động chuẩn hóa:
+    - Các trường datetime sang chuỗi ISO 8601
+    - Trường 'task_type' sang dạng enum chuẩn ontology
+    - Trường 'status' sang dạng enum chuẩn ontology
+    
+    Args:
+        response_item_key: Key chứa danh sách các item nếu response là collection
+        
+    Returns:
+        Decorator function đã được wrap
+    """
+    # Import lazy để tránh circular dependency
+    from .enum_adapter import normalize_task_type, normalize_task_status
+    
+    return adapt_response(
+        response_item_key=response_item_key,
+        adapt_datetime=True,
+        adapt_enums=[
+            {"field": "task_type", "adapter": normalize_task_type},
+            {"field": "status", "adapter": normalize_task_status}
+        ]
+    )
+
+
+def adapt_knowledge_snippet_response(response_item_key: Optional[str] = None):
+    """
+    Decorator đặc biệt cho KnowledgeSnippet API endpoints theo nguyên tắc ontology-first.
+    Tự động chuẩn hóa:
+    - Các trường datetime sang chuỗi ISO 8601
+    - Trường 'snippet_type' sang dạng enum chuẩn ontology
+    
+    Args:
+        response_item_key: Key chứa danh sách các item nếu response là collection
+        
+    Returns:
+        Decorator function đã được wrap
+    """
+    # Import lazy để tránh circular dependency
+    from .enum_adapter import normalize_knowledge_snippet_type
+    
+    # Định nghĩa các adapter cho enum fields
+    enum_adapters = [
+        {"field": "snippet_type", "adapter": normalize_knowledge_snippet_type}
+    ]
+    
+    return adapt_response(
+        response_item_key=response_item_key,
+        adapt_datetime=True,
+        adapt_enums=enum_adapters
+    )
+
+
+def adapt_project_response(response_item_key: Optional[str] = None):
+    """
+    Decorator đặc biệt cho Project API endpoints theo nguyên tắc ontology-first.
+    Tự động chuẩn hóa:
+    - Các trường datetime sang chuỗi ISO 8601
+    - Các trường enum liên quan đến Project (nếu có)
+    
+    Args:
+        response_item_key: Key chứa danh sách các item nếu response là collection
+        
+    Returns:
+        Decorator function đã được wrap
+    """
+    # Hiện tại chỉ chuẩn hóa datetime, nếu có enum cần chuẩn hóa thì bổ sung sau
+    enum_adapters = []
+    
+    return adapt_response(
+        response_item_key=response_item_key,
+        adapt_datetime=True,
+        adapt_enums=enum_adapters
+    )
+
+
+def adapt_ontology_response(
+    entity_type: str = None,
+    response_item_key: Optional[str] = None,
+    adapt_datetime: bool = True,
+    custom_adapters: Optional[List[Dict[str, Any]]] = None
+):
+    """
+    Decorator tổng hợp theo nguyên tắc ontology-first.
+    Tự động áp dụng các adapter phù hợp với entity_type được chỉ định.
+    
+    Args:
+        entity_type: Loại entity cần áp dụng adapter (win, recognition, task, knowledge_snippet, project)
+        response_item_key: Key chứa danh sách các item nếu response là collection
+        adapt_datetime: Nếu True thì chuẩn hóa các trường datetime
+        custom_adapters: Các adapter tùy chỉnh bổ sung
+        
+    Returns:
+        Decorator function đã được wrap với các adapter phù hợp
+    """
+    # Import lazy để tránh circular dependency
+    from .enum_adapter import (
+        normalize_win_status, normalize_win_type,
+        normalize_recognition_status, normalize_recognition_type,
+        normalize_task_status, normalize_task_type,
+        normalize_knowledge_snippet_type
+    )
+    
+    # Xem entity_type được chỉ định thuộc loại nào
+    adapters = []
+    
+    if entity_type:
+        entity_type = entity_type.lower().strip()
+        
+        # Áp dụng các adapter cho entity_type tương ứng
+        if entity_type == 'win':
+            adapters.extend([
+                {"field": "status", "adapter": normalize_win_status},
+                {"field": "winType", "adapter": normalize_win_type}
+            ])
+        elif entity_type == 'recognition':
+            adapters.extend([
+                {"field": "status", "adapter": normalize_recognition_status},
+                {"field": "recognitionType", "adapter": normalize_recognition_type}
+            ])
+        elif entity_type == 'task':
+            adapters.extend([
+                {"field": "task_type", "adapter": normalize_task_type},
+                {"field": "status", "adapter": normalize_task_status}
+            ])
+        elif entity_type == 'knowledge_snippet':
+            adapters.append(
+                {"field": "snippet_type", "adapter": normalize_knowledge_snippet_type}
+            )
+    
+    # Thêm các adapter tùy chỉnh nếu có
+    if custom_adapters:
+        adapters.extend(custom_adapters)
+    
+    # Gọi decorator cơ bản với các tham số đã được xử lý
+    return adapt_response(
+        response_item_key=response_item_key,
+        adapt_datetime=adapt_datetime,
+        adapt_enums=adapters
+    )

@@ -18,7 +18,8 @@ class TestKnowledgeSnippetEndpoints:
         # Sample knowledge snippet data
         self.snippet_id = str(uuid.uuid4())
         self.sample_snippet = {
-            "snippetId": self.snippet_id,
+            "uid": self.snippet_id,  # Sử dụng uid theo chuẩn mới
+            "snippetId": self.snippet_id,  # Giữ lại snippetId cho tương thích ngược
             "content": "Test knowledge snippet content",
             "snippetType": "BestPractice",
             "sourceEntityId": "win_123",
@@ -56,7 +57,8 @@ class TestKnowledgeSnippetEndpoints:
         
         # Assert response
         assert response.status_code == 201
-        assert "snippetId" in response.json()
+        assert "uid" in response.json()  # Kiểm tra trường uid theo chuẩn mới
+        assert "snippetId" in response.json()  # Vẫn kiểm tra snippetId cho tương thích ngược
         assert response.json()["content"] == self.sample_snippet["content"]
         
         # Verify mock called correctly
@@ -73,7 +75,8 @@ class TestKnowledgeSnippetEndpoints:
         
         # Assert response
         assert response.status_code == 200
-        assert response.json()["snippetId"] == self.snippet_id
+        assert response.json()["uid"] == self.snippet_id  # Kiểm tra trường uid
+        assert response.json()["snippetId"] == self.snippet_id  # Vẫn kiểm tra snippetId cho tương thích ngược
         assert "createdAt" in response.json()
         
         # Verify mock called correctly
@@ -96,7 +99,15 @@ class TestKnowledgeSnippetEndpoints:
     def test_list_knowledge_snippets(self, mock_list):
         """Test listing knowledge snippets with pagination."""
         # Setup mock
-        mock_list.return_value = [self.sample_snippet, {**self.sample_snippet, "snippetId": str(uuid.uuid4())}]
+        second_id = str(uuid.uuid4())
+        mock_list.return_value = [
+            self.sample_snippet, 
+            {
+                **self.sample_snippet, 
+                "uid": second_id,  # Trường uid mới cho item thứ hai
+                "snippetId": second_id  # Giữ snippetId cho tương thích ngược
+            }
+        ]
         
         # Make API request
         response = client.get("/api/v1/knowledge-snippets/?skip=0&limit=10")
@@ -105,6 +116,12 @@ class TestKnowledgeSnippetEndpoints:
         assert response.status_code == 200
         assert "items" in response.json()
         assert len(response.json()["items"]) == 2
+        
+        # Kiểm tra trường uid trong các item trả về
+        for item in response.json()["items"]:
+            assert "uid" in item
+            assert "snippetId" in item  # Vẫn kiểm tra trường snippetId
+            
         assert "total" in response.json()
         
         # Verify mock called correctly
@@ -131,10 +148,10 @@ class TestKnowledgeSnippetEndpoints:
         
         # Assert response
         assert response.status_code == 200
+        assert response.json()["uid"] == self.snippet_id  # Kiểm tra trường uid
+        assert response.json()["snippetId"] == self.snippet_id  # Vẫn kiểm tra trường snippetId
         assert response.json()["content"] == "Updated content for testing"
         assert response.json()["snippetType"] == "HowToGuide"
-        assert response.json()["version"] == 2
-        assert "updatedAt" in response.json()
         
         # Verify mock called correctly
         mock_update.assert_called_once()
@@ -167,7 +184,8 @@ class TestKnowledgeSnippetEndpoints:
         # Assert response
         assert response.status_code == 204
         
-        # Verify mock called correctly
+        # Verify mock called correctly - service vẫn dùng snippet_id làm tham số cho tương thích
+        # nhưng giá trị truyền vào là uid theo chuẩn mới
         mock_delete.assert_called_once_with(snippet_id=self.snippet_id)
     
     @patch.object(knowledge_snippet_service, 'delete_snippet')

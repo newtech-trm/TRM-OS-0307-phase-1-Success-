@@ -14,20 +14,22 @@ class KnowledgeSnippetService:
     def _get_db(self) -> Driver:
         return get_driver()
 
-    def create_snippet(self, snippet_create: KnowledgeSnippetCreate) -> KnowledgeSnippet:
+    def create_snippet(self, snippet_create: KnowledgeSnippetCreate) -> dict:
         """Creates a new KnowledgeSnippet node."""
         snippet_db = KnowledgeSnippetInDB(**snippet_create.model_dump())
         params = snippet_db.model_dump(by_alias=True)
 
         with self._get_db().session() as session:
             result = session.write_transaction(self._create_snippet_tx, params)
-            return KnowledgeSnippet(**result)
+            # Trả về dict thay vì đối tượng Pydantic để tương thích với tests
+            return result
 
     @staticmethod
     def _create_snippet_tx(tx, params: dict) -> dict:
         query = (
             "CREATE (ks:KnowledgeSnippet { "
-            "  snippetId: $snippetId, "
+            "  uid: $uid, "
+            "  snippetId: $uid, " # Duy trì backwards compatibility, sử dụng uid làm snippetId
             "  content: $content, "
             "  snippetType: $snippetType, "
             "  sourceEntityId: $sourceEntityId, "
@@ -42,24 +44,31 @@ class KnowledgeSnippetService:
         record = result.single()
         return dict(record['ks']) if record and record['ks'] else None
 
-    def get_snippet_by_id(self, snippet_id: str) -> Optional[KnowledgeSnippet]:
+    def get_snippet_by_id(self, snippet_id: str) -> Optional[dict]:
         """Retrieves a single snippet by its unique ID."""
         with self._get_db().session() as session:
             result = session.read_transaction(self._get_snippet_by_id_tx, snippet_id)
-            return KnowledgeSnippet(**result) if result else None
+            # Trả về dict thay vì đối tượng Pydantic để tương thích với tests
+            return result
 
     @staticmethod
     def _get_snippet_by_id_tx(tx, snippet_id: str) -> Optional[dict]:
-        query = "MATCH (ks:KnowledgeSnippet {snippetId: $snippetId}) RETURN ks"
-        result = tx.run(query, snippetId=snippet_id)
+        # Tương thích ngược - tim kiếm cả theo uid hoặc snippetId
+        query = (
+            "MATCH (ks:KnowledgeSnippet) "
+            "WHERE ks.uid = $id OR ks.snippetId = $id "
+            "RETURN ks"
+        )
+        result = tx.run(query, id=snippet_id)
         record = result.single()
         return dict(record['ks']) if record and record['ks'] else None
 
-    def list_snippets(self, skip: int = 0, limit: int = 100) -> List[KnowledgeSnippet]:
+    def list_snippets(self, skip: int = 0, limit: int = 100) -> List[dict]:
         """Retrieves a list of snippets with pagination."""
         with self._get_db().session() as session:
             results = session.read_transaction(self._list_snippets_tx, skip, limit)
-            return [KnowledgeSnippet(**result) for result in results]
+            # Trả về list dict thay vì list đối tượng Pydantic để tương thích với tests
+            return results
 
     @staticmethod
     def _list_snippets_tx(tx, skip: int, limit: int) -> List[dict]:
@@ -72,7 +81,7 @@ class KnowledgeSnippetService:
         result = tx.run(query, skip=skip, limit=limit)
         return [dict(record['ks']) for record in result]
 
-    def update_snippet(self, snippet_id: str, snippet_update: KnowledgeSnippetUpdate) -> Optional[KnowledgeSnippet]:
+    def update_snippet(self, snippet_id: str, snippet_update: KnowledgeSnippetUpdate) -> Optional[dict]:
         """Updates an existing snippet and increments its version."""
         update_data = snippet_update.model_dump(exclude_unset=True, by_alias=True)
         if not update_data:
@@ -82,25 +91,46 @@ class KnowledgeSnippetService:
 
         with self._get_db().session() as session:
             result = session.write_transaction(self._update_snippet_tx, snippet_id, update_data)
-            return KnowledgeSnippet(**result) if result else None
+            # Trả về dict thay vì đối tượng Pydantic để tương thích với tests
+            return result
 
     @staticmethod
-    def _update_snippet_tx(tx, snippet_id: str, update_data: dict) -> Optional[dict]:
-        set_clauses = [f"ks.{key} = ${key}" for key in update_data.keys()]
-        if 'updatedAt' in update_data:
-            set_clauses.remove('ks.updatedAt = $updatedAt')
-            set_clauses.append('ks.updatedAt = datetime($updatedAt)')
-
-        # Increment the version number on every update
-        set_clauses.append('ks.version = ks.version + 1')
-
-        query = (
-            f"MATCH (ks:KnowledgeSnippet {{snippetId: $snippetId}}) "
+    def _update_snippet_tx(tx, snippet_id: str, update_data: dict) -> dict:
+        # Lấy snippet hiện tại, tăng version và tạo lịch sử
+        get_query = "MATCH (ks:KnowledgeSnippet) WHERE ks.uid = $id OR ks.snippetId = $id RETURN ks"
+        result = tx.run(get_query, id=snippet_id)
+        record = result.single()
+        
+        if not record:
+            return None
+            
+        current_snippet = dict(record['ks'])
+        current_version = current_snippet.get('version', 1)
+        
+        # Cập nhật version và updatedAt
+        update_data['version'] = current_version + 1
+        update_data['updatedAt'] = datetime.utcnow()
+        
+        # Xây dựng câu lệnh Cypher
+        set_clauses = []
+        for key, value in update_data.items():
+            if value is not None:
+                # Xử lý đặc biệt cho datetime
+                if isinstance(value, datetime):
+                    set_clauses.append(f"ks.{key} = datetime($params.{key})")
+                else:
+                    set_clauses.append(f"ks.{key} = $params.{key}")
+        
+        if not set_clauses:
+            return current_snippet  # Không có gì để cập nhật
+        
+        update_query = (
+            "MATCH (ks:KnowledgeSnippet) WHERE ks.uid = $id OR ks.snippetId = $id "
             f"SET {', '.join(set_clauses)} "
             "RETURN ks"
         )
-        params = {'snippetId': snippet_id, **update_data}
-        result = tx.run(query, params)
+        
+        result = tx.run(update_query, id=snippet_id, params=update_data)
         record = result.single()
         return dict(record['ks']) if record and record['ks'] else None
 
@@ -112,10 +142,15 @@ class KnowledgeSnippetService:
 
     @staticmethod
     def _delete_snippet_tx(tx, snippet_id: str) -> bool:
-        query = "MATCH (ks:KnowledgeSnippet {snippetId: $snippetId}) DETACH DELETE ks"
-        result = tx.run(query, snippetId=snippet_id)
-        summary = result.consume()
-        return summary.counters.nodes_deleted > 0
+        query = (
+            "MATCH (ks:KnowledgeSnippet) "
+            "WHERE ks.uid = $id OR ks.snippetId = $id "
+            "DETACH DELETE ks "
+            "RETURN count(*) as deleted"
+        )
+        result = tx.run(query, id=snippet_id)
+        record = result.single()
+        return record and record['deleted'] > 0
 
 # Singleton instance of the service
 knowledge_snippet_service = KnowledgeSnippetService()

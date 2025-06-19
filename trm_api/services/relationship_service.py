@@ -1,14 +1,16 @@
 from neo4j import Driver
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 import uuid
 import traceback
 import asyncio
+import logging
 
 from trm_api.db.session import get_driver
 from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
 from trm_api.services.utils import process_relationship_record
 from trm_api.services.constants import EntityTypeKindMapping
+from trm_api.adapters.datetime_adapter import normalize_dict_datetimes
 
 
 class RelationshipService:
@@ -17,7 +19,7 @@ class RelationshipService:
     This service handles creation, querying, and management of all relationship types.
     """
 
-    async def _get_db(self) -> Driver:
+    def _get_db(self) -> Driver:
         return get_driver()
 
     async def create_relationship(
@@ -29,7 +31,7 @@ class RelationshipService:
         relationship_type: RelationshipType,
         relationship_property: Optional[Dict[str, Any]] = None,
         relationship_properties: Optional[Dict[str, Any]] = None,
-    ) -> Optional[Relationship]:
+    ) -> Optional[Union[Relationship, Dict[str, Any]]]:
         """
         Creates a relationship between two entities.
         
@@ -53,8 +55,8 @@ class RelationshipService:
             properties.update(relationship_properties)
             
         db = await self._get_db()
-        with db.session() as session:
-            result = session.execute_write(
+        async with db.session() as session:
+            result = await session.execute_write(
                 self._create_relationship_tx,
                 source_id,
                 source_type,
@@ -74,7 +76,7 @@ class RelationshipService:
         target_type: TargetEntityTypeEnum,
         relationship_type: RelationshipType,
         relationship_property: Optional[Dict[str, Any]] = None,
-    ) -> Optional[Relationship]:
+    ) -> Optional[Union[Relationship, Dict[str, Any]]]:
         """
         Transaction function for creating a relationship.
         Uses dynamic labels based on the entity types.
@@ -142,15 +144,31 @@ class RelationshipService:
             created_at = record["createdAt"]
             if created_at and hasattr(created_at, 'to_native'):
                 created_at = created_at.to_native()
-                
-            return Relationship(
-                source_id=record["source_id"],
-                source_type=record["source_type"],
-                target_id=record["target_id"],
-                target_type=record["target_type"],
-                type=record["type"],
-                createdAt=created_at
-            )
+            
+            # Tạo dictionary từ record và thêm các thuộc tính bổ sung từ relationship_property
+            result_dict = {
+                "source_id": record["source_id"],
+                "source_type": record["source_type"],
+                "target_id": record["target_id"],
+                "target_type": record["target_type"],
+                "type": record["type"],
+                "createdAt": created_at
+            }
+            
+            # Thêm các thuộc tính từ relationship_property nếu có
+            if relationship_property:
+                for key, value in relationship_property.items():
+                    if key not in result_dict:
+                        result_dict[key] = value
+            
+            try:
+                # Tạo đối tượng Relationship từ dictionary
+                relationship_obj = Relationship(**result_dict)
+                return relationship_obj
+            except Exception as e:
+                logging.warning(f"Không thể tạo đối tượng Relationship, trả về dictionary: {str(e)}")
+                # Nếu không tạo được đối tượng Relationship, trả về dictionary
+                return normalize_dict_datetimes(result_dict)
         return None
 
     async def get_relationships(
@@ -160,7 +178,7 @@ class RelationshipService:
         direction: str = "outgoing",
         relationship_type: Optional[RelationshipType] = None,
         related_entity_type: Optional[TargetEntityTypeEnum] = None,
-    ) -> List[Relationship]:
+    ) -> List[Union[Relationship, Dict[str, Any]]]:
         """Lấy các mối quan hệ của một thực thể. Được thiết kế để xử lý linh hoạt mọi đầu vào."""
         """
         Gets all relationships for a specific entity.
@@ -208,9 +226,9 @@ class RelationshipService:
         
         try:  
             db = await self._get_db()
-            with db.session() as session:
+            async with db.session() as session:
                 print(f"Thực thi truy vấn Neo4j cho entity_id={entity_id}, entity_type={entity_type_mapped}")
-                result = session.read_transaction(
+                result = await session.read_transaction(
                     self._get_relationships_tx, 
                     entity_id,
                     entity_type_mapped,
@@ -233,7 +251,7 @@ class RelationshipService:
         direction: str,
         relationship_type: Optional[RelationshipType],
         related_entity_type: Optional[TargetEntityTypeEnum]
-    ) -> List[Relationship]:
+    ) -> List[Union[Relationship, Dict[str, Any]]]:
         """
         Transaction function for getting relationships.
         """
@@ -312,16 +330,34 @@ class RelationshipService:
         relationships = []
 
         for record in result:
-            relationships.append(
-                Relationship(
-                    source_id=record["source_id"],
-                    source_type=record["source_type"],
-                    target_id=record["target_id"],
-                    target_type=record["target_type"],
-                    type=record["type"],
-                    createdAt=record["createdAt"]
-                )
-            )
+            # Chuyển đổi neo4j.time.DateTime sang python datetime nếu cần
+            created_at = record["createdAt"]
+            if created_at and hasattr(created_at, 'to_native'):
+                created_at = created_at.to_native()
+            
+            # Tạo dictionary từ record
+            result_dict = {
+                "source_id": record["source_id"],
+                "source_type": record["source_type"],
+                "target_id": record["target_id"],
+                "target_type": record["target_type"],
+                "type": record["type"],
+                "createdAt": created_at
+            }
+            
+            # Thêm các thuộc tính khác nếu có
+            for key, value in record.items():
+                if key not in result_dict and key not in ["source_id", "source_type", "target_id", "target_type", "type", "createdAt"]:
+                    result_dict[key] = value
+            
+            try:
+                # Tạo đối tượng Relationship từ dictionary
+                relationship_obj = Relationship(**result_dict)
+                relationships.append(relationship_obj)
+            except Exception as e:
+                logging.warning(f"Không thể tạo đối tượng Relationship, thêm dictionary vào kết quả: {str(e)}")
+                # Nếu không tạo được đối tượng Relationship, thêm dictionary vào kết quả
+                relationships.append(normalize_dict_datetimes(result_dict))
         
         return relationships
 
@@ -333,30 +369,24 @@ class RelationshipService:
         target_type: TargetEntityTypeEnum,
         relationship_type: RelationshipType
     ) -> bool:
-        """
-        Deletes a relationship between two entities.
-        
-        Args:
-            source_id: The ID of the source entity
-            source_type: The type of the source entity
-            target_id: The ID of the target entity
-            target_type: The type of the target entity
-            relationship_type: The type of relationship to delete
-            
-        Returns:
-            True if the relationship was deleted, False otherwise
-        """
-        db = await self._get_db()
-        with db.session() as session:
-            result = session.execute_write(
-                self._delete_relationship_tx,
-                source_id,
-                source_type,
-                target_id,
-                target_type,
-                relationship_type
-            )
-            return result
+        """Xóa một mối quan hệ giữa hai thực thể."""
+        try:
+            print(f"\nDelete relationship: {source_id} -> {target_id} ({relationship_type})")
+            driver = await self._get_db()
+            async with driver.session() as session:
+                result = await session.execute_write(
+                    self._delete_relationship_tx,
+                    source_id,
+                    source_type,
+                    target_id,
+                    target_type,
+                    relationship_type
+                )
+                return result
+        except Exception as e:
+            logging.error(f"Lỗi khi xóa relationship: {str(e)}")
+            traceback.print_exc()
+            return False
 
     @staticmethod
     def _delete_relationship_tx(

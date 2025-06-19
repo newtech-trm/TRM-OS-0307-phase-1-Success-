@@ -9,6 +9,7 @@ from trm_api.models.relationships import Relationship
 from trm_api.models.pagination import PaginatedResponse
 from trm_api.models.resource import Resource
 from trm_api.models.agent import Agent
+from trm_api.adapters.decorators import adapt_project_response, adapt_ontology_response
 
 router = APIRouter()
 
@@ -20,6 +21,7 @@ def get_project_service() -> ProjectService:
     return ProjectService()
 
 @router.get("/", response_model=PaginatedResponse[Project])
+@adapt_project_response(response_item_key="items")
 async def list_projects(
     page: int = Query(1, ge=1, description="Page number, 1-indexed"),
     page_size: int = Query(10, ge=1, le=100, description="Number of items per page"),
@@ -32,6 +34,7 @@ async def list_projects(
     return PaginatedResponse.create(items=projects, total_count=total_count, page=page, page_size=page_size)
 
 @router.post("/", response_model=Project, status_code=status.HTTP_201_CREATED)
+@adapt_project_response()
 async def create_project(
     *, 
     project_in: ProjectCreate, 
@@ -53,6 +56,7 @@ async def create_project(
         )
 
 @router.get("/{project_id}", response_model=Project)
+@adapt_project_response()
 async def get_project(
     *, 
     project_id: str, 
@@ -70,6 +74,7 @@ async def get_project(
     return project
 
 @router.put("/{project_id}", response_model=Project)
+@adapt_project_response()
 async def update_project(
     *,
     project_id: str,
@@ -227,8 +232,9 @@ def assign_resource_to_project(
     
     return result
 
-@router.get("/{project_id}/resources", response_model=PaginatedResponse[Resource], status_code=status.HTTP_200_OK)
-def get_project_resources(
+@router.get("/{project_id}/resources", response_model=PaginatedResponse[Resource])
+@adapt_ontology_response(entity_type="resource", response_item_key="items")
+async def get_project_resources(
     *,
     project_id: str,
     page: int = Query(1, ge=1, description="Page number, 1-indexed"),
@@ -255,8 +261,9 @@ def get_project_resources(
         page_size=pagination.page_size
     )
 
-@router.get("/{project_id}/resources-with-relationships", response_model=List[Dict[str, Any]], status_code=status.HTTP_200_OK)
-def get_project_resources_with_relationships(
+@router.get("/{project_id}/resources-with-relationships", response_model=List[Dict[str, Any]])
+@adapt_ontology_response(entity_type="resource")
+async def get_project_resources_with_relationships(
     *,
     project_id: str,
     service: ProjectService = Depends(get_project_service)
@@ -359,8 +366,9 @@ def assign_manager_to_project(
     
     return result
 
-@router.get("/{project_id}/managers", response_model=List[Agent], status_code=status.HTTP_200_OK)
-def get_project_managers(
+@router.get("/{project_id}/managers", response_model=List[Agent])
+@adapt_ontology_response(entity_type="agent")
+async def get_project_managers(
     *,
     project_id: str,
     service: ProjectService = Depends(get_project_service)
@@ -375,8 +383,9 @@ def get_project_managers(
     
     return managers
 
-@router.get("/{project_id}/managers-with-relationships", response_model=List[Dict[str, Any]], status_code=status.HTTP_200_OK)
-def get_project_managers_with_relationships(
+@router.get("/{project_id}/managers-with-relationships", response_model=List[Dict[str, Any]])
+@adapt_ontology_response(entity_type="agent")
+async def get_project_managers_with_relationships(
     *,
     project_id: str,
     service: ProjectService = Depends(get_project_service)
@@ -442,8 +451,9 @@ def remove_manager_from_project(
 
 # --- Project-Project Relationship Endpoints (parent-child) ---
 
-@router.get("/{project_id}/subprojects", response_model=List[Project], status_code=status.HTTP_200_OK)
-def get_project_subprojects(
+@router.get("/{project_id}/subprojects", response_model=List[Project])
+@adapt_project_response()
+async def get_project_subprojects(
     *,
     project_id: str,
     service: ProjectService = Depends(get_project_service)

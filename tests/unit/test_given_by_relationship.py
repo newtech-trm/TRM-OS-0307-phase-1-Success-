@@ -1,6 +1,6 @@
 import pytest
 import uuid
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 from datetime import datetime
 
 from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
@@ -30,8 +30,9 @@ class TestGivenByRelationship:
             "createdAt": datetime.utcnow()
         }
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_create_given_by_relationship(self, mock_get_db):
+    async def test_create_given_by_relationship(self, mock_get_db):
         """Test creating a GIVEN_BY relationship from Agent to Recognition."""
         # Mock setup
         mock_session = MagicMock()
@@ -43,8 +44,24 @@ class TestGivenByRelationship:
         mock_result.single.return_value = mock_record
         mock_tx.run.return_value = mock_result
         
-        mock_session.execute_write = Mock(return_value=Relationship(**self.agent_recognition_relationship))
-        mock_get_db.return_value.session.return_value.__enter__.return_value = mock_session
+        # Chuẩn bị mock cho async
+        relationship_obj = Relationship(**self.agent_recognition_relationship)
+        
+        # Thiết lập mock đúng cách cho async
+        mock_execute_write = AsyncMock()
+        mock_execute_write.return_value = relationship_obj
+        mock_session.execute_write = mock_execute_write
+        
+        mock_session_context = AsyncMock()
+        mock_session_context.__aenter__.return_value = mock_session
+        mock_session_context.__aexit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        mock_db = MagicMock()
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
         
         # Create relationship properties
         rel_props = {
@@ -52,8 +69,8 @@ class TestGivenByRelationship:
             "notes": self.agent_recognition_relationship["notes"]
         }
         
-        # Execute test
-        result = self.service.create_relationship(
+        # Execute test with await
+        result = await self.service.create_relationship(
             source_id=self.agent_id,
             source_type=TargetEntityTypeEnum.AGENT,
             target_id=self.recognition_id,
@@ -64,27 +81,50 @@ class TestGivenByRelationship:
         
         # Assertions
         assert result is not None
-        assert result.source_id == self.agent_id
-        assert result.source_type == "Agent"
-        assert result.target_id == self.recognition_id
-        assert result.target_type == "Recognition"
-        assert result.type == "GIVEN_BY"
+        
+        # Kiểm tra kết quả có thể là đối tượng Relationship hoặc dictionary
+        if isinstance(result, dict):
+            assert result["source_id"] == self.agent_id
+            assert result["source_type"] == "Agent"
+            assert result["target_id"] == self.recognition_id
+            assert result["target_type"] == "Recognition"
+            assert result["type"] == "GIVEN_BY"
+        else:
+            assert result.source_id == self.agent_id
+            assert result.source_type == "Agent"
+            assert result.target_id == self.recognition_id
+            assert result.target_type == "Recognition"
+            assert result.type == "GIVEN_BY"
         
         # Verify mock was called correctly
         mock_session.execute_write.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_get_recognitions_given_by_agent(self, mock_get_db):
+    async def test_get_recognitions_given_by_agent(self, mock_get_db):
         """Test getting Recognitions given by an Agent."""
         # Mock setup
         mock_session = MagicMock()
         mock_relationships = [Relationship(**self.agent_recognition_relationship)]
         
-        mock_session.read_transaction = Mock(return_value=mock_relationships)
-        mock_get_db.return_value.session.return_value.__enter__.return_value = mock_session
+        # Thiết lập mock đúng cách cho async
+        mock_read_transaction = AsyncMock()
+        mock_read_transaction.return_value = mock_relationships
+        mock_session.read_transaction = mock_read_transaction
         
-        # Execute test
-        results = self.service.get_relationships(
+        mock_session_context = AsyncMock()
+        mock_session_context.__aenter__.return_value = mock_session
+        mock_session_context.__aexit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        mock_db = MagicMock()
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
+        
+        # Execute test with await
+        results = await self.service.get_relationships(
             entity_id=self.agent_id,
             entity_type=TargetEntityTypeEnum.AGENT,
             direction="outgoing",
@@ -101,18 +141,32 @@ class TestGivenByRelationship:
         # Verify mock was called correctly
         mock_session.read_transaction.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_get_agents_giving_recognition(self, mock_get_db):
+    async def test_get_agents_giving_recognition(self, mock_get_db):
         """Test getting Agents that gave a Recognition."""
         # Mock setup
         mock_session = MagicMock()
         mock_relationships = [Relationship(**self.agent_recognition_relationship)]
         
-        mock_session.read_transaction = Mock(return_value=mock_relationships)
-        mock_get_db.return_value.session.return_value.__enter__.return_value = mock_session
+        # Thiết lập mock đúng cách cho async
+        mock_read_transaction = AsyncMock()
+        mock_read_transaction.return_value = mock_relationships
+        mock_session.read_transaction = mock_read_transaction
         
-        # Execute test
-        results = self.service.get_relationships(
+        mock_session_context = AsyncMock()
+        mock_session_context.__aenter__.return_value = mock_session
+        mock_session_context.__aexit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        mock_db = MagicMock()
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
+        
+        # Execute test with await
+        results = await self.service.get_relationships(
             entity_id=self.recognition_id,
             entity_type=TargetEntityTypeEnum.RECOGNITION,
             direction="incoming",
@@ -129,8 +183,9 @@ class TestGivenByRelationship:
         # Verify mock was called correctly
         mock_session.read_transaction.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_delete_given_by_relationship(self, mock_get_db):
+    async def test_delete_given_by_relationship(self, mock_get_db):
         """Test deleting a GIVEN_BY relationship."""
         # Mock setup
         mock_session = MagicMock()
@@ -143,11 +198,24 @@ class TestGivenByRelationship:
         mock_tx = MagicMock()
         mock_tx.run.return_value = mock_result
         
-        mock_session.execute_write = Mock(return_value=True)
-        mock_get_db.return_value.session.return_value.__enter__.return_value = mock_session
+        # Thiết lập mock đúng cách cho async
+        mock_execute_write = AsyncMock()
+        mock_execute_write.return_value = True
+        mock_session.execute_write = mock_execute_write
         
-        # Execute test
-        result = self.service.delete_relationship(
+        mock_session_context = AsyncMock()
+        mock_session_context.__aenter__.return_value = mock_session
+        mock_session_context.__aexit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        mock_db = MagicMock()
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
+        
+        # Execute test with await
+        result = await self.service.delete_relationship(
             source_id=self.agent_id,
             source_type=TargetEntityTypeEnum.AGENT,
             target_id=self.recognition_id,
@@ -161,8 +229,9 @@ class TestGivenByRelationship:
         # Verify mock was called correctly
         mock_session.execute_write.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_delete_given_by_relationship_not_found(self, mock_get_db):
+    async def test_delete_given_by_relationship_not_found(self, mock_get_db):
         """Test deleting a non-existent GIVEN_BY relationship."""
         # Mock setup
         mock_session = MagicMock()
@@ -175,11 +244,24 @@ class TestGivenByRelationship:
         mock_tx = MagicMock()
         mock_tx.run.return_value = mock_result
         
-        mock_session.execute_write = Mock(return_value=False)
-        mock_get_db.return_value.session.return_value.__enter__.return_value = mock_session
+        # Thiết lập mock đúng cách cho async
+        mock_execute_write = AsyncMock()
+        mock_execute_write.return_value = False
+        mock_session.execute_write = mock_execute_write
         
-        # Execute test
-        result = self.service.delete_relationship(
+        mock_session_context = AsyncMock()
+        mock_session_context.__aenter__.return_value = mock_session
+        mock_session_context.__aexit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        mock_db = MagicMock()
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
+        
+        # Execute test with await
+        result = await self.service.delete_relationship(
             source_id=self.agent_id,
             source_type=TargetEntityTypeEnum.AGENT,
             target_id=self.recognition_id,

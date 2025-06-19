@@ -30,7 +30,8 @@ class KnowledgeSnippetUpdate(BaseModel):
     tags: Optional[List[str]] = None
 
 class KnowledgeSnippetInDB(KnowledgeSnippetBase):
-    snippet_id: str = Field(alias="snippetId", default_factory=lambda: str(uuid.uuid4()))
+    uid: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    snippet_id: Optional[str] = Field(alias="snippetId", default=None, description="Legacy ID field, maintained for backward compatibility")
     created_at: datetime = Field(alias="createdAt", default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = Field(alias="updatedAt", default=None)
     version: int = Field(1, description="Version number, incremented on each update.")

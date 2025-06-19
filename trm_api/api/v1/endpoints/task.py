@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Any, List, Dict, Optional
 
+from trm_api.adapters.decorators import adapt_task_response, adapt_ontology_response
+
 from trm_api.models.pagination import PaginatedResponse
-from trm_api.adapters.decorators import adapt_datetime_response
 
 from trm_api.models.task import Task, TaskCreate, TaskUpdate
 from trm_api.services.task_service import TaskService
@@ -14,7 +15,7 @@ async def get_task_service() -> TaskService:
     return TaskService()
 
 @router.get("/", response_model=PaginatedResponse[Task])
-@adapt_datetime_response
+@adapt_task_response(response_item_key="items")
 async def list_tasks_for_project(
     *, 
     project_id: str,
@@ -33,7 +34,7 @@ async def list_tasks_for_project(
     )
 
 @router.post("/", response_model=Task, status_code=status.HTTP_201_CREATED)
-@adapt_datetime_response
+@adapt_task_response()
 async def create_task(
     *, 
     task_in: TaskCreate, 
@@ -52,7 +53,7 @@ async def create_task(
     return created_task
 
 @router.get("/{task_id}", response_model=Task)
-@adapt_datetime_response
+@adapt_task_response()
 async def get_task(
     *, 
     task_id: str, 
@@ -70,7 +71,7 @@ async def get_task(
     return task
 
 @router.put("/{task_id}", response_model=Task)
-@adapt_datetime_response
+@adapt_task_response()
 async def update_task(
     *, 
     task_id: str,
@@ -108,7 +109,7 @@ async def delete_task(
 # --- Task Assignment Endpoints ---
 
 @router.post("/{task_id}/assign/user/{user_id}", status_code=status.HTTP_200_OK)
-@adapt_datetime_response
+@adapt_task_response()
 async def assign_task_to_user(
     *,
     task_id: str,
@@ -151,7 +152,7 @@ async def assign_task_to_user(
     }
 
 @router.post("/{task_id}/assign/agent/{agent_id}", status_code=status.HTTP_200_OK)
-@adapt_datetime_response
+@adapt_task_response()
 async def assign_task_to_agent(
     *,
     task_id: str,
@@ -194,7 +195,7 @@ async def assign_task_to_agent(
     }
 
 @router.get("/{task_id}/assignees", status_code=status.HTTP_200_OK)
-@adapt_datetime_response
+@adapt_task_response()
 async def get_task_assignees(
     *,
     task_id: str,
@@ -221,7 +222,7 @@ async def get_task_assignees(
     return assignees
 
 @router.post("/{task_id}/accept", status_code=status.HTTP_200_OK)
-@adapt_datetime_response
+@adapt_task_response()
 async def accept_task_assignment(
     *,
     task_id: str,

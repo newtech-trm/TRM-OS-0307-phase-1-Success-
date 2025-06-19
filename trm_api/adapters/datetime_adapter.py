@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any, Union, List
 from datetime import datetime
 
 def normalize_datetime(dt_value: Any) -> Optional[str]:
@@ -50,35 +50,115 @@ def normalize_datetime(dt_value: Any) -> Optional[str]:
         logging.error(f"Error converting datetime to ISO format: {e}")
         return None
 
-def normalize_dict_datetimes(data: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_dict_datetimes(data: Dict[str, Any], depth: int = 0, max_depth: int = 10) -> Dict[str, Any]:
     """
-    Chuẩn hóa tất cả các trường datetime trong một dictionary.
+    Chuẩn hóa tất cả các trường datetime trong một dictionary, hỗ trợ cấu trúc lồng sâu.
     
     Args:
         data: Dictionary cần xử lý
+        depth: Độ sâu hiện tại của đệ quy (mặc định: 0)
+        max_depth: Độ sâu tối đa cho phép để tránh đệ quy vô tận (mặc định: 10)
         
     Returns:
         Dictionary với các trường datetime đã được chuẩn hóa
     """
-    if not isinstance(data, dict):
+    # Xử lý giá trị None
+    if data is None:
+        return None
+    
+    # Trường hợp cơ sở hoặc để tránh đệ quy quá sâu
+    if not isinstance(data, dict) or depth >= max_depth:
+        if isinstance(data, datetime):
+            return normalize_datetime(data)
+        elif hasattr(data, 'to_native'):  # Xử lý trường hợp Neo4j datetime trực tiếp
+            try:
+                return normalize_datetime(data)
+            except Exception:
+                return data
         return data
         
-    result = {}
-    for key, value in data.items():
-        # Xử lý các trường thường là datetime (cả snake_case và camelCase)
-        if key.lower() in ['created_at', 'createdat', 'updated_at', 'updatedat', 'start_date', 'startdate', 'end_date', 'enddate', 'due_date', 'duedate', 'target_end_date'] or key in ['createdAt', 'updatedAt', 'startDate', 'endDate', 'dueDate', 'targetEndDate']:
-            result[key] = normalize_datetime(value)
-        # Xử lý các giá trị là dict
-        elif isinstance(value, dict):
-            result[key] = normalize_dict_datetimes(value)
-        # Xử lý các giá trị là list
-        elif isinstance(value, list):
-            result[key] = [
-                normalize_dict_datetimes(item) if isinstance(item, dict) else item 
-                for item in value
-            ]
-        # Các giá trị khác giữ nguyên
+    # Danh sách các trường có khả năng là datetime
+    datetime_fields = [
+        # Snake case format
+        'created_at', 'createdat', 'updated_at', 'updatedat', 
+        'start_date', 'startdate', 'end_date', 'enddate', 
+        'due_date', 'duedate', 'target_end_date', 
+        'actual_completion_date', 'actualcompletiondate',
+        'creation_date', 'creationdate', 'last_modified_date', 
+        'lastmodifieddate', 'submission_date', 'submissiondate',
+        'expiration_date', 'expirationdate', 'publication_date',
+        'publicationdate', 'recognition_date', 'recognitiondate',
+        'review_date', 'reviewdate', 'timestamp', 'date',
+        
+        # Camel case format
+        'createdAt', 'updatedAt', 'startDate', 'endDate', 'dueDate', 
+        'targetEndDate', 'actualCompletionDate', 'creationDate', 
+        'lastModifiedDate', 'submissionDate', 'expirationDate', 
+        'publicationDate', 'recognitionDate', 'reviewDate'
+    ]
+    
+    try:
+        result = {}
+        for key, value in data.items():
+            # 1. Xử lý trường hợp value có phương thức to_native như Neo4j datetime
+            if hasattr(value, 'to_native'): 
+                result[key] = normalize_datetime(value)
+                
+            # 2. Xử lý các trường thường là datetime (cả snake_case và camelCase)
+            elif isinstance(value, datetime) or (key.lower() in datetime_fields or key in datetime_fields):
+                result[key] = normalize_datetime(value)
+                
+            # 3. Xử lý các giá trị là dict lồng nhau
+            elif isinstance(value, dict):
+                result[key] = normalize_dict_datetimes(value, depth + 1, max_depth)
+                
+            # 4. Xử lý các trường hợp list chứa dict hoặc list lồng nhau
+            elif isinstance(value, list):
+                result[key] = _normalize_list_items(value, depth + 1, max_depth)
+                
+            # 5. Các giá trị khác giữ nguyên
+            else:
+                result[key] = value
+                
+        return result
+    except Exception as e:
+        logging.error(f"Error in normalize_dict_datetimes at depth {depth}: {e}")
+        return data  # Trả về dữ liệu gốc nếu có lỗi
+
+
+def _normalize_list_items(items: List[Any], depth: int = 0, max_depth: int = 10) -> List[Any]:
+    """
+    Hàm hỗ trợ để chuẩn hóa các phần tử trong danh sách (list).
+    
+    Args:
+        items: Danh sách các phần tử cần chuẩn hóa
+        depth: Độ sâu hiện tại của đệ quy
+        max_depth: Độ sâu tối đa cho phép
+        
+    Returns:
+        Danh sách sau khi đã chuẩn hóa datetime
+    """
+    if items is None or depth >= max_depth:
+        return items
+    
+    if not isinstance(items, list):
+        # Nếu không phải list, trả về nguyên giá trị
+        return items
+        
+    result = []
+    for item in items:
+        if isinstance(item, dict):
+            # Xử lý dict trong list
+            result.append(normalize_dict_datetimes(item, depth + 1, max_depth))
+        elif isinstance(item, list):
+            # Xử lý list lồng nhau
+            result.append(_normalize_list_items(item, depth + 1, max_depth))
+        elif isinstance(item, datetime):
+            # Xử lý datetime trực tiếp
+            result.append(normalize_datetime(item))
+        elif hasattr(item, 'to_native'):  # Neo4j datetime
+            result.append(normalize_datetime(item))
         else:
-            result[key] = value
-            
+            # Các loại dữ liệu khác giữ nguyên
+            result.append(item)
     return result

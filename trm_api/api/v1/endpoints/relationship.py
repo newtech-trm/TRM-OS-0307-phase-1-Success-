@@ -5,7 +5,7 @@ from enum import Enum
 
 from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
 from trm_api.services.relationship_service import relationship_service, RelationshipService
-from trm_api.adapters.decorators import adapt_datetime_response
+from trm_api.adapters.decorators import adapt_ontology_response
 
 router = APIRouter()
 
@@ -15,7 +15,7 @@ class DirectionEnum(str, Enum):
     BOTH = "both"
 
 @router.post("/", response_model=Relationship, status_code=status.HTTP_201_CREATED)
-@adapt_datetime_response()
+@adapt_ontology_response(entity_type="relationship")
 async def create_relationship(
     source_id: str,
     source_type: TargetEntityTypeEnum,
@@ -54,7 +54,7 @@ async def create_relationship(
     return relationship
 
 @router.get("/", response_model=List[Relationship])
-@adapt_datetime_response()
+@adapt_ontology_response(entity_type="relationship")
 async def get_relationships(
     entity_id: Optional[str] = None,
     entity_type: Optional[str] = None,
@@ -95,7 +95,7 @@ async def get_relationships(
         return []
 
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
-@adapt_datetime_response()
+@adapt_ontology_response(entity_type="relationship")
 async def delete_relationship(
     source_id: str,
     source_type: TargetEntityTypeEnum,
@@ -134,7 +134,7 @@ async def delete_relationship(
 # --- Specific Named Relationship Endpoints ---
 
 @router.post("/creates-knowledge", response_model=Relationship)
-@adapt_datetime_response()
+@adapt_ontology_response(entity_type="relationship")
 async def create_creates_knowledge_relationship(
     source_id: str,
     source_type: TargetEntityTypeEnum,
@@ -175,7 +175,7 @@ async def create_creates_knowledge_relationship(
     return relationship
 
 @router.post("/uses-knowledge", response_model=Relationship)
-@adapt_datetime_response()
+@adapt_ontology_response(entity_type="relationship")
 async def create_uses_knowledge_relationship(
     source_id: str,
     source_type: TargetEntityTypeEnum,
@@ -216,7 +216,7 @@ async def create_uses_knowledge_relationship(
     return relationship
 
 @router.post("/triggered-by", response_model=Relationship)
-@adapt_datetime_response()
+@adapt_ontology_response(entity_type="relationship")
 async def create_triggered_by_relationship(
     source_id: str,
     source_type: TargetEntityTypeEnum,

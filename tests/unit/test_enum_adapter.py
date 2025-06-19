@@ -6,7 +6,10 @@ from trm_api.adapters.enum_adapter import (
     normalize_win_status,
     normalize_win_type,
     normalize_recognition_type,
-    normalize_recognition_status
+    normalize_recognition_status,
+    normalize_task_type,
+    normalize_task_status,
+    normalize_knowledge_snippet_type
 )
 
 class TestEnumAdapter:
@@ -129,3 +132,65 @@ class TestEnumAdapter:
         # Giá trị không hợp lệ
         assert normalize_recognition_status(None) == "draft"  # default
         assert normalize_recognition_status("unknown") == "draft"  # default
+
+    def test_normalize_task_type(self):
+        """Test normalize_task_type với các trường hợp phổ biến."""
+        # Giá trị chính xác
+        assert normalize_task_type("feature") == "feature"
+        assert normalize_task_type("bug") == "bug"
+        assert normalize_task_type("chore") == "chore"
+        
+        # Giá trị tương tự
+        assert normalize_task_type("Feature") == "feature"
+        assert normalize_task_type("BUG") == "bug"
+        assert normalize_task_type("Chore") == "chore"
+        
+        # Giá trị không hợp lệ
+        assert normalize_task_type(None) is None  # không có default
+        
+        # Fuzzy matching
+        with patch("logging.warning"):
+            assert normalize_task_type("doc") == "documentation"
+            assert normalize_task_type("research task") == "research"
+    
+    def test_normalize_task_status(self):
+        """Test normalize_task_status với các trường hợp phổ biến."""
+        # Giá trị chính xác
+        assert normalize_task_status("todo") == "todo"
+        assert normalize_task_status("inprogress") == "inprogress"
+        assert normalize_task_status("done") == "done"
+        
+        # Giá trị tương tự
+        assert normalize_task_status("ToDo") == "todo"
+        assert normalize_task_status("In Progress") == "inprogress"
+        assert normalize_task_status("DONE") == "done"
+        
+        # Giá trị không hợp lệ
+        assert normalize_task_status(None) == "todo"  # default
+        assert normalize_task_status("unknown") == "todo"  # default
+        
+        # Fuzzy matching
+        with patch("logging.warning"):
+            assert normalize_task_status("progress") == "inprogress"
+            assert normalize_task_status("review") == "inreview"
+    
+    def test_normalize_knowledge_snippet_type(self):
+        """Test normalize_knowledge_snippet_type với các trường hợp phổ biến."""
+        # Giá trị chính xác
+        assert normalize_knowledge_snippet_type("best_practice") == "best_practice"
+        assert normalize_knowledge_snippet_type("lesson_learned") == "lesson_learned"
+        assert normalize_knowledge_snippet_type("technical_note") == "technical_note"
+        
+        # Giá trị tương tự
+        assert normalize_knowledge_snippet_type("Best Practice") == "best_practice"
+        assert normalize_knowledge_snippet_type("LESSON LEARNED") == "lesson_learned"
+        assert normalize_knowledge_snippet_type("Technical Note") == "technical_note"
+        
+        # Giá trị không hợp lệ
+        assert normalize_knowledge_snippet_type(None) is None  # không có default
+        
+        # Fuzzy matching
+        with patch("logging.warning"):
+            assert normalize_knowledge_snippet_type("practice") == "best_practice"
+            assert normalize_knowledge_snippet_type("lesson") == "lesson_learned"
+            assert normalize_knowledge_snippet_type("note") == "technical_note"

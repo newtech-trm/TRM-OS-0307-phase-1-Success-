@@ -1,19 +1,23 @@
 import pytest
-from fastapi.testclient import TestClient
+import pytest_asyncio
+from httpx import AsyncClient
 from datetime import datetime
 import uuid
 
 from trm_api.main import app
+from tests.conftest import get_test_client
 
 
-@pytest.fixture
-def client():
-    return TestClient(app)
+@pytest_asyncio.fixture
+async def client():
+    return await get_test_client()
 
 
-def test_simple_recognition(client):
+@pytest.mark.asyncio
+async def test_simple_recognition(client):
     """
     Test tối thiểu chỉ tạo Recognition với các trường bắt buộc và không có relationship.
+    Đã cập nhật để sử dụng AsyncClient và kiểm tra trường uid thay vì id.
     """
     # Tạo dữ liệu tối thiểu cho recognition với các trường bắt buộc
     recognition_data = {
@@ -26,8 +30,8 @@ def test_simple_recognition(client):
         "value_level": "3"
     }
     
-    # Gọi API tạo recognition
-    response = client.post("/api/v1/recognitions/", json=recognition_data)
+    # Gọi API tạo recognition với async client
+    response = await client.post("/api/v1/recognitions/", json=recognition_data)
     
     # In response để debug
     print("Response status code:", response.status_code)
@@ -35,3 +39,8 @@ def test_simple_recognition(client):
     
     # Kiểm tra response status code
     assert response.status_code == 201
+    
+    # Kiểm tra kết quả trả về có trường uid
+    response_data = response.json()
+    assert "uid" in response_data
+    assert isinstance(response_data["uid"], str)
