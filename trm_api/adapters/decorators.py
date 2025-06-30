@@ -7,9 +7,11 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 
 from fastapi import Response
-from fastapi.responses import JSONResponse
 
-from .datetime_adapter import normalize_dict_datetimes
+# Import các adapter mới
+from .data_adapters import DatetimeAdapter, EnumAdapter, BaseEntityAdapter
+from .entity_adapters import get_entity_adapter
+from .datetime_adapter import normalize_dict_datetimes  # Giữ lại để tương thích ngược
 
 
 def _process_items(items: Any, adapt_datetime: bool, adapt_enums: Optional[List[Dict[str, Any]]]) -> Any:
@@ -360,48 +362,112 @@ def adapt_ontology_response(
     Returns:
         Decorator function đã được wrap với các adapter phù hợp
     """
-    # Import lazy để tránh circular dependency
-    from .enum_adapter import (
-        normalize_win_status, normalize_win_type,
-        normalize_recognition_status, normalize_recognition_type,
-        normalize_task_status, normalize_task_type,
-        normalize_knowledge_snippet_type
-    )
-    
-    # Xem entity_type được chỉ định thuộc loại nào
-    adapters = []
-    
-    if entity_type:
-        entity_type = entity_type.lower().strip()
+    # Tương thích ngược: Import lazy để tránh circular dependency cho code cũ
+    try:
+        from .enum_adapter import (
+            normalize_win_status, normalize_win_type,
+            normalize_recognition_status, normalize_recognition_type,
+            normalize_task_status, normalize_task_type,
+            normalize_knowledge_snippet_type
+        )
         
-        # Áp dụng các adapter cho entity_type tương ứng
-        if entity_type == 'win':
-            adapters.extend([
-                {"field": "status", "adapter": normalize_win_status},
-                {"field": "winType", "adapter": normalize_win_type}
-            ])
-        elif entity_type == 'recognition':
-            adapters.extend([
-                {"field": "status", "adapter": normalize_recognition_status},
-                {"field": "recognitionType", "adapter": normalize_recognition_type}
-            ])
-        elif entity_type == 'task':
-            adapters.extend([
-                {"field": "task_type", "adapter": normalize_task_type},
-                {"field": "status", "adapter": normalize_task_status}
-            ])
-        elif entity_type == 'knowledge_snippet':
-            adapters.append(
-                {"field": "snippet_type", "adapter": normalize_knowledge_snippet_type}
-            )
-    
-    # Thêm các adapter tùy chỉnh nếu có
-    if custom_adapters:
-        adapters.extend(custom_adapters)
-    
-    # Gọi decorator cơ bản với các tham số đã được xử lý
-    return adapt_response(
-        response_item_key=response_item_key,
-        adapt_datetime=adapt_datetime,
-        adapt_enums=adapters
-    )
+        # Xem entity_type được chỉ định thuộc loại nào
+        adapters = []
+        
+        if entity_type:
+            entity_type = entity_type.lower().strip()
+            
+            # Áp dụng các adapter cho entity_type tương ứng
+            if entity_type == 'win':
+                adapters.extend([
+                    {"field": "status", "adapter": normalize_win_status},
+                    {"field": "winType", "adapter": normalize_win_type}
+                ])
+            elif entity_type == 'recognition':
+                adapters.extend([
+                    {"field": "status", "adapter": normalize_recognition_status},
+                    {"field": "recognitionType", "adapter": normalize_recognition_type}
+                ])
+            elif entity_type == 'task':
+                adapters.extend([
+                    {"field": "task_type", "adapter": normalize_task_type},
+                    {"field": "status", "adapter": normalize_task_status}
+                ])
+            elif entity_type == 'knowledge_snippet':
+                adapters.append(
+                    {"field": "snippet_type", "adapter": normalize_knowledge_snippet_type}
+                )
+        
+        # Thêm các adapter tùy chỉnh nếu có
+        if custom_adapters:
+            adapters.extend(custom_adapters)
+        
+        # Logging về việc sử dụng adapter mới
+        logging.info(f"Using new entity adapter system for entity type: {entity_type}")
+        
+        # Định nghĩa decorator cho phiên bản mới
+        def decorator(func: Callable) -> Callable:
+            @functools.wraps(func)
+            async def wrapper(*args, **kwargs):
+                try:
+                    # Gọi endpoint function gốc
+                    result = await func(*args, **kwargs)
+                    
+                    # Nếu kết quả là None hoặc Response, trả về ngay
+                    if result is None or isinstance(result, Response):
+                        return result
+                        
+                    # Sử dụng adapter mới thông qua factory pattern
+                    if entity_type:
+                        # Lấy entity adapter phù hợp
+                        entity_adapter = get_entity_adapter(entity_type, adapt_datetime, True)
+                        
+                        # Xử lý trường hợp collection
+                        if response_item_key and isinstance(result, dict) and response_item_key in result:
+                            # Áp dụng adapter cho collection
+                            result[response_item_key] = entity_adapter.apply_to_collection(result[response_item_key])
+                        elif isinstance(result, list):
+                            # Áp dụng adapter cho danh sách
+                            result = entity_adapter.apply_to_collection(result)
+                        else:
+                            # Áp dụng adapter cho single entity
+                            result = entity_adapter.apply_to_entity(result)
+                    else:
+                        # Nếu không chỉ định entity_type, sử dụng adapter cơ bản
+                        base_adapter = BaseEntityAdapter(adapt_datetime, False)
+                        
+                        # Xử lý trường hợp collection
+                        if response_item_key and isinstance(result, dict) and response_item_key in result:
+                            # Áp dụng adapter cho collection
+                            result[response_item_key] = base_adapter.apply_to_collection(result[response_item_key])
+                        elif isinstance(result, list):
+                            # Áp dụng adapter cho danh sách
+                            result = base_adapter.apply_to_collection(result)
+                        else:
+                            # Áp dụng adapter cho single entity
+                            result = base_adapter.apply_to_entity(result)
+                    
+                    return result
+                    
+                except HTTPException as http_ex:
+                    # Cho phép FastAPI xử lý HTTPException
+                    raise http_ex
+                except Exception as e:
+                    # Log lỗi và trả về 500
+                    logging.error(f"Error in adapt_ontology_response: {str(e)}")
+                    error_response = JSONResponse(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        content={"detail": f"Internal Server Error: {str(e)}"})
+                    return error_response
+            return wrapper
+            
+        return decorator
+            
+    except ImportError as e:
+        # Fallback cho phiên bản cũ nếu chưa có module mới
+        logging.warning(f"Using legacy adapter system: {e}")
+        return adapt_response(
+            response_item_key=response_item_key,
+            adapt_datetime=adapt_datetime,
+            adapt_enums=custom_adapters
+        )

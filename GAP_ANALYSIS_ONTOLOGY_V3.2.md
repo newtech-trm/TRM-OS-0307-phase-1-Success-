@@ -65,7 +65,7 @@
 
 1. **Tạo một Data Adapter Module trung tâm**:
 
-   ```python
+```python
    # trm_api/adapters/data_adapters.py
    class DatetimeAdapter:
        @staticmethod
@@ -150,6 +150,7 @@ Việc cập nhật Pydantic v2 cũng cho thấy tầm quan trọng của việc
 ## Entity GAP Analysis
 
 | Entity trong Ontology V3.2 | Trạng thái hiện tại | Chi tiết GAP (Dựa trên OpenAPI và Ontology V3.2) |
+| --- | --- | --- |
 
 | Relationship trong Ontology V3.2 | Trạng thái hiện tại | Chi tiết GAP (Dựa trên OpenAPI và Ontology V3.2) |
 |----------------------------------|---------------------|---------------------------------------------------|

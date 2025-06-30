@@ -5249,3 +5249,81 @@ s\devpc\AppData\Local\Programs\Python\Python313\python.exe
 2025-06-30 16:58:35.738521: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
 2025-06-30 16:58:35.738521: PYTHONPATH: None
 2025-06-30 16:58:35.738521: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:41:24.815252: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:41:24.815252: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:41:24.815252: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:41:24.815252: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:41:24.815252: PYTHONPATH: None
+2025-06-30 17:41:24.816251: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:42:53.554300: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:42:53.554300: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:42:53.554300: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:42:53.554300: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:42:53.555299: PYTHONPATH: None
+2025-06-30 17:42:53.555299: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:45:04.299424: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:45:04.299424: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:45:04.299934: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:45:04.299934: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:45:04.299934: PYTHONPATH: None
+2025-06-30 17:45:04.300444: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:46:18.901739: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:46:18.903242: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:46:18.903242: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:46:18.903242: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:46:18.903242: PYTHONPATH: None
+2025-06-30 17:46:18.903784: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:48:15.345829: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:48:15.346333: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:48:15.346333: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:48:15.346333: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:48:15.346333: PYTHONPATH: None
+2025-06-30 17:48:15.346888: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:50:31.278812: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:50:31.278812: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:50:31.278812: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:50:31.278812: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:50:31.278812: PYTHONPATH: None
+2025-06-30 17:50:31.278812: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:51:24.990350: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:51:24.991356: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:51:24.991356: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:51:24.991356: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:51:24.991356: PYTHONPATH: None
+2025-06-30 17:51:24.991356: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:52:54.113613: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:52:54.113613: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:52:54.113613: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:52:54.113613: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:52:54.114632: PYTHONPATH: None
+2025-06-30 17:52:54.114632: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:54:15.068556: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:54:15.068556: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:54:15.069602: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:54:15.069602: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:54:15.069602: PYTHONPATH: None
+2025-06-30 17:54:15.069602: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:55:17.347701: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:55:17.347701: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:55:17.347701: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:55:17.348204: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:55:17.348204: PYTHONPATH: None
+2025-06-30 17:55:17.348204: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:55:25.922370: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:55:25.922370: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:55:25.922370: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:55:25.922370: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:55:25.922370: PYTHONPATH: None
+2025-06-30 17:55:25.922370: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:57:10.213451: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:57:10.214863: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:57:10.214863: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:57:10.214863: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:57:10.214863: PYTHONPATH: None
+2025-06-30 17:57:10.214863: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
+2025-06-30 17:59:54.091515: --- Uvicorn/FastAPI Startup --- 
+2025-06-30 17:59:54.091515: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\.venv\Scripts\python.exe
+2025-06-30 17:59:54.091515: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
+2025-06-30 17:59:54.091515: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-06-30 17:59:54.091515: PYTHONPATH: None
+2025-06-30 17:59:54.091515: VIRTUAL_ENV: E:\tech\trm-os-branches\.venv
