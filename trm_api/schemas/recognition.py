@@ -70,8 +70,9 @@ class Recognition(RecognitionBase):
     created_at: Optional[str] = Field(None, description="Creation timestamp (ISO format)")
     updated_at: Optional[str] = Field(None, description="Last update timestamp (ISO format)")
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class RecognitionUpdate(BaseModel):

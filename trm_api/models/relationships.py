@@ -78,6 +78,7 @@ class Relationship(BaseModel):
     directContribution: bool = None
     relationshipId: str = None
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = {
+        "from_attributes": True,
+        "populate_by_name": True
+    }

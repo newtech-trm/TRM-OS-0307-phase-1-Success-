@@ -13,10 +13,10 @@ class EventCreate(EventBase):
     context_uid: Optional[str] = Field(None, description="UID of the primary entity this event relates to (e.g., Project UID, Task UID).")
     context_node_label: Optional[str] = Field(None, description="Node label of the primary context entity (e.g., 'Project', 'Task'). Required if context_uid is provided.")
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True,
         # For OpenAPI example
-        json_schema_extra = {
+        "json_schema_extra": {
             "example": {
                 "name": "TASK_COMPLETED",
                 "description": "User John Doe completed task 'Implement Feature X'.",
@@ -27,6 +27,7 @@ class EventCreate(EventBase):
                 "context_node_label": "Task"
             }
         }
+    }
 
 class Event(EventBase): # For response model, inherits from EventBase
     uid: str
@@ -37,9 +38,9 @@ class Event(EventBase): # For response model, inherits from EventBase
     # triggered_by_actor: Optional[Any] # Simplified for now, can be a specific Actor schema
     # primary_context_entity: Optional[Any] # Simplified for now
 
-    class Config:
-        from_attributes = True
-        json_schema_extra = {
+    model_config = {
+        "from_attributes": True,
+        "json_schema_extra": {
             "example": {
                 "uid": "event_unique_id",
                 "name": "TASK_COMPLETED",
@@ -50,3 +51,4 @@ class Event(EventBase): # For response model, inherits from EventBase
                 "updated_at": "2024-01-01T12:00:00Z"
             }
         }
+    }

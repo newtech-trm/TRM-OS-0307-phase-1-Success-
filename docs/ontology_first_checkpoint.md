@@ -47,6 +47,7 @@ TRM-OS là một hệ thống quản lý tri thức và workflow dựa trên ont
   - RECOGNIZES_CONTRIBUTION_TO (Recognition -> [Project, Task, Resource])
   - GENERATES_KNOWLEDGE (WIN -> KnowledgeSnippet)
   - LEADS_TO_WIN (Project/Event -> WIN)
+- ✅ **Pydantic v2 Migration**: Đã cập nhật tất cả model từ `class Config` cũ sang `model_config` với `ConfigDict` phù hợp với Pydantic v2
 
 ### Chuyển đổi Async hoàn chỉnh
 

@@ -55,9 +55,10 @@ class WINInDB(WINBase):
     created_at: datetime = Field(..., description="Thời điểm WIN được tạo")
     updated_at: datetime = Field(..., description="Thời điểm WIN được cập nhật lần cuối")
 
-    class Config:
-        from_attributes = True
-        populate_by_name = True
+    model_config = {
+        "from_attributes": True,
+        "populate_by_name": True
+    }
 
 # Schema cho việc hiển thị WIN
 class WIN(WINInDB):
