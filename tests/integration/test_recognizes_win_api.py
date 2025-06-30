@@ -66,14 +66,15 @@ class TestRecognizesWinAPI:
         # Verify service was called correctly
         mock_service.create_relationship.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_create_recognizes_win_relationship_entities_not_found(self, mock_service):
+    async def test_create_recognizes_win_relationship_entities_not_found(self, mock_service):
         """Test creating a RECOGNIZES_WIN relationship when entities don't exist."""
         # Set up mock
-        mock_service.create_relationship.return_value = None
+        mock_service.create_relationship = AsyncMock(return_value=None)
         
         # Call API
-        response = client.post(
+        response = await self.client.post(
             f"/api/v1/relationships/recognizes-win?recognition_id={self.recognition_id}&win_id={self.win_id}",
             json=self.recognizes_win_request
         )
@@ -84,14 +85,15 @@ class TestRecognizesWinAPI:
         # Verify service was called correctly
         mock_service.create_relationship.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_get_wins_recognized_by_recognition(self, mock_service):
+    async def test_get_wins_recognized_by_recognition(self, mock_service):
         """Test getting WINs recognized by a Recognition."""
         # Set up mock
-        mock_service.get_relationships.return_value = [Relationship(**self.recognition_win_relationship)]
+        mock_service.get_relationships = AsyncMock(return_value=[Relationship(**self.recognition_win_relationship)])
         
         # Call API
-        response = client.get(f"/api/v1/relationships/recognitions/{self.recognition_id}/recognizes-wins")
+        response = await self.client.get(f"/api/v1/relationships/recognitions/{self.recognition_id}/recognizes-wins")
         
         # Assertions
         assert response.status_code == status.HTTP_200_OK
@@ -104,14 +106,15 @@ class TestRecognizesWinAPI:
         # Verify service was called correctly
         mock_service.get_relationships.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_get_recognitions_for_win(self, mock_service):
+    async def test_get_recognitions_for_win(self, mock_service):
         """Test getting Recognitions for a WIN."""
         # Set up mock
-        mock_service.get_relationships.return_value = [Relationship(**self.recognition_win_relationship)]
+        mock_service.get_relationships = AsyncMock(return_value=[Relationship(**self.recognition_win_relationship)])
         
         # Call API
-        response = client.get(f"/api/v1/relationships/wins/{self.win_id}/recognized-by")
+        response = await self.client.get(f"/api/v1/relationships/wins/{self.win_id}/recognized-by")
         
         # Assertions
         assert response.status_code == status.HTTP_200_OK
@@ -124,14 +127,15 @@ class TestRecognizesWinAPI:
         # Verify service was called correctly
         mock_service.get_relationships.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_get_empty_wins_recognized_by_recognition(self, mock_service):
+    async def test_get_empty_wins_recognized_by_recognition(self, mock_service):
         """Test getting WINs when Recognition has no relationships."""
         # Set up mock
-        mock_service.get_relationships.return_value = []
+        mock_service.get_relationships = AsyncMock(return_value=[])
         
         # Call API
-        response = client.get(f"/api/v1/relationships/recognitions/{self.recognition_id}/recognizes-wins")
+        response = await self.client.get(f"/api/v1/relationships/recognitions/{self.recognition_id}/recognizes-wins")
         
         # Assertions
         assert response.status_code == status.HTTP_200_OK
@@ -141,14 +145,15 @@ class TestRecognizesWinAPI:
         # Verify service was called correctly
         mock_service.get_relationships.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_delete_recognizes_win_relationship(self, mock_service):
+    async def test_delete_recognizes_win_relationship(self, mock_service):
         """Test deleting a RECOGNIZES_WIN relationship."""
         # Set up mock
-        mock_service.delete_relationship.return_value = True
+        mock_service.delete_relationship = AsyncMock(return_value=True)
         
         # Call API
-        response = client.delete(
+        response = await self.client.delete(
             f"/api/v1/relationships/recognizes-win?recognition_id={self.recognition_id}&win_id={self.win_id}"
         )
         
@@ -158,14 +163,15 @@ class TestRecognizesWinAPI:
         # Verify service was called correctly
         mock_service.delete_relationship.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_delete_recognizes_win_relationship_not_found(self, mock_service):
+    async def test_delete_recognizes_win_relationship_not_found(self, mock_service):
         """Test deleting a non-existent RECOGNIZES_WIN relationship."""
         # Set up mock
-        mock_service.delete_relationship.return_value = False
+        mock_service.delete_relationship = AsyncMock(return_value=False)
         
         # Call API
-        response = client.delete(
+        response = await self.client.delete(
             f"/api/v1/relationships/recognizes-win?recognition_id={self.recognition_id}&win_id={self.win_id}"
         )
         

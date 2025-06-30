@@ -78,15 +78,14 @@ async def test_client():
         yield client
 
 @pytest.fixture
-async def async_test_client():
+def async_test_client():
     """
     Fixture tạo client async để test các API endpoints.
     Sử dụng kết nối Neo4j thật từ fixture setup_neo4j_connection.
     """
     # Tạo client async mới cho mỗi test sử dụng ASGITransport cho FastAPI
     from httpx import AsyncClient, ASGITransport
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        yield client
+    return AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
 
 async def get_test_client():
     """

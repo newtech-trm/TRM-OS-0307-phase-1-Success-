@@ -1,7 +1,9 @@
 import functools
-import json
 import logging
-from typing import Any, Callable, Dict, List, Optional, Union
+import json
+from typing import Any, Optional, TypeVar, Union, List, Dict, Callable
+from fastapi import HTTPException, status
+from fastapi.responses import JSONResponse
 from datetime import datetime
 
 from fastapi import Response
@@ -177,10 +179,16 @@ def adapt_response(
                 # Trường hợp response là list hoặc giá trị khác
                 return _process_items(response, adapt_datetime, adapt_enums)
             
+            except HTTPException:
+                # Cho phép HTTPException được raise lên để FastAPI xử lý
+                raise
             except Exception as e:
-                # Log lỗi và trả về response gốc trong trường hợp có lỗi ngoài ý muốn
+                # Log lỗi và trả về Response lỗi trong trường hợp có lỗi ngoài ý muốn
                 logging.error(f"Unexpected error in adapt_response decorator: {str(e)}")
-                return response
+                return JSONResponse(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    content={"detail": "An internal error occurred while processing the response"}
+                )
         
         return wrapper
     

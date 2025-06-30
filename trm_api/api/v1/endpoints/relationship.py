@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from pydantic import BaseModel
 from typing import List, Optional
 from enum import Enum
+import uuid
+from datetime import datetime
 
 from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
 from trm_api.services.relationship_service import relationship_service, RelationshipService
@@ -482,7 +484,7 @@ class LeadsToWinRequest(BaseModel):
     notes: Optional[str] = None
 
 @router.post("/leads-to-win", response_model=Relationship)
-def create_leads_to_win_relationship(
+async def create_leads_to_win_relationship(
     source_id: str,
     win_id: str,
     source_type: str = Query(..., description="Either 'Project' or 'Event'"),
@@ -541,30 +543,31 @@ def create_leads_to_win_relationship(
     relationship_props["relationshipId"] = f"leads_to_win_{source_id}_{win_id}_{str(uuid.uuid4())[:8]}"
     
     # Create the relationship
-    relationship = service.create_relationship(
+    relationship = await service.create_relationship(
         source_id=source_id,
         source_type=source_type,
         target_id=win_id,
         target_type=TargetEntityTypeEnum.WIN,
         relationship_type="LEADS_TO_WIN",
-        relationship_properties=relationship_props
+        properties=relationship_props
     )
     
     if not relationship:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not create relationship. Source or WIN may not exist."
+            detail="Could not create relationship. Source entity (Project/Event) or WIN may not exist."
         )
         
     return relationship
 
 @router.get("/projects/{project_id}/leads-to-wins", response_model=List[Relationship])
-def get_wins_from_project(
+@adapt_ontology_response(entity_type="relationship")
+async def get_wins_from_project(
     project_id: str,
     service: RelationshipService = Depends(lambda: relationship_service)
 ):
     """
-    Get all WINs that a specific Project leads to.
+    Get all WINs led by a specific Project.
     
     Parameters:
     - project_id: The ID of the Project
@@ -572,23 +575,22 @@ def get_wins_from_project(
     Returns:
     - A list of relationships representing WINs led by the Project
     """
-    relationships = service.get_relationships(
+    relationships = await service.get_relationships(
         entity_id=project_id,
-        entity_type=TargetEntityTypeEnum.PROJECT,
+        entity_type="Project",
         direction="outgoing",
-        relationship_type="LEADS_TO_WIN",
-        related_entity_type=TargetEntityTypeEnum.WIN
+        relationship_type="LEADS_TO_WIN"
     )
-    
     return relationships
 
 @router.get("/events/{event_id}/leads-to-wins", response_model=List[Relationship])
-def get_wins_from_event(
+@adapt_ontology_response(entity_type="relationship")
+async def get_wins_from_event(
     event_id: str,
     service: RelationshipService = Depends(lambda: relationship_service)
 ):
     """
-    Get all WINs that a specific Event leads to.
+    Get all WINs led by a specific Event.
     
     Parameters:
     - event_id: The ID of the Event
@@ -596,58 +598,50 @@ def get_wins_from_event(
     Returns:
     - A list of relationships representing WINs led by the Event
     """
-    relationships = service.get_relationships(
+    relationships = await service.get_relationships(
         entity_id=event_id,
-        entity_type=TargetEntityTypeEnum.EVENT,
+        entity_type="Event",
         direction="outgoing",
-        relationship_type="LEADS_TO_WIN",
-        related_entity_type=TargetEntityTypeEnum.WIN
+        relationship_type="LEADS_TO_WIN"
     )
-    
     return relationships
 
 @router.get("/wins/{win_id}/led-by", response_model=List[Relationship])
-def get_projects_events_leading_to_win(
+@adapt_ontology_response(entity_type="relationship")
+async def get_projects_events_leading_to_win(
     win_id: str,
     source_type: Optional[str] = Query(None, description="Optional filter: 'Project' or 'Event'"),
     service: RelationshipService = Depends(lambda: relationship_service)
 ):
     """
-    Get all Projects and/or Events that lead to a specific WIN.
+    Get all Projects and Events leading to a specific WIN.
     
     Parameters:
     - win_id: The ID of the WIN
-    - source_type: Optional filter by source type (Project or Event)
+    - source_type: Optional filter for source type (Project or Event)
     
     Returns:
-    - A list of relationships representing sources that lead to the WIN
+    - A list of relationships representing Projects and Events leading to the WIN
     """
-    # Validate optional source_type if provided
-    if source_type and source_type not in [TargetEntityTypeEnum.PROJECT, TargetEntityTypeEnum.EVENT]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid source type filter. Must be one of: Project, Event."
-        )
-    
-    relationships = service.get_relationships(
+    relationships = await service.get_relationships(
         entity_id=win_id,
-        entity_type=TargetEntityTypeEnum.WIN,
+        entity_type="Win",
         direction="incoming",
         relationship_type="LEADS_TO_WIN",
-        related_entity_type=source_type  # None will match any type
+        related_entity_type=source_type if source_type else None
     )
-    
     return relationships
 
 @router.delete("/leads-to-win", status_code=status.HTTP_204_NO_CONTENT)
-def delete_leads_to_win_relationship(
+@adapt_ontology_response(entity_type="relationship")
+async def delete_leads_to_win_relationship(
     source_id: str,
     win_id: str,
     source_type: str = Query(..., description="Either 'Project' or 'Event'"),
     service: RelationshipService = Depends(lambda: relationship_service)
 ):
     """
-    Delete a LEADS_TO_WIN relationship between a Project/Event and a WIN.
+    Delete a LEADS_TO_WIN relationship from a Project or Event to a WIN.
     
     Parameters:
     - source_id: The ID of the source entity (Project or Event)
@@ -664,7 +658,7 @@ def delete_leads_to_win_relationship(
             detail=f"Invalid source type. Must be one of: Project, Event."
         )
     
-    success = service.delete_relationship(
+    success = await service.delete_relationship(
         source_id=source_id,
         source_type=source_type,
         target_id=win_id,
@@ -678,146 +672,12 @@ def delete_leads_to_win_relationship(
             detail="Relationship not found or could not be deleted."
         )
 
-
-# RECOGNIZES_WIN endpoints
-
-class RecognizesWinRequest(BaseModel):
-    """Optional properties for the RECOGNIZES_WIN relationship."""
-    notes: Optional[str] = None
-
-@router.post("/recognizes-win", response_model=Relationship)
-def create_recognizes_win_relationship(
-    recognition_id: str,
-    win_id: str,
-    relationship_data: RecognizesWinRequest = Body(None),
-    service: RelationshipService = Depends(lambda: relationship_service)
-):
-    """
-    Create a RECOGNIZES_WIN relationship from a Recognition to a WIN.
-    
-    Parameters:
-    - recognition_id: The ID of the Recognition
-    - win_id: The ID of the WIN
-    - relationship_data: Optional properties for the relationship
-    
-    Returns:
-    - The created relationship
-    """
-    # Prepare relationship properties
-    relationship_props = {}
-    
-    # Set any custom properties
-    if relationship_data and relationship_data.notes:
-        relationship_props["notes"] = relationship_data.notes
-    
-    # Generate unique relationship ID
-    relationship_props["relationshipId"] = f"recognizes_win_{recognition_id}_{win_id}_{str(uuid.uuid4())[:8]}"
-    
-    # Create the relationship
-    relationship = service.create_relationship(
-        source_id=recognition_id,
-        source_type=TargetEntityTypeEnum.RECOGNITION,
-        target_id=win_id,
-        target_type=TargetEntityTypeEnum.WIN,
-        relationship_type="RECOGNIZES_WIN",
-        relationship_properties=relationship_props
-    )
-    
-    if not relationship:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not create relationship. Recognition or WIN may not exist."
-        )
-        
-    return relationship
-
-@router.get("/recognitions/{recognition_id}/recognizes-wins", response_model=List[Relationship])
-def get_wins_recognized_by_recognition(
-    recognition_id: str,
-    service: RelationshipService = Depends(lambda: relationship_service)
-):
-    """
-    Get all WINs that a specific Recognition recognizes.
-    
-    Parameters:
-    - recognition_id: The ID of the Recognition
-    
-    Returns:
-    - A list of relationships representing WINs recognized by the Recognition
-    """
-    relationships = service.get_relationships(
-        entity_id=recognition_id,
-        entity_type=TargetEntityTypeEnum.RECOGNITION,
-        direction="outgoing",
-        relationship_type="RECOGNIZES_WIN",
-        related_entity_type=TargetEntityTypeEnum.WIN
-    )
-    
-    return relationships
-
-@router.get("/wins/{win_id}/recognized-by", response_model=List[Relationship])
-def get_recognitions_for_win(
-    win_id: str,
-    service: RelationshipService = Depends(lambda: relationship_service)
-):
-    """
-    Get all Recognitions that recognize a specific WIN.
-    
-    Parameters:
-    - win_id: The ID of the WIN
-    
-    Returns:
-    - A list of relationships representing Recognitions that recognize the WIN
-    """
-    relationships = service.get_relationships(
-        entity_id=win_id,
-        entity_type=TargetEntityTypeEnum.WIN,
-        direction="incoming",
-        relationship_type="RECOGNIZES_WIN",
-        related_entity_type=TargetEntityTypeEnum.RECOGNITION
-    )
-    
-    return relationships
-
-@router.delete("/recognizes-win", status_code=status.HTTP_204_NO_CONTENT)
-def delete_recognizes_win_relationship(
-    recognition_id: str,
-    win_id: str,
-    service: RelationshipService = Depends(lambda: relationship_service)
-):
-    """
-    Delete a RECOGNIZES_WIN relationship between a Recognition and a WIN.
-    
-    Parameters:
-    - recognition_id: The ID of the Recognition
-    - win_id: The ID of the WIN
-    
-    Returns:
-    - 204 No Content if successful
-    """
-    success = service.delete_relationship(
-        source_id=recognition_id,
-        source_type=TargetEntityTypeEnum.RECOGNITION,
-        target_id=win_id,
-        target_type=TargetEntityTypeEnum.WIN,
-        relationship_type="RECOGNIZES_WIN"
-    )
-    
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Relationship not found or could not be deleted."
-        )
-
-
-# GIVEN_BY endpoints
-
 class GivenByRequest(BaseModel):
     """Optional properties for the GIVEN_BY relationship."""
     notes: Optional[str] = None
 
-@router.post("/given-by", response_model=Relationship)
-def create_given_by_relationship(
+@router.post("/given-by", response_model=Relationship, status_code=status.HTTP_201_CREATED)
+async def create_given_by_relationship(
     agent_id: str,
     recognition_id: str,
     relationship_data: GivenByRequest = Body(None),
@@ -827,43 +687,38 @@ def create_given_by_relationship(
     Create a GIVEN_BY relationship from an Agent to a Recognition.
     
     Parameters:
-    - agent_id: The ID of the Agent giving the recognition
+    - agent_id: The ID of the Agent
     - recognition_id: The ID of the Recognition
     - relationship_data: Optional properties for the relationship
     
     Returns:
     - The created relationship
     """
-    # Prepare relationship properties
     relationship_props = {}
-    
-    # Set any custom properties
     if relationship_data and relationship_data.notes:
         relationship_props["notes"] = relationship_data.notes
     
-    # Generate unique relationship ID
     relationship_props["relationshipId"] = f"given_by_{agent_id}_{recognition_id}_{str(uuid.uuid4())[:8]}"
     
-    # Create the relationship
-    relationship = service.create_relationship(
+    relationship = await service.create_relationship(
         source_id=agent_id,
         source_type=TargetEntityTypeEnum.AGENT,
         target_id=recognition_id,
         target_type=TargetEntityTypeEnum.RECOGNITION,
         relationship_type="GIVEN_BY",
-        relationship_properties=relationship_props
+        properties=relationship_props
     )
     
     if not relationship:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not create relationship. Agent or Recognition may not exist."
+            detail="Could not create relationship. Source entity (Project/Event) or WIN may not exist."
         )
         
     return relationship
 
 @router.get("/agents/{agent_id}/gives-recognitions", response_model=List[Relationship])
-def get_recognitions_given_by_agent(
+async def get_recognitions_given_by_agent(
     agent_id: str,
     service: RelationshipService = Depends(lambda: relationship_service)
 ):
@@ -876,7 +731,7 @@ def get_recognitions_given_by_agent(
     Returns:
     - A list of relationships representing Recognitions given by the Agent
     """
-    relationships = service.get_relationships(
+    relationships = await service.get_relationships(
         entity_id=agent_id,
         entity_type=TargetEntityTypeEnum.AGENT,
         direction="outgoing",
@@ -887,7 +742,7 @@ def get_recognitions_given_by_agent(
     return relationships
 
 @router.get("/recognitions/{recognition_id}/given-by", response_model=List[Relationship])
-def get_agents_giving_recognition(
+async def get_agents_giving_recognition(
     recognition_id: str,
     service: RelationshipService = Depends(lambda: relationship_service)
 ):
@@ -900,7 +755,7 @@ def get_agents_giving_recognition(
     Returns:
     - A list of relationships representing Agents that have given the Recognition
     """
-    relationships = service.get_relationships(
+    relationships = await service.get_relationships(
         entity_id=recognition_id,
         entity_type=TargetEntityTypeEnum.RECOGNITION,
         direction="incoming",
@@ -911,7 +766,7 @@ def get_agents_giving_recognition(
     return relationships
 
 @router.delete("/given-by", status_code=status.HTTP_204_NO_CONTENT)
-def delete_given_by_relationship(
+async def delete_given_by_relationship(
     agent_id: str,
     recognition_id: str,
     service: RelationshipService = Depends(lambda: relationship_service)
@@ -926,7 +781,7 @@ def delete_given_by_relationship(
     Returns:
     - 204 No Content if successful
     """
-    success = service.delete_relationship(
+    success = await service.delete_relationship(
         source_id=agent_id,
         source_type=TargetEntityTypeEnum.AGENT,
         target_id=recognition_id,
