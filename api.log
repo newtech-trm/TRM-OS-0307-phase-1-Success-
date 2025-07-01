@@ -17114,3 +17114,20 @@ asyncio.exceptions.CancelledError
 2025-06-16 19:40:49,082 - uvicorn.error - INFO - Waiting for application shutdown.
 2025-06-16 19:40:49,084 - uvicorn.error - INFO - Application shutdown complete.
 2025-06-16 19:40:49,085 - uvicorn.error - INFO - Finished server process [29268]
+2025-07-01 13:36:52,693 - uvicorn.error - INFO - Application startup complete.
+2025-07-01 13:37:06,717 - uvicorn.access - INFO - 127.0.0.1:63024 - "GET / HTTP/1.1" 200
+2025-07-01 13:37:06,862 - uvicorn.access - INFO - 127.0.0.1:63024 - "GET /favicon.ico HTTP/1.1" 404
+2025-07-01 13:37:19,350 - uvicorn.error - INFO - Application startup complete.
+2025-07-01 13:37:25,584 - uvicorn.access - INFO - 127.0.0.1:63025 - "GET /docs HTTP/1.1" 200
+2025-07-01 13:37:26,073 - uvicorn.access - INFO - 127.0.0.1:63025 - "GET /api/v1/openapi.json HTTP/1.1" 200
+2025-07-01 13:37:30,119 - uvicorn.access - INFO - 127.0.0.1:63025 - "GET /api/v1/openapi.json HTTP/1.1" 200
+2025-07-01 13:37:41,526 - uvicorn.error - INFO - Shutting down
+2025-07-01 13:37:41,635 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-01 13:37:41,636 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-01 13:37:41,636 - uvicorn.error - INFO - Finished server process [26596]
+2025-07-01 13:38:02,321 - uvicorn.access - INFO - 127.0.0.1:63175 - "GET /api/v1/health HTTP/1.1" 404
+2025-07-01 13:38:21,600 - uvicorn.access - INFO - 127.0.0.1:63219 - "GET / HTTP/1.1" 200
+2025-07-01 13:38:35,092 - uvicorn.access - INFO - 127.0.0.1:63258 - "GET /docs HTTP/1.1" 200
+2025-07-01 13:38:35,094 - uvicorn.access - INFO - 127.0.0.1:63256 - "GET /docs HTTP/1.1" 200
+2025-07-01 13:38:36,706 - uvicorn.access - INFO - 127.0.0.1:63256 - "GET /api/v1/openapi.json HTTP/1.1" 200
+2025-07-01 13:38:38,797 - uvicorn.access - INFO - 127.0.0.1:63256 - "GET /api/v1/openapi.json HTTP/1.1" 200

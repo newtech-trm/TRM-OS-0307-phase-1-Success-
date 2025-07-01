@@ -204,3 +204,27 @@ def normalize_knowledge_snippet_type(snippet_type: Optional[str]) -> Optional[st
         "definition": "Definition"
     }
     return normalize_enum_value(snippet_type, KNOWLEDGE_SNIPPET_TYPE_CHOICES, None)
+
+
+def normalize_event_type(event_type: Optional[str]) -> Optional[str]:
+    """
+    Chuẩn hóa loại Event theo ontology.
+    
+    Args:
+        event_type: Giá trị event_type cần chuẩn hóa
+        
+    Returns:
+        Giá trị event_type đã được chuẩn hóa theo ontology
+    """
+    # Dựa trên các loại sự kiện phổ biến trong ontology của TRM-OS
+    EVENT_TYPE_CHOICES = {
+        "meeting": "Meeting",
+        "deadline": "Deadline",
+        "milestone": "Milestone",
+        "release": "Release",
+        "review": "Review",
+        "workshop": "Workshop",
+        "presentation": "Presentation",
+        "other": "Other"
+    }
+    return normalize_enum_value(event_type, EVENT_TYPE_CHOICES, "other")

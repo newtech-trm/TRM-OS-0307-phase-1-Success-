@@ -20,6 +20,7 @@ from contextlib import asynccontextmanager
 from trm_api.core.config import settings
 from trm_api.db.session import connect_to_db, close_db_connection
 from trm_api.core.logging_config import setup_logging
+from trm_api.middleware.ontology_logging import OntologyLoggingMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,6 +38,15 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan
+)
+
+# Thêm middleware để ghi log các trường hợp data không nhất quán
+app.add_middleware(
+    OntologyLoggingMiddleware,
+    log_request_body=True,
+    log_response_body=True,
+    log_processing_time=True,
+    log_path_prefixes=["/api/v1/validate", "/api/v1/wins", "/api/v1/recognitions", "/api/v1/events", "/api/v1/tasks", "/api/v1/knowledge-snippets"]
 )
 
 @app.get("/", tags=["Root"])

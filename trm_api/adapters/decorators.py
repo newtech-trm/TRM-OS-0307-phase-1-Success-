@@ -343,6 +343,37 @@ def adapt_project_response(response_item_key: Optional[str] = None):
     )
 
 
+def adapt_event_response(response_item_key: Optional[str] = None):
+    """
+    Decorator đặc biệt cho Event API endpoints theo nguyên tắc ontology-first.
+    Tự động chuẩn hóa:
+    - Các trường datetime sang chuỗi ISO 8601
+    - Trường 'eventType' sang dạng enum chuẩn ontology (nếu có)
+    
+    Args:
+        response_item_key: Key chứa danh sách các item nếu response là collection
+        
+    Returns:
+        Decorator function đã được wrap
+    """
+    # Import lazy để tránh circular dependency
+    try:
+        from .enum_adapter import normalize_event_type
+        enum_adapters = [
+            {"field": "eventType", "adapter": normalize_event_type},
+        ]
+    except (ImportError, AttributeError):
+        # Fallback nếu không có enum adapter cho event
+        logging.warning("Event enum adapter not available, using datetime only")
+        enum_adapters = []
+    
+    return adapt_response(
+        response_item_key=response_item_key,
+        adapt_datetime=True,
+        adapt_enums=enum_adapters
+    )
+
+
 def adapt_ontology_response(
     entity_type: str = None,
     response_item_key: Optional[str] = None,
