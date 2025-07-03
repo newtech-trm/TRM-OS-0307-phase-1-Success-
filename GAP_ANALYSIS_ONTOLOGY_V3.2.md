@@ -249,8 +249,8 @@ Việc cập nhật Pydantic v2 cũng cho thấy tầm quan trọng của việc
 {{ ... }}
    - Đã tổ chức lại các mock bằng cách sử dụng `AsyncMock` thay vì `MagicMock` để tranh giả lập coroutine.
    - Đã tạo tài liệu hướng dẫn đầy đủ về cách viết và bảo trì các integration test mới.
- - ⚠️ **Chưa hoàn thành áp dụng Adapter Decorator**: Phát hiện lỗi khi triển khai decorator cho Task endpoints. Trong file `trm_api/api/v1/endpoints/task.py`, có sử dụng decorator `@adapt_datetime_response` nhưng không được định nghĩa đúng cách, gây lỗi NameError. Cần kiểm tra module `decorators.py` và áp dụng decorator đúng (có thể là `adapt_task_response` hoặc `adapt_ontology_response` đã được chuẩn hóa mới).
- - ⚠️ **Cần điều chỉnh Task API endpoints**: Phải sửa lỗi decorator cho các Task endpoints để phù hợp với mô hình adapter pattern đã chuẩn hóa trước khi kiểm thử toàn diện.
+ - ✅ **Hoàn thành áp dụng Adapter Decorator cho Task**: Đã sửa lỗi trong Task endpoints, thay thế decorator không tồn tại `@adapt_datetime_response` bằng decorator chuẩn `@adapt_task_response`. Decorator này đảm bảo việc chuẩn hóa nhất quán enum (TaskType, TaskStatus) và datetime theo chuẩn ISO 8601 UTC.
+ - ✅ **Task API endpoints đã được cập nhật**: Tất cả endpoints trong `trm_api/api/v1/endpoints/task.py` đã được áp dụng mô hình adapter pattern chuẩn hóa. Đã kiểm thử toàn diện và đảm bảo hoạt động nhất quán với các entity khác.
  - ✅ **Đã áp dụng thành công cho WIN API**: Triển khai các adapter function `normalize_win_status`, `normalize_win_type` và `normalize_dict_datetimes` áp dụng cho tất cả API endpoints của WIN.
  - ✅ **Đã áp dụng cho KnowledgeSnippet API**: Áp dụng decorator `adapt_datetime_response` cho tất cả endpoint của KnowledgeSnippet, đảm bảo chuẩn hóa nhất quán.
  - **Bài học từ API Async**:
@@ -268,3 +268,13 @@ Việc cập nhật Pydantic v2 cũng cho thấy tầm quan trọng của việc
  - Liên tục cập nhật `GAP_ANALYSIS_ONTOLOGY_V3.2.md` này.
  - Đảm bảo tài liệu phản ánh chính xác trạng thái triển khai hiện tại.
  - Cập nhật OpenAPI spec theo các API endpoints đã triển khai.
+ - ✅ **Đã tạo tài liệu kiến trúc tổng thể**: Đã hoàn thành tài liệu `docs/architecture/ontology-first-approach.md` mô tả chi tiết về cách tiếp cận ontology-first trong TRM-OS.
+ - ✅ **Đã tạo tài liệu kiến trúc event-driven**: Đã hoàn thành tài liệu `docs/architecture/event-driven-architecture.md` mô tả chi tiết về SystemEventBus và mô hình Agent trong hệ thống.
+ - ✅ **Đã tạo tài liệu kỹ thuật về Async API Pattern**: Đã hoàn thành tài liệu `docs/technical-decisions/async-api-pattern.md` mô tả cách triển khai API không đồng bộ trong TRM-OS.
+ - ✅ **Đã tạo hướng dẫn kiểm thử không đồng bộ**: Đã hoàn thành tài liệu `docs/integration-testing/async-testing-guide.md` hướng dẫn chi tiết cách viết và bảo trì các bài kiểm thử không đồng bộ.
+ - ✅ **Đã tạo roadmap phát triển giai đoạn 2**: Đã hoàn thành tài liệu `docs/roadmap/phase-2-agent-ecosystem.md` mô tả chi tiết kế hoạch phát triển hệ sinh thái Agent AI.
+ - 🔍 **Các tài liệu cần phát triển tiếp theo**:
+   - Tài liệu chi tiết về API validation và error handling
+   - Hướng dẫn migration dữ liệu legacy sang ontology V3.2
+   - Tài liệu thiết kế và phát triển UI/UX dựa trên ontology-first
+   - Tài liệu kiểm thử hiệu năng cho API không đồng bộ và event bus
