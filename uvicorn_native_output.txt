@@ -1,8 +1,0 @@
-﻿--- Server starting up ---
-Neomodel configured to connect to Neo4j on: 66abf65c.databases.neo4j.io
-2025-06-15 13:24:16,748 - uvicorn.error - INFO - Application startup complete.
-2025-06-15 13:24:16,748 - uvicorn.error - ERROR - [Errno 10048] error while attempting to bind on address ('127.0.0.1', 8000): only one usage of each socket address (protocol/network address/port) is normally permitted
-2025-06-15 13:24:16,748 - uvicorn.error - INFO - Waiting for application shutdown.
---- Server shutting down ---
-Database connection managed by neomodel's thread-local driver. No explicit close action needed.
-2025-06-15 13:24:16,748 - uvicorn.error - INFO - Application shutdown complete.

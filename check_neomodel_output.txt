@@ -1,8 +1,0 @@
---- check_neomodel_import.py execution start ---
-Python version: 3.11.0 (main, Oct 24 2022, 18:26:48) [MSC v.1933 64 bit (AMD64)]
-Python executable: E:\tech\trm-os-branches\.venv\Scripts\python.exe
-sys.path: ['E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\.venv', 'E:\\tech\\trm-os-branches\\.venv\\Lib\\site-packages']
-ERROR: neomodel is installed, but __version__ attribute is missing.
-
-Attempting to import from neomodel.cardinality...
-FAIL: ImportError when importing from neomodel.cardinality: No module named 'neomodel.cardinality'

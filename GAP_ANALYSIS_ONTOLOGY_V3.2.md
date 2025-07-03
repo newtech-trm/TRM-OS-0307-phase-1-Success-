@@ -1,6 +1,10 @@
-# Phân tích GAP Ontology V3.2 (Cập nhật dựa trên OpenAPI)
+# Phân tích GAP Ontology V3.2 (Cập nhật 03/07/2025)
 
-## Tiến độ mới nhất (01/07/2025)
+## Tiến độ mới nhất (03/07/2025)
+
+- ✅ **Hoàn thiện chuẩn hóa enum trong toàn bộ hệ thống**: Đã triển khai EnumAdapter.normalize_enum_value() áp dụng nhất quán trong tất cả repositories. Đã xử lý đầy đủ các trường hợp enum đặc biệt như prefix class (TaskStatus.TODO), case sensitivity, và các alias khác nhau. Tất cả enum đều được chuẩn hóa về dạng camelCase không prefix trước khi lưu vào Neo4j để tương thích với ontology V3.2.
+
+- ✅ **Hoàn thiện seed scripts với chuẩn mới**: Đã cập nhật toàn bộ script seed_tasks_data.py để sử dụng trường uid nhất quán thay thế cho các trường cũ (userId, taskId, projectId), xử lý đúng định dạng phân trang API {items:[], metadata:{}}, và thêm logging chi tiết. Đã kiểm thử thành công việc tạo tasks và relationships với giá trị enum chuẩn.
 
 - ✅ **Hoàn thành sửa lỗi API LEADS_TO_WIN relationship**: Đã sửa lỗi thiếu import datetime trong endpoints/relationship.py, thêm các endpoints còn thiếu cho LEADS_TO_WIN (GET /projects/{project_id}/leads-to-wins, GET /events/{event_id}/leads-to-wins, GET /wins/{win_id}/led-by, DELETE /leads-to-win), và sửa lỗi trong adapter decorator để xử lý HTTP exceptions đúng cách. Tất cả 11 tests cho LEADS_TO_WIN API đã pass thành công.
 
@@ -223,10 +227,20 @@ Việc cập nhật Pydantic v2 cũng cho thấy tầm quan trọng của việc
 
 5. **Data Adapter Pattern và Async API:**
 
-- ✅ **Đã triển khai và cải tiến Enum Adapter**: Tạo module `enum_adapter.py` để chuẩn hóa các giá trị enum không đồng nhất trong Neo4j (TaskType, TaskStatus, EffortUnit, KnowledgeSnippetType, v.v.). Xử lý nhiều dạng biểu diễn khác nhau (uppercase, title-case, tên enum đầy đủ) và trả về giá trị chuẩn camelCase theo ontology. Đã cập nhật `normalize_enum_value()` để nhận dạng và loại bỏ prefix enum class (ví dụ: 'TaskStatus.TODO' → 'ToDo'), giải quyết lỗi InflateError khi Neo4j cố gắng xử lý enum có prefix.
+- ✅ **Đã triển khai và hoàn thiện Enum Adapter**: 
+  - Tạo module `enum_adapter.py` với hàm `normalize_enum_value()` tổng quát và các hàm chuyên biệt cho từng loại enum (`normalize_task_status()`, `normalize_task_type()`, `normalize_recognition_type()`, `normalize_win_status()`, v.v.).
+  - Xử lý đầy đủ các trường hợp đặc biệt: enum với prefix class (TaskStatus.TODO), khác biệt về case (TODO vs todo vs ToDo), các alias khác nhau (INPROGRESS vs IN_PROGRESS), và fuzzy matching cho các trường hợp không khớp hoàn toàn.
+  - Áp dụng nhất quán tại lớp repository để đảm bảo mọi giá trị enum được chuẩn hóa thành camelCase không prefix trước khi lưu vào Neo4j.
+  - Tài liệu hóa pattern này trong `docs/technical-decisions/enum-adapter-pattern.md` với giải thích chi tiết, ví dụ, và hướng dẫn sử dụng.
 - ✅ **Đã triển khai DateTime Adapter**: Mở rộng `normalize_dict_datetimes` hỗ trợ cấu trúc lồng sâu và thêm hàm `_normalize_list_items` để xử lý datetime trong arrays.
 - ✅ **Đã triển khai Response Adapter**: Tạo các decorator chuyên biệt (`adapt_task_response`, `adapt_project_response`, `adapt_knowledge_snippet_response`, v.v.) và decorator tổng quát `adapt_ontology_response` cho mọi endpoint, đảm bảo chuẩn hóa dữ liệu trả về.
 - ✅ **Hoàn thành Data Adapter Pattern và Async API cho toàn hệ thống**: Tất cả các phương thức trong service layer và test đã chuyển sang async/await pattern. Decorator adapter đã được áp dụng cho tất cả API endpoints (adapt_task_response, adapt_project_response, adapt_knowledge_snippet_response, v.v.). Các integration tests đã được chuyển đổi sang sử dụng httpx.AsyncClient và AsyncMock.
+
+- ✅ **Hoàn thiện seed scripts với chuẩn ontology-first**: 
+  - Cập nhật toàn bộ script seed_tasks_data.py để sử dụng uid nhất quán thay vì các trường cũ (userId, taskId, projectId).
+  - Cải tiến hàm _post_request() để xử lý đúng các API response từ V3.2 (paginated response với cấu trúc {items: [], metadata: {}}).
+  - Bổ sung xử lý lỗi chi tiết và logging trình diễn kết quả seed data.
+  - Kiểm thử thành công việc tạo tasks với các giá trị enum chuẩn và tạo relationships giữa các entity.
  - ✅ **Hoàn thành chuyển đổi Async API cho endpoints**: Tất cả các endpoints đã chuyển đổi sang async/await pattern.
  - ✅ **Để phòng ngoài lỗi coroutine**: Sử dụng `finally: driver.close()` trong session handler để tránh lỗi "Task exception was never retrieved".
  - ✅ **Thách thức trong chuyển đổi async integration tests**:
@@ -239,21 +253,16 @@ Việc cập nhật Pydantic v2 cũng cho thấy tầm quan trọng của việc
  - ⚠️ **Cần điều chỉnh Task API endpoints**: Phải sửa lỗi decorator cho các Task endpoints để phù hợp với mô hình adapter pattern đã chuẩn hóa trước khi kiểm thử toàn diện.
  - ✅ **Đã áp dụng thành công cho WIN API**: Triển khai các adapter function `normalize_win_status`, `normalize_win_type` và `normalize_dict_datetimes` áp dụng cho tất cả API endpoints của WIN.
  - ✅ **Đã áp dụng cho KnowledgeSnippet API**: Áp dụng decorator `adapt_datetime_response` cho tất cả endpoint của KnowledgeSnippet, đảm bảo chuẩn hóa nhất quán.
-  - **Bài học từ API Async và Xử lý Enum**:
-    - Async pattern giúp tăng hiệu suất API và dễ dàng xử lý đồng thời nhiều request.
-    - Adapter pattern kết hợp với async tạo nên cơ sở vững chắc cho triết lý ontology-first.
-    - **EnumAdapter là then chốt cho tính nhất quán dữ liệu**: Cần triển khai xử lý enum đồng bộ giữa Python và Neo4j để tránh InflateError.
-    - **Enum phải được chuẩn hóa ở tầng repository**: Xử lý enum ở lớp gần database nhất để đảm bảo dữ liệu lưu vào Neo4j đúng định dạng.
-    - **Neo4j yêu cầu enum ở định dạng camelCase không prefix**: Tất cả enum phải được chuẩn hóa (ví dụ: "TaskStatus.TODO" thành "ToDo") trước khi lưu vào Neo4j.
-    - Tạo các adapter function riêng biệt theo entity (`normalize_win_status`, `normalize_task_status`) giúp làm rõ mục đích và dễ dàng bảo trì.
-    - Kết hợp logging chi tiết với adapter giúp phát hiện và khắc phục vấn đề một cách hiệu quả.
-  - **Kế hoạch nâng cao**:
-    - ✅ **Tổ chức các adapter vào một module riêng**: Đã tổ chức trong `trm_api/adapters/` để tăng khả năng tái sử dụng.
-    - ✅ **Chuẩn hóa cách xử lý enum trong toàn hệ thống**: Tất cả repository đã được cập nhật để sử dụng `EnumAdapter.normalize_enum_value()` cho mọi enum trước khi lưu vào Neo4j.
-    - ✅ **Xử lý định dạng phân trang mới**: Đã cập nhật các script để xử lý định dạng phân trang {"items": [...], "metadata": {...}} trong Ontology V3.2.
-    - ✅ **Thống nhất trường `uid` thay thế cho các tên trường khác**: Đã chuẩn hóa việc sử dụng `uid` thay vì các trường như `userId`, `taskId`, `projectId` theo đúng chuẩn Ontology V3.2.
-    - Phát triển các test case riêng cho logic của adapter.
-    - Xây dựng các migration script để chuẩn hóa dữ liệu legacy, từ đó có thể bật lại `response_model` validation.
+ - **Bài học từ API Async**:
+   - Async pattern giúp tăng hiệu suất API và dễ dàng xử lý đồng thời nhiều request.
+   - Adapter pattern kết hợp với async tạo nên cơ sở vững chắc cho triết lý ontology-first.
+   - Tạo các adapter function riêng biệt theo entity (`normalize_win_status`, `normalize_win_type`) giúp làm rõ mục đích và dễ dàng bảo trì.
+   - Kết hợp logging chi tiết với adapter giúp phát hiện và khắc phục vấn đề một cách hiệu quả.
+ - **Kế hoạch nâng cao**:
+   - Tổ chức các adapter vào một module riêng (`trm_api/adapters/`) để tăng khả năng tái sử dụng.
+   - Tạo các decorator để áp dụng adapter một cách tự động cho các endpoint.
+   - Phát triển các test case riêng cho logic của adapter.
+   - Xây dựng các migration script để chuẩn hóa dữ liệu legacy, từ đó có thể bật lại `response_model` validation.
 
 4.  **Cập nhật tài liệu:**
  - Liên tục cập nhật `GAP_ANALYSIS_ONTOLOGY_V3.2.md` này.
