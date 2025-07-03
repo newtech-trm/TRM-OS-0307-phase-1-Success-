@@ -1,71 +1,106 @@
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Any
+import asyncio
+from datetime import datetime
 from neomodel import db
 from trm_api.graph_models.agent import Agent as GraphAgent
 from trm_api.graph_models.skill import GraphSkill
 from trm_api.models.agent import AgentCreate, AgentUpdate  # Pydantic model for API data
 
 class AgentRepository:
-    def create_agent(self, agent_data: AgentCreate) -> GraphAgent:
+    async def create_agent(self, agent_data: AgentCreate) -> GraphAgent:
         """
-        Creates a new agent.
+        Creates a new agent asynchronously.
         """
-        agent = GraphAgent(
-            name=agent_data.name,
-            agent_type=agent_data.agent_type,
-            description=agent_data.description,
-            status=agent_data.status or 'active'
-        ).save()
+        # Chuyển đổi tất cả các fields từ Pydantic model sang dict để tránh vấn đề tương thích
+        agent_dict = agent_data.model_dump(exclude_unset=True)
+        
+        # Xử lý các trường tùy chọn
+        if 'status' not in agent_dict or not agent_dict['status']:
+            agent_dict['status'] = 'active'
+            
+        # Thêm timestamps nếu chưa có
+        now = datetime.now()
+        if 'creation_date' not in agent_dict:
+            agent_dict['creation_date'] = now
+        if 'last_modified_date' not in agent_dict:
+            agent_dict['last_modified_date'] = now
+            
+        # Tạo agent mới và lưu trong Neo4j
+        agent = GraphAgent(**agent_dict)
+        
+        # Chuyển đổi sang async bằng cách chạy save() trong event loop riêng
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, agent.save)
+        
         return agent
 
-    def get_agent_by_uid(self, uid: str) -> Optional[GraphAgent]:
+    async def get_agent_by_uid(self, uid: str) -> Optional[GraphAgent]:
         """
-        Retrieves an agent by its unique ID.
+        Retrieves an agent by its unique ID asynchronously.
         """
+        loop = asyncio.get_event_loop()
         try:
-            return GraphAgent.nodes.get(uid=uid)
+            # Chuyển đổi sang async
+            agent = await loop.run_in_executor(None, lambda: GraphAgent.nodes.get(uid=uid))
+            return agent
         except GraphAgent.DoesNotExist:
             return None
 
-    def get_agent_by_name(self, name: str) -> Optional[GraphAgent]:
+    async def get_agent_by_name(self, name: str) -> Optional[GraphAgent]:
         """
-        Retrieves an agent by name.
+        Retrieves an agent by name asynchronously.
         """
+        loop = asyncio.get_event_loop()
         try:
-            return GraphAgent.nodes.get(name=name)
+            # Chuyển đổi sang async
+            agent = await loop.run_in_executor(None, lambda: GraphAgent.nodes.get(name=name))
+            return agent
         except GraphAgent.DoesNotExist:
             return None
 
-    def list_agents(self, skip: int = 0, limit: int = 100) -> List[GraphAgent]:
+    async def list_agents(self, skip: int = 0, limit: int = 100) -> List[GraphAgent]:
         """
-        Retrieves a list of all agents with pagination.
+        Retrieves a list of all agents with pagination asynchronously.
         """
-        return GraphAgent.nodes.all()[skip:skip + limit]
+        loop = asyncio.get_event_loop()
+        agents = await loop.run_in_executor(None, lambda: list(GraphAgent.nodes.all()[skip:skip + limit]))
+        return agents
 
-    def update_agent(self, uid: str, agent_data: AgentUpdate) -> Optional[GraphAgent]:
+    async def update_agent(self, uid: str, agent_data: AgentUpdate) -> Optional[GraphAgent]:
         """
-        Updates an existing agent.
+        Updates an existing agent asynchronously.
         """
-        agent = self.get_agent_by_uid(uid)
+        agent = await self.get_agent_by_uid(uid)
         if not agent:
             return None
 
         update_data = agent_data.model_dump(exclude_unset=True)
+        
+        # Cập nhật thời gian chỉnh sửa
+        update_data['last_modified_date'] = datetime.now()
+        
+        # Cập nhật các thuộc tính
         for key, value in update_data.items():
             setattr(agent, key, value)
         
-        agent.save()
+        # Lưu thay đổi
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, agent.save)
+        
         return agent
 
-    def delete_agent(self, uid: str) -> bool:
+    async def delete_agent(self, uid: str) -> bool:
         """
-        Deletes an agent by its unique ID.
+        Deletes an agent by its unique ID asynchronously.
         Returns True if deletion was successful, False otherwise.
         """
-        agent = self.get_agent_by_uid(uid)
+        agent = await self.get_agent_by_uid(uid)
         if not agent:
             return False
         
-        agent.delete()
+        # Thực hiện xóa agent
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, agent.delete)
         return True
         
     @db.transaction

@@ -49,12 +49,5 @@ from trm_api.api.v1.endpoints import event
 api_router.include_router(event.router, prefix="/events", tags=["Events"])
 # api_router.include_router(tool.router, prefix="/tools", tags=["Tools"])
 
-# New relationship routers
-from trm_api.api.v1.endpoints import skill_relationship
-api_router.include_router(skill_relationship.router, tags=["Skill Relationships"])
-
-from trm_api.api.v1.endpoints import project_relationship
-api_router.include_router(project_relationship.router, tags=["Project Relationships"])
-
 from trm_api.api.v1.endpoints import validate
 api_router.include_router(validate.router, tags=["Validation"])

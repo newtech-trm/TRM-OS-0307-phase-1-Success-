@@ -23,30 +23,14 @@ from enum import Enum
 from trm_api.main import app
 from trm_api.db.session import connect_to_db, get_driver
 from trm_api.core.config import settings
+from trm_api.models.enums import TaskStatus, TaskType, WinStatus, WinType, RecognitionStatus, RecognitionType, KnowledgeSnippetType, EventType
 
-# Định nghĩa các enum cần thiết
+# Định nghĩa các enum bổ sung nếu cần
 class ProjectStatus(str, Enum):
     IN_PROGRESS = 'active'
     COMPLETED = 'completed'
     ON_HOLD = 'on_hold'
     CANCELED = 'canceled'
-
-class TaskStatus(str, Enum):
-    TODO = 'ToDo'  # Phải viết hoa chữ đầu để khớp model Task
-    IN_PROGRESS = 'InProgress'  # Không phải 'in_progress'
-    DONE = 'Done'
-    BLOCKED = 'Blocked'
-    CANCELED = 'Cancelled'  # Đặt lưu ý đây là 'Cancelled' với 2 chữ 'l'
-    BACKLOG = 'Backlog'  # Thêm Backlog theo model
-
-class TaskType(str, Enum):
-    FEATURE = 'Feature'
-    BUG = 'Bug'
-    IMPROVEMENT = 'Improvement'
-    RESEARCH = 'Research'
-    DOCUMENTATION = 'Documentation'
-    MEETING = 'Meeting'
-    CHORE = 'Chore'  # Thêm để khớp với model Task
 
 class EffortUnit(str, Enum):
     HOURS = 'hours'

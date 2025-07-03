@@ -44,8 +44,8 @@ class Task(BaseNode):
     }, default='hours', help_text="Đơn vị của effort_estimate")
     
     # Dates
-    creation_date = DateTimeProperty(default_now=True, help_text="Ngày công việc được tạo")
-    last_modified_date = DateTimeProperty(default_now=True, help_text="Ngày công việc được cập nhật lần cuối")
+    created_at = DateTimeProperty(default_now=True, help_text="Ngày công việc được tạo")
+    updated_at = DateTimeProperty(default_now=True, help_text="Ngày công việc được cập nhật lần cuối")
     start_date = DateTimeProperty(help_text="Ngày bắt đầu dự kiến hoặc thực tế của công việc")
     due_date = DateTimeProperty(help_text="Hạn chót (deadline) cần hoàn thành công việc")
     actual_completion_date = DateTimeProperty(help_text="Ngày công việc thực sự được hoàn thành")
@@ -79,6 +79,9 @@ class Task(BaseNode):
     # A task can generate events
     # Use GeneratesEventRel to store relationship properties according to ontology V3.2
     generates_events = RelationshipTo('trm_api.graph_models.event.Event', 'GENERATES_EVENT', model=GeneratesEventRel)
+    
+    # A task can resolve tensions - alignment with Ontology V3.2
+    resolves = RelationshipTo('trm_api.graph_models.tension.Tension', 'RESOLVES', cardinality=ZeroOrMore)
 
     def __str__(self):
         return self.name

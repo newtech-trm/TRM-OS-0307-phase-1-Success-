@@ -130,27 +130,60 @@ class EnumAdapter:
         """
         if value is None or enum_class is None:
             return value
-            
-        # Nếu giá trị đã là enum instance
+        
+        # Nếu value đã là instance của enum_class, trả về luôn
         if isinstance(value, enum_class):
-            return value.value
-            
-        # Thử chuyển đổi string sang enum
-        if isinstance(value, str):
-            # Tìm kiếm không phân biệt hoa thường
-            for enum_item in enum_class:
-                if enum_item.name.lower() == value.lower() or enum_item.value.lower() == value.lower():
-                    return enum_item.value
-                    
-        # Thử tìm trực tiếp theo giá trị
+            return value
+        
+        # Chuyển đổi sang chuỗi và chuẩn hóa
+        str_value = str(value).strip()
+        
+        # Xử lý trường hợp có prefix của tên enum class (ví dụ: "TaskStatus.TODO")
+        # Đây là vấn đề chính gây ra lỗi InflateError trong Neo4j
+        if '.' in str_value:
+            parts = str_value.split('.')
+            if len(parts) == 2 and parts[0] == enum_class.__name__:
+                # Trường hợp chính xác "EnumClassName.ENUM_VALUE"
+                enum_key = parts[1]
+                try:
+                    # Tìm theo key của enum
+                    for enum_item in enum_class:
+                        if enum_item.name == enum_key:
+                            logging.info(f"Normalized prefixed enum '{str_value}' to '{enum_item.value}' using enum name")
+                            return enum_item
+                except (ValueError, KeyError):
+                    pass
+        
+        # Trường hợp dễ: giá trị chính xác là một enum value
+        try:
+            return enum_class(str_value)
+        except (ValueError, KeyError):
+            pass
+        
+        # Tìm kiếm không phân biệt hoa thường
         for enum_item in enum_class:
-            if enum_item.value == value:
-                return enum_item.value
+            if str(enum_item.value).lower() == str_value.lower():
+                return enum_item
                 
-        # Nếu không tìm thấy, raise ValueError
-        raise ValueError(f"Value '{value}' is not a valid {enum_class.__name__}")
-
-    
+        # Xử lý các trường hợp đặc biệt giữa Neo4j và code
+        # Ví dụ: trong code enum là DRAFT nhưng trong Neo4j lưu là "draft" 
+        normalized_value = str_value.lower()
+        for enum_item in enum_class:
+            enum_value = str(enum_item.value).lower()
+            if normalized_value == enum_value or \
+               normalized_value.replace('_', '') == enum_value.replace('_', '') or \
+               normalized_value.replace(' ', '_') == enum_value.replace(' ', '_'):
+                logging.info(f"Normalized enum value '{str_value}' to '{enum_item.value}' ({enum_class.__name__})")
+                return enum_item
+                
+        # Nếu không tìm thấy, trả về giá trị gốc
+        logging.warning(f"Could not normalize enum value '{str_value}' for {enum_class.__name__}")
+        return value
+        
+        # Ghi nhật ký nếu không tìm thấy
+        logging.warning(f"Could not normalize enum value '{value}' as {enum_class.__name__}")
+        return value
+        
     @classmethod
     def normalize_field(cls, data: Dict[str, Any], field_name: str, enum_class: Enum, fallback_value: Optional[Any] = None) -> Dict[str, Any]:
         """Chuẩn hóa một trường cụ thể trong dict theo enum.
@@ -164,22 +197,66 @@ class EnumAdapter:
         Returns:
             Dictionary với trường đã được chuẩn hóa
         """
-        if not isinstance(data, dict):
+        if not isinstance(data, dict) or field_name not in data or data[field_name] is None:
             return data
-            
+        
         result = data.copy()
         
-        if field_name in result:
-            try:
-                result[field_name] = cls.normalize_enum_value(enum_class, result[field_name])
-            except ValueError as e:
-                if fallback_value is not None:
-                    result[field_name] = fallback_value
-                else:
-                    # Re-raise nếu không có fallback_value
-                    raise e
+        try:
+            # Tìm kiếm và chuyển đổi theo enum
+            value = data[field_name]
+            normalized = cls.normalize_enum_value(enum_class, value)
             
+            # Nếu không thành công, sử dụng fallback
+            if normalized == value and fallback_value is not None:
+                normalized = fallback_value
+                logging.debug(f"Using fallback value '{fallback_value}' for field '{field_name}'")
+            
+            result[field_name] = normalized
+        except Exception as e:
+            logging.error(f"Error normalizing field '{field_name}': {e}")
+            # Giữ nguyên giá trị nếu có lỗi
+        
         return result
+        
+    @classmethod
+    def normalize_entity_name(cls, entity_name: str) -> str:
+        """Chuẩn hóa tên entity giữa code (PascalCase) và Neo4j (thường là UPPERCASE).
+        
+        Args:
+            entity_name: Tên entity cần chuẩn hóa
+            
+        Returns:
+            Tên entity đã chuẩn hóa
+        """
+        if not entity_name:
+            return entity_name
+            
+        # Mapping các tên entity theo ontology
+        entity_mapping = {
+            "win": "WIN",
+            "recognition": "Recognition", 
+            "task": "Task",
+            "event": "Event",
+            "knowledgesnippet": "KnowledgeSnippet",
+            "knowledge_snippet": "KnowledgeSnippet",
+            "project": "Project",
+            "agent": "Agent",
+            "user": "User"
+        }
+        
+        # Kiểm tra tên chính xác
+        if entity_name in entity_mapping.values():
+            return entity_name
+            
+        # Kiểm tra tên viết thường
+        normalized_name = entity_name.lower().replace("_", "").strip()
+        if normalized_name in entity_mapping:
+            return entity_mapping[normalized_name]
+            
+        # Trả về tên gốc nếu không tìm thấy
+        logging.warning(f"Could not normalize entity name '{entity_name}'")
+        return entity_name
 
 
 class BaseEntityAdapter:

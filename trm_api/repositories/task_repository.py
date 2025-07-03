@@ -3,13 +3,15 @@ from neomodel import db
 from datetime import datetime
 import uuid
 import math
+import logging
 
-from trm_api.models.task import TaskCreate, TaskUpdate
+from trm_api.models.task import TaskCreate, TaskUpdate, TaskStatus, TaskType, EffortUnit
 from trm_api.graph_models.task import Task as GraphTask
 from trm_api.graph_models.project import Project as GraphProject
 from trm_api.graph_models.user import User as GraphUser
 from trm_api.graph_models.agent import Agent as GraphAgent
 from trm_api.utils.pagination import calculate_pagination
+from trm_api.adapters.data_adapters import EnumAdapter
 
 class TaskRepository:
     """
@@ -39,10 +41,44 @@ class TaskRepository:
         # Map from schema fields to graph model fields if names differ
         if 'effort_estimate' in task_properties and task_properties['effort_estimate'] is not None:
             task_properties['effort_estimate'] = task_properties.get('effort_estimate')
+            
+        # Chuẩn hóa các giá trị enum sử dụng EnumAdapter
+        # Chuẩn hóa status
+        if 'status' in task_properties and task_properties['status'] is not None:
+            try:
+                # Sử dụng EnumAdapter để chuẩn hóa giá trị status
+                enum_value = EnumAdapter.normalize_enum_value(TaskStatus, task_properties['status'])
+                # Lấy giá trị chuỗi phù hợp với Neo4j từ enum đã được chuẩn hóa
+                task_properties['status'] = enum_value.value if enum_value else 'ToDo'
+                logging.info(f"Normalized task status from {task_properties['status']} to {enum_value.value}")
+            except (ValueError, AttributeError) as e:
+                # Fallback an toàn nếu xảy ra lỗi
+                logging.warning(f"Failed to normalize task status: {e}. Using default 'ToDo'")
+                task_properties['status'] = 'ToDo'
+                
+        # Chuẩn hóa task_type
+        if 'task_type' in task_properties and task_properties['task_type'] is not None:
+            try:
+                enum_value = EnumAdapter.normalize_enum_value(TaskType, task_properties['task_type'])
+                task_properties['task_type'] = enum_value.value if enum_value else None
+            except (ValueError, AttributeError) as e:
+                logging.warning(f"Failed to normalize task type: {e}")
+                
+        # Chuẩn hóa effort_unit nếu có
+        if 'effort_unit' in task_properties and task_properties['effort_unit'] is not None:
+            try:
+                enum_value = EnumAdapter.normalize_enum_value(EffortUnit, task_properties['effort_unit'])
+                task_properties['effort_unit'] = enum_value.value if enum_value else 'hours'
+            except (ValueError, AttributeError) as e:
+                logging.warning(f"Failed to normalize effort unit: {e}")
+                
+
+
+
         
         # Ensure creation and last modified dates are set
-        task_properties['creation_date'] = datetime.now()
-        task_properties['last_modified_date'] = datetime.now()
+        task_properties['created_at'] = datetime.now()
+        task_properties['updated_at'] = datetime.now()
         
         # Create and save the new task with all properties
         new_task = GraphTask(**task_properties).save()
@@ -128,7 +164,7 @@ class TaskRepository:
         # Currently all fields have the same names, but this is where we'd handle any differences
         
         # Always update the last_modified_date when a task is modified
-        update_data['last_modified_date'] = datetime.now()
+        update_data['updated_at'] = datetime.now()
         
         # Update the task object with all provided fields
         for key, value in update_data.items():
@@ -505,4 +541,149 @@ class TaskRepository:
             # Agent not found
             return False
             
-        return False
+    # --- Tension-related methods according to Ontology V3.2 ---
+    
+    @db.transaction
+    def connect_task_to_tension(self, task_uid: str, tension_uid: str) -> bool:
+        """
+        Establishes a RESOLVES relationship from a Task to a Tension.
+        This indicates that the Task was created to resolve the Tension.
+        
+        Args:
+            task_uid: UID of the task
+            tension_uid: UID of the tension
+            
+        Returns:
+            bool: True if connection was successful, False otherwise
+        """
+        # Get the task and tension nodes
+        task = self.get_task_by_uid(task_uid)
+        if not task:
+            return False
+            
+        try:
+            from trm_api.graph_models.tension import Tension as GraphTension
+            tension = GraphTension.nodes.get(uid=tension_uid)
+        except GraphTension.DoesNotExist:
+            return False
+        
+        # Create the RESOLVES relationship with properties
+        relationship_props = {
+            'relationshipId': str(uuid.uuid4()),
+            'creationDate': datetime.now()
+        }
+        
+        # Establish the connection
+        task.resolves.connect(tension, relationship_props)
+        return True
+        
+    def disconnect_task_from_tension(self, task_uid: str, tension_uid: str) -> bool:
+        """
+        Removes the RESOLVES relationship between a Task and a Tension.
+        
+        Args:
+            task_uid: UID of the task
+            tension_uid: UID of the tension
+            
+        Returns:
+            bool: True if disconnection was successful, False otherwise
+        """
+        # Get the task and tension nodes
+        task = self.get_task_by_uid(task_uid)
+        if not task:
+            return False
+            
+        try:
+            from trm_api.graph_models.tension import Tension as GraphTension
+            tension = GraphTension.nodes.get(uid=tension_uid)
+        except GraphTension.DoesNotExist:
+            return False
+        
+        # Check if the relationship exists
+        if not task.resolves.is_connected(tension):
+            return False
+            
+        # Disconnect the relationship
+        task.resolves.disconnect(tension)
+        return True
+        
+    def get_tensions_resolved_by_task(self, task_uid: str, skip: int = 0, limit: int = 100) -> List:
+        """
+        Get all Tensions that are resolved by a specific Task.
+        
+        Args:
+            task_uid: UID of the task
+            skip: Number of items to skip for pagination
+            limit: Maximum number of items to return
+            
+        Returns:
+            List of tension nodes
+        """
+        task = self.get_task_by_uid(task_uid)
+        if not task:
+            return []
+            
+        # Get all tensions that this task resolves
+        tensions = list(task.resolves.all())
+        
+        # Apply pagination
+        return tensions[skip:skip + limit]
+        
+    def get_task_with_relationships(self, task_uid: str) -> Optional[Dict]:
+        """
+        Get a comprehensive view of a task with all its relationships loaded.
+        This method provides a complete picture of the task as defined in Ontology V3.2.
+        
+        Args:
+            task_uid: UID of the task
+            
+        Returns:
+            Dictionary with task data and all related entities, or None if task not found
+        """
+        task = self.get_task_by_uid(task_uid)
+        if not task:
+            return None
+            
+        # Get basic task data
+        task_data = {
+            'uid': task.uid,
+            'name': task.name,
+            'description': task.description,
+            'status': task.status,
+            'priority': task.priority,
+            'created_at': task.created_at,
+            'updated_at': task.updated_at,
+            # Include other task properties as needed
+        }
+        
+        # Get project this task is part of
+        projects = []
+        for project in task.projects.all():
+            projects.append({
+                'uid': project.uid,
+                'name': project.name,
+                'description': project.description
+            })
+        
+        # Get tensions this task resolves
+        tensions = []
+        for tension in task.resolves.all():
+            tensions.append({
+                'uid': tension.uid,
+                'title': tension.title,
+                'description': tension.description,
+                'status': tension.status,
+                'priority': tension.priority
+            })
+        
+        # Get assignees (users and agents)
+        assignees = self.get_task_assignees_with_relationships(task_uid)
+        
+        # Combine all data
+        task_data.update({
+            'projects': projects,
+            'tensions_resolved': tensions,
+            'assignees': assignees
+        })
+        
+        return task_data

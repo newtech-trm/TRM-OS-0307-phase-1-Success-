@@ -1,6 +1,7 @@
 from typing import Optional, List, Tuple, Dict, Any
 from neomodel import db
 import uuid
+import math
 from datetime import datetime
 from trm_api.graph_models.project import Project as GraphProject
 from trm_api.graph_models.tension import Tension as GraphTension
@@ -56,17 +57,36 @@ class ProjectRepository:
         """
         Retrieves a list of all projects with pagination.
         """
-        return GraphProject.nodes.all()[skip:skip + limit]
+        all_projects = GraphProject.nodes.all().order_by('title')  # Add order_by before pagination
+        return list(all_projects[skip:skip + limit])  # Convert to list before returning
         
     async def get_paginated_projects(self, page: int = 1, page_size: int = 10) -> Tuple[List[GraphProject], int, int]:
         """
-        Retrieves a paginated list of projects asynchronously.
-        Returns a tuple of (projects, total_count, page_count)
+        Gets paginated projects with total count and page count.
+        
+        Args:
+            page: Page number (1-indexed)
+            page_size: Number of items per page
+            
+        Returns:
+            Tuple of (projects, total_count, page_count)
         """
-        total_count = len(GraphProject.nodes.all())
-        page_count = (total_count + page_size - 1) // page_size if page_size > 0 else 0
-        projects = GraphProject.nodes.all().order_by('title')[((page - 1) * page_size):(page * page_size)]
-        return list(projects), total_count, page_count
+        # Get all projects as a list
+        all_projects = list(GraphProject.nodes.all())
+        
+        # Sort projects manually by title
+        sorted_projects = sorted(all_projects, key=lambda x: x.title if hasattr(x, 'title') and x.title else '')
+        
+        # Calculate pagination metadata
+        total_count = len(sorted_projects)
+        page_count = math.ceil(total_count / page_size)
+        
+        # Paginate projects
+        start_idx = (page - 1) * page_size
+        end_idx = page * page_size
+        paginated_projects = sorted_projects[start_idx:end_idx] if start_idx < len(sorted_projects) else []
+        
+        return paginated_projects, total_count, page_count
 
     async def update_project(self, project_id: str, project_data: ProjectUpdate) -> Optional[GraphProject]:
         """

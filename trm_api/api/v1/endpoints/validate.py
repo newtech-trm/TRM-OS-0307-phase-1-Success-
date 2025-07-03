@@ -9,7 +9,7 @@ from trm_api.adapters.entity_adapters import (
     EventAdapter,
     KnowledgeSnippetAdapter
 )
-from trm_api.models.relationships import TargetEntityTypeEnum
+from trm_api.models.enums import EntityType
 from trm_api.adapters.enum_adapter import (
     normalize_win_status, 
     normalize_win_type,
@@ -24,7 +24,7 @@ router = APIRouter(prefix="/validate", tags=["validate"])
 
 @router.post("/entity/{entity_type}")
 async def validate_entity_data(
-    entity_type: TargetEntityTypeEnum,
+    entity_type: EntityType,
     data: Dict[str, Any] = Body(...)
 ) -> Dict[str, Any]:
     """Validate entity data against ontology schema and normalize it.

@@ -1,7 +1,7 @@
 from typing import Optional, List, Tuple
 from passlib.context import CryptContext
 import math
-from trm_api.graph_models.user import User as GraphUser
+from trm_api.graph_models.user import User
 from trm_api.models.user import UserCreate, UserUpdate # Pydantic model for API data
 
 # Setup password hashing
@@ -15,7 +15,7 @@ class UserRepository:
     def get_password_hash(self, password: str) -> str:
         return pwd_context.hash(password)
 
-    def create_user(self, user_data: UserCreate) -> GraphUser:
+    def create_user(self, user_data: UserCreate) -> User:
         """
         Creates a new User node in the database with a hashed password.
         """
@@ -32,7 +32,7 @@ class UserRepository:
             results, meta = db.cypher_query("MATCH (n) RETURN COUNT(n) LIMIT 1")
             print(f"DEBUG - Kết nối Neo4j OK, số node hiện tại: {results[0][0]}")
             
-            graph_user = GraphUser(**user_dict).save()
+            graph_user = User(**user_dict).save()
             print(f"DEBUG - Đã tạo User thành công: {graph_user.username}")
             return graph_user
         except Exception as e:
@@ -41,34 +41,34 @@ class UserRepository:
             print(traceback.format_exc())
             raise
 
-    def get_user_by_username(self, username: str) -> Optional[GraphUser]:
+    def get_user_by_username(self, username: str) -> Optional[User]:
         """
         Retrieves a User node by their username.
         """
         try:
-            return GraphUser.nodes.get(username=username)
-        except GraphUser.DoesNotExist:
+            return User.nodes.get(username=username)
+        except User.DoesNotExist:
             return None
 
-    def get_user_by_email(self, email: str) -> Optional[GraphUser]:
+    def get_user_by_email(self, email: str) -> Optional[User]:
         """
         Retrieve a user by email.
         """
         try:
-            return GraphUser.nodes.get(email=email)
-        except GraphUser.DoesNotExist:
+            return User.nodes.get(email=email)
+        except User.DoesNotExist:
             return None
 
-    def get_user_by_uid(self, uid: str) -> Optional[GraphUser]:
+    def get_user_by_uid(self, uid: str) -> Optional[User]:
         """
         Retrieves a User node by its unique ID.
         """
         try:
-            return GraphUser.nodes.get(uid=uid)
-        except GraphUser.DoesNotExist:
+            return User.nodes.get(uid=uid)
+        except User.DoesNotExist:
             return None
 
-    def list_users(self, skip: int = 0, limit: int = 100) -> List[GraphUser]:
+    def list_users(self, skip: int = 0, limit: int = 100) -> List[User]:
         """
         Retrieves a list of all users with pagination.
         """
@@ -79,8 +79,8 @@ class UserRepository:
             db.cypher_query("MATCH (n:User) RETURN count(n) AS user_count")
             print(f"DEBUG - UserRepository.list_users: Kết nối Neo4j và truy vấn kiểm tra thành công.")
             
-            all_users_node_set = GraphUser.nodes.all()
-            print(f"DEBUG - UserRepository.list_users: Đã gọi GraphUser.nodes.all(). Số lượng (ước tính): {len(all_users_node_set)}")
+            all_users_node_set = User.nodes.all()
+            print(f"DEBUG - UserRepository.list_users: Đã gọi User.nodes.all(). Số lượng (ước tính): {len(all_users_node_set)}")
             
             users = all_users_node_set[skip:skip + limit]
             print(f"DEBUG - UserRepository.list_users: Đã cắt danh sách. Số lượng sau khi cắt: {len(users)}")
@@ -96,7 +96,7 @@ class UserRepository:
             # Trả về danh sách rỗng trong trường hợp lỗi để tránh treo API
             return []
             
-    def get_paginated_users(self, page: int = 1, page_size: int = 10) -> Tuple[List[GraphUser], int, int]:
+    def get_paginated_users(self, page: int = 1, page_size: int = 10) -> Tuple[List[User], int, int]:
         """
         Retrieves a paginated list of all users with total count and page count.
         
@@ -122,7 +122,7 @@ class UserRepository:
             offset = (page - 1) * page_size
             
             # Lấy danh sách người dùng theo phân trang
-            all_users = list(GraphUser.nodes.all())
+            all_users = list(User.nodes.all())
             paginated_users = all_users[offset:offset + page_size]
             
             print(f"DEBUG - UserRepository.get_paginated_users: Hoàn thành, trả về {len(paginated_users)} người dùng, trang {page}/{page_count}")
@@ -134,7 +134,7 @@ class UserRepository:
             # Trả về danh sách rỗng trong trường hợp lỗi để tránh treo API
             return [], 0, 0
 
-    def update_user(self, uid: str, user_data: UserUpdate) -> Optional[GraphUser]:
+    def update_user(self, uid: str, user_data: UserUpdate) -> Optional[User]:
         """
         Updates an existing user.
         Note: Does not support password changes through this method for security.

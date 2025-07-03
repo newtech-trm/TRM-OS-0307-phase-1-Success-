@@ -2,6 +2,7 @@ import functools
 import logging
 import json
 from typing import Any, Optional, TypeVar, Union, List, Dict, Callable
+from pydantic import BaseModel
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 from datetime import datetime
@@ -122,6 +123,10 @@ def adapt_response(
             try:
                 # Gọi endpoint function gốc
                 response = await func(*args, **kwargs)
+
+                # Chuyển đổi Pydantic model thành dict để xử lý nhất quán
+                if isinstance(response, BaseModel):
+                    response = response.model_dump(by_alias=True)
                 
                 # Xử lý giá trị None
                 if response is None:
@@ -186,7 +191,7 @@ def adapt_response(
                 raise
             except Exception as e:
                 # Log lỗi và trả về Response lỗi trong trường hợp có lỗi ngoài ý muốn
-                logging.error(f"Unexpected error in adapt_response decorator: {str(e)}")
+                logging.exception(f"FATAL: Detailed error in adapt_response decorator for function '{func.__name__}':")
                 return JSONResponse(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     content={"detail": "An internal error occurred while processing the response"}

@@ -259,3 +259,73 @@ class TaskService:
             task_uid=task_id,
             assignee_uid=assignee_id
         )
+        
+    # --- Tension relationship methods according to Ontology V3.2 ---
+    
+    def connect_task_to_tension(self, task_id: str, tension_id: str) -> bool:
+        """
+        Establishes a RESOLVES relationship from a Task to a Tension.
+        This indicates that the Task was created to resolve this Tension.
+        
+        Args:
+            task_id: Task unique identifier
+            tension_id: Tension unique identifier
+            
+        Returns:
+            True if connection was successful, False otherwise
+        """
+        return self.repository.connect_task_to_tension(
+            task_uid=task_id,
+            tension_uid=tension_id
+        )
+    
+    def disconnect_task_from_tension(self, task_id: str, tension_id: str) -> bool:
+        """
+        Removes the RESOLVES relationship between a Task and a Tension.
+        
+        Args:
+            task_id: Task unique identifier
+            tension_id: Tension unique identifier
+            
+        Returns:
+            True if disconnection was successful, False otherwise
+        """
+        return self.repository.disconnect_task_from_tension(
+            task_uid=task_id,
+            tension_uid=tension_id
+        )
+    
+    def get_tensions_resolved_by_task(self, task_id: str, skip: int = 0, limit: int = 100) -> Optional[List]:
+        """
+        Get all Tensions that are resolved by a specific Task.
+        
+        Args:
+            task_id: Task unique identifier
+            skip: Number of items to skip for pagination
+            limit: Maximum number of items to return
+            
+        Returns:
+            List of tension objects or None if task not found
+        """
+        task = self.get_task_by_id(task_id)
+        if not task:
+            return None
+            
+        return self.repository.get_tensions_resolved_by_task(
+            task_uid=task_id,
+            skip=skip,
+            limit=limit
+        )
+    
+    def get_task_with_relationships(self, task_id: str) -> Optional[Dict]:
+        """
+        Get a comprehensive view of a task with all its relationships loaded.
+        This method provides a complete picture of the task as defined in Ontology V3.2.
+        
+        Args:
+            task_id: Task unique identifier
+            
+        Returns:
+            Dictionary with task data and all related entities, or None if task not found
+        """
+        return self.repository.get_task_with_relationships(task_uid=task_id)

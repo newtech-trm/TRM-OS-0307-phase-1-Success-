@@ -1,41 +1,6 @@
-# Lộ trình Triển khai Toàn bộ Hiến pháp TRM-OS (Cập nhật 01/07/2025)
+# Phân tích GAP Ontology V3.2 (Cập nhật dựa trên OpenAPI)
 
-## 1. Hiện tại chúng ta đang ở đâu?
-
-Dự án đang ở **giai đoạn cuối của Giai đoạn 1: Nền tảng Ontology & Core API**.
-
-- **Mục tiêu Giai đoạn 1**: Dịch toàn bộ "hiến pháp" ontology thành mã lệnh. Xây dựng bộ khung ứng dụng vững chắc (models, repositories, services, APIs) và các cơ chế đảm bảo tuân thủ ontology (adapters, middleware).
-- **Tiến độ**: Hoàn thành ~95%. Nền móng đã cực kỳ vững chắc. Các công việc còn lại chủ yếu là hoàn thiện nốt một vài API endpoints và ổn định hệ thống.
-
-## 2. Lộ trình để triển khai toàn bộ triết lý
-
-Để biến toàn bộ triết lý trong hiến pháp thành một service chạy được, chúng ta sẽ đi qua các giai đoạn sau:
-
-- **Giai đoạn 1: Nền tảng Ontology & Core API (Đang hoàn thiện)**
-  - **Công việc**: Hoàn thiện 100% các API endpoint còn thiếu trong GAP analysis. "Đóng băng" phiên bản ontology-first này sau khi đã kiểm thử toàn diện.
-  - **Kết quả**: Một bộ API ổn định, tuân thủ ontology, sẵn sàng cho việc xây dựng logic tự động hóa.
-
-- **Giai đoạn 2: Tự động hóa & Vòng lặp Tăng trưởng Cơ bản**
-  - **Công việc**: Xây dựng logic nghiệp vụ trong các `services` để kết nối các entity lại với nhau thành các luồng tự động. Ví dụ: một `WIN` được tạo ra sẽ tự động kích hoạt việc tạo `Resources` hoặc đề xuất `Project` mới.
-  - **Kết quả**: Hệ thống bắt đầu "sống", các vòng lặp đầu tiên trong 8 vòng lặp tăng trưởng bắt đầu hoạt động.
-
-- **Giai đoạn 3: Tích hợp AI Agent**
-  - **Công việc**:
-    - Xây dựng `AGE (Artificial Genesis Engine)`: bộ não trung tâm thực hiện chu trình Cảm nhận -> Phân tích -> Đề xuất.
-    - Phát triển các AI Agent chuyên biệt (Research, Content, Dev) để thực thi các nhiệm vụ cụ thể do AGE giao.
-  - **Kết quả**: Hệ thống có "trí thông minh", có khả năng tự cảm nhận và đề xuất hành động.
-
-- **Giai đoạn 4: Vận hành Lượng tử & Tự tiến hóa**
-  - **Công việc**: Triển khai các cơ chế học tập nâng cao (RLHF, RAG), các thuật toán cảm nhận phức tạp và khả năng mô phỏng (Quantum Operating Model).
-  - **Kết quả**: TRM-OS đạt được tầm nhìn cuối cùng: một sinh vật số tự nhận thức, tự học và tự tiến hóa.
-
----
-
-> _Nội dung phân tích chi tiết bên dưới_
-
-## Phân tích GAP Ontology V3.2 (Cập nhật dựa trên OpenAPI)
-
-## Tiến độ mới nhất (30/06/2025)
+## Tiến độ mới nhất (01/07/2025)
 
 - ✅ **Hoàn thành sửa lỗi API LEADS_TO_WIN relationship**: Đã sửa lỗi thiếu import datetime trong endpoints/relationship.py, thêm các endpoints còn thiếu cho LEADS_TO_WIN (GET /projects/{project_id}/leads-to-wins, GET /events/{event_id}/leads-to-wins, GET /wins/{win_id}/led-by, DELETE /leads-to-win), và sửa lỗi trong adapter decorator để xử lý HTTP exceptions đúng cách. Tất cả 11 tests cho LEADS_TO_WIN API đã pass thành công.
 
@@ -48,6 +13,14 @@ Dự án đang ở **giai đoạn cuối của Giai đoạn 1: Nền tảng Onto
 - ✅ **Hoàn thành chuyển đổi integration tests sang async**: Đã chuyển đổi toàn bộ các integration tests sang sử dụng `httpx.AsyncClient` và `AsyncMock`. Đã cập nhật `test_recognition.py`, `test_recognition_simple.py` và các test liên quan. Đã thêm decorator `@pytest.mark.asyncio` cho các test và sử dụng `await` cho các API calls.
 
 - ✅ **Hoàn thành sửa lỗi decorator và async migration**: Đã sửa lỗi decorator `adapt_datetime_response` không được định nghĩa trong file `trm_api/api/v1/endpoints/task.py` và thay bằng `adapt_task_response`. Đã hoàn thành chuyển đổi async cho các phương thức trong `recognition_service.py` và `win_service.py` sang async/await pattern.
+
+- ✅ **Triển khai Agent Repository Pattern với async/await**: Đã refactor `AgentRepository` để hỗ trợ hoàn toàn các hoạt động async/await thông qua asyncio event loop executors. Các phương thức như `create_agent`, `get_agent_by_uid`, `get_agent_by_name`, `list_agents`, `update_agent` và `delete_agent` đã được cập nhật để hoạt động không đồng bộ phù hợp với thiết kế async của FastAPI. Đã cập nhật các API endpoints của Agent để sử dụng `AgentRepository` thay vì `AgentService` trước đây, đồng thời bổ sung các decorator để chuẩn hóa dữ liệu theo ontology.
+
+- ✅ **Triển khai SystemEventBus cho giao tiếp giữa các Agent**: Đã tạo module `eventbus` với lớp `SystemEventBus` singleton hỗ trợ mô hình publish-subscribe không đồng bộ. Định nghĩa `EventType` enum theo đúng ontology với các loại sự kiện như TENSION_CREATED, TASK_COMPLETED, AGENT_ACTIVATED. Triển khai các phương thức async để publish event và quản lý subscribers, hỗ trợ lưu lịch sử sự kiện và khả năng gọi nhiều handlers đồng thời thông qua `asyncio.gather`.
+
+- ✅ **Triển khai lớp BaseAgent trừu tượng**: Đã phát triển lớp `BaseAgent` làm nền tảng cho tất cả các AI Agent trong hệ thống. Lớp này cung cấp các phương thức vòng đời async như `initialize()`, `start()`, `stop()`, quản lý đăng ký sự kiện qua `SystemEventBus`, và các phương thức trừu tượng cho xử lý sự kiện. Bổ sung lớp `AgentMetadata` để lưu trữ thông tin mô tả của agent.
+
+- ✅ **Triển khai ResolutionCoordinatorAgent**: Đã phát triển `ResolutionCoordinatorAgent` kế thừa từ `BaseAgent`, với chức năng điều phối quy trình giải quyết các tension. Agent này đăng ký xử lý các sự kiện liên quan đến tension, kiểm tra định kỳ tình trạng tension, và triển khai logic khởi động async để tải các tension chưa giải quyết. Đã tách logic xử lý sự kiện chi tiết vào module `resolution_coordinator_handlers.py` riêng biệt để cải thiện khả năng bảo trì.
 
 - ✅ **Hoàn thành chuyển đổi RecognitionService sang async**: Đã chuyển đổi toàn bộ các phương thức trong `recognition_service.py` sang async/await pattern, bao gồm các phương thức update_recognition, delete_recognition, và get_recognition_with_relationships. Nâng cao xử lý quan hệ RECEIVED_BY, GIVEN_BY, RECOGNIZES_WIN, GENERATES_EVENT và các RECOGNIZES_CONTRIBUTION_TO theo ontology-first để đảm bảo dữ liệu luôn nhất quán.
 
@@ -176,16 +149,13 @@ class BaseCollectionAdapter(BaseAdapter):
 
 - ✅ **Xây dựng công cụ migration dữ liệu legacy**: Đã tạo công cụ `ontology_migration.py` để chuẩn hóa dữ liệu legacy trong Neo4j theo định nghĩa ontology mới. Công cụ này hỗ trợ chế độ dry-run, xử lý theo batch và thống kê chi tiết các thay đổi, giúp migration dữ liệu an toàn và có thể theo dõi tiến trình.
 
-
 ## Bài học kinh nghiệm từ việc sửa lỗi và nâng cấp
 
 Bài học lớn nhất là cách triển khai theo phương pháp ontology-first đòi hỏi sự chính xác và đầy đủ trong mọi thành phần. Bất cứ thiếu sót nào trong một phần (như thiếu API endpoint cho relationship hoặc xử lý lỗi không đúng cách) đều có thể ảnh hưởng đến tính nhất quán của toàn bộ hệ thống ontology.
 
 Việc cập nhật Pydantic v2 cũng cho thấy tầm quan trọng của việc theo kịp các thay đổi trong công nghệ, đặc biệt là các thư viện cốt lõi liên quan đến data validation và serialization.
 
-
 1. **Tầm quan trọng của việc import đầy đủ**: Thiếu import datetime trong endpoints/relationship.py dẫn đến lỗi NameError khi gọi datetime.utcnow(). Cần đảm bảo mọi dependency đều được import đầy đủ và rõ ràng, đặc biệt là các module chuẩn Python (datetime, uuid).
-
 
 ## Entity GAP Analysis
 
@@ -204,9 +174,9 @@ Việc cập nhật Pydantic v2 cũng cho thấy tầm quan trọng của việc
 | **IS_PART_OF_PROJECT** (Task IS_PART_OF_PROJECT Project) | ✅ Đã triển khai (ngầm) | Ngầm định qua API tạo (`POST /api/v1/tasks/` yêu cầu `project_id`) và liệt kê Task (`GET /api/v1/tasks/` theo `project_id`). |
 | **ACTOR_TRIGGERED_EVENT** (Event <- Agent): Ai/Cái gì đã kích hoạt Event này. | ✅ Đã triển khai | Graph model `event.py` định nghĩa mối quan hệ này (là `RelationshipFrom`). API đã triển khai và hoạt động đúng trong API `/api/v1/events/` thông qua tham số `actor_uid` trong request. |
 | **EVENT_CONTEXT** (Event EVENT_CONTEXT [Project,Task,etc.]) | ✅ Đã triển khai | Graph model `event.py` định nghĩa relationship riêng cho từng loại entity (`primary_context_agent`, `primary_context_project`, `primary_context_task`, `primary_context_resource`). API đã triển khai và hoạt động đúng trong `/api/v1/events/` thông qua `context_uid` và `context_node_label`. |
-| **HAS_SKILL** (User/Agent HAS_SKILL Skill) | ✅ Đã triển khai | Đã triển khai đầy đủ API endpoints trong `skill_relationship.py` với các chức năng create (POST `/agents/{agent_id}/has-skill/{skill_id}`), get (GET `/agents/{agent_id}/skills` và GET `/skills/{skill_id}/agents`) và delete (DELETE `/agents/{agent_id}/has-skill/{skill_id}`). Hỗ trợ các thuộc tính như `proficiency_level`, `certified`, `years_experience` và `notes`. |
+| **HAS_SKILL** (User/Agent HAS_SKILL Skill) | ⚠️ Chưa rõ qua API | Không có API endpoint trực tiếp quản lý mối quan hệ này trong OpenAPI spec. Cần kiểm tra logic service hoặc nếu quản lý qua thuộc tính của User/Agent. |
 | **PARTICIPATES_IN** (User PARTICIPATES_IN Team) | ✅ Đã triển khai | Triển khai qua API `/api/v1/teams/{team_uid}/members/{user_uid}` (thêm user vào team) và `GET /api/v1/teams/{team_uid}/members`. |
-| **MANAGES_PROJECT** (Agent MANAGES_PROJECT Project) | ✅ Đã triển khai | Đã triển khai đầy đủ API endpoints trong `project_relationship.py` với các chức năng create (POST `/agents/{agent_id}/manages-project/{project_id}`), get (GET `/agents/{agent_id}/managed-projects` và GET `/projects/{project_id}/managers`) và delete (DELETE `/agents/{agent_id}/manages-project/{project_id}`). Hỗ trợ các thuộc tính như `start_date`, `role` và `notes`. |
+| **MANAGES_PROJECT** (Agent MANAGES_PROJECT Project) | ⚠️ Chưa rõ qua API | Không có API endpoint trực tiếp quản lý mối quan hệ này. Có thể được quản lý qua thuộc tính `ownerAgentId` của Project (nếu có). Cần kiểm tra schema Project và logic service. |
 | **ASSIGNED_TO_TASK** (Resource ASSIGNED_TO_TASK Task) | ✅ Đã triển khai | Triển khai qua API `/api/v1/resources/{resource_uid}/assign-to-task/{task_uid}`. |
 | **GENERATES_KNOWLEDGE** (WIN GENERATES_KNOWLEDGE KnowledgeSnippet) | ✅ Đã triển khai | Triển khai qua API `/api/v1/relationships/generates-knowledge` với các endpoints: tạo mới (POST), lấy KnowledgeSnippets theo WIN (`/wins/{win_id}/generates-knowledge`), lấy WINs theo KnowledgeSnippet (`/knowledge-snippets/{snippet_id}/generated-from-wins`) và xóa mối quan hệ (DELETE). Đã triển khai đầy đủ unit tests và integration tests. |
 
@@ -221,22 +191,20 @@ Việc cập nhật Pydantic v2 cũng cho thấy tầm quan trọng của việc
 , đã sửa lỗi validation với chuẩn hóa enum và datetime
 
 #### Chi tiết API endpoints cho `WIN`:
+  - `POST /api/v1/wins/` ✅ Đã triển khai với chuẩn hóa enum và datetime
+  - `GET /api/v1/wins/{win_uid}` ✅ Đã triển khai với chuẩn hóa enum và datetime
+  - `PUT /api/v1/wins/{win_uid}` ✅ Đã triển khai với chuẩn hóa enum và datetime
+  - `GET /api/v1/wins/` ✅ Đã triển khai với chuẩn hóa enum và datetime, chuẩn hóa kết quả
+  - 💯 Entity WIN đã triển khai đầy đủ tất cả API endpoints theo đúng yêu cầu của Ontology V3.2
 
-- `POST /api/v1/wins/` ✅ Đã triển khai với chuẩn hóa enum và datetime
-- `GET /api/v1/wins/{win_uid}` ✅ Đã triển khai với chuẩn hóa enum và datetime
-- `PUT /api/v1/wins/{win_uid}` ✅ Đã triển khai với chuẩn hóa enum và datetime
-- `GET /api/v1/wins/` ✅ Đã triển khai với chuẩn hóa enum và datetime, chuẩn hóa kết quả
-- 💯 Entity WIN đã triển khai đầy đủ tất cả API endpoints theo đúng yêu cầu của Ontology V3.2
-
-#### Chi tiết API endpoints cho `KnowledgeSnippet`:
-
+- Chi tiết API endpoints cho `KnowledgeSnippet`:
   - `POST /api/v1/knowledge-snippets/` ✅ Đã triển khai với chuẩn hóa datetime qua decorator
   - `GET /api/v1/knowledge-snippets/{snippet_uid}` ✅ Đã triển khai với chuẩn hóa datetime
   - `PUT /api/v1/knowledge-snippets/{snippet_uid}` ✗ Chưa triển khai
   - `DELETE /api/v1/knowledge-snippets/{snippet_uid}` ✗ Chưa triển khai
   - `GET /api/v1/knowledge-snippets/` ✅ Đã triển khai với chuẩn hóa datetime, chuẩn hóa kết quả
 
-#### Kiểm thử toàn diện và Async Integration Tests
+4. Kiểm thử toàn diện và Async Integration Tests:
 
 - ✅ Hoàn thành chuyển đổi toàn bộ Integration Tests sang Async Pattern: Đã chuyển đổi 100% test integration từ synchronous TestClient sang async với httpx.AsyncClient và AsyncMock.
 - ✅ Áp dụng pytest-asyncio: Sử dụng plugin pytest-asyncio để hỗ trợ async test fixtures và test functions với decorator `@pytest.mark.asyncio`.
@@ -253,36 +221,41 @@ Việc cập nhật Pydantic v2 cũng cho thấy tầm quan trọng của việc
 - ✅ Đã sửa lỗi và kiểm thử thành công API endpoint `GET /api/v1/recognitions/` với dữ liệu thực tế từ Neo4j.
 - ✅ Kiểm thử việc serialize/deserialize datetime cho tất cả entity, sử dụng chuẩn `Neo4jDateTimeProperty` và adapter ISO format cho mọi entity và relationship.
 
-#### Data Adapter Pattern và Async API
+5. **Data Adapter Pattern và Async API:**
 
-- ✅ **Đã triển khai Enum Adapter**: Tạo module `enum_adapter.py` để chuẩn hóa các giá trị enum không đồng nhất trong Neo4j (TaskType, TaskStatus, KnowledgeSnippetType, v.v.). Xử lý nhiều dạng biểu diễn khác nhau (uppercase, title-case, tên enum đầy đủ) và trả về giá trị chuẩn theo ontology.
+- ✅ **Đã triển khai và cải tiến Enum Adapter**: Tạo module `enum_adapter.py` để chuẩn hóa các giá trị enum không đồng nhất trong Neo4j (TaskType, TaskStatus, EffortUnit, KnowledgeSnippetType, v.v.). Xử lý nhiều dạng biểu diễn khác nhau (uppercase, title-case, tên enum đầy đủ) và trả về giá trị chuẩn camelCase theo ontology. Đã cập nhật `normalize_enum_value()` để nhận dạng và loại bỏ prefix enum class (ví dụ: 'TaskStatus.TODO' → 'ToDo'), giải quyết lỗi InflateError khi Neo4j cố gắng xử lý enum có prefix.
 - ✅ **Đã triển khai DateTime Adapter**: Mở rộng `normalize_dict_datetimes` hỗ trợ cấu trúc lồng sâu và thêm hàm `_normalize_list_items` để xử lý datetime trong arrays.
 - ✅ **Đã triển khai Response Adapter**: Tạo các decorator chuyên biệt (`adapt_task_response`, `adapt_project_response`, `adapt_knowledge_snippet_response`, v.v.) và decorator tổng quát `adapt_ontology_response` cho mọi endpoint, đảm bảo chuẩn hóa dữ liệu trả về.
 - ✅ **Hoàn thành Data Adapter Pattern và Async API cho toàn hệ thống**: Tất cả các phương thức trong service layer và test đã chuyển sang async/await pattern. Decorator adapter đã được áp dụng cho tất cả API endpoints (adapt_task_response, adapt_project_response, adapt_knowledge_snippet_response, v.v.). Các integration tests đã được chuyển đổi sang sử dụng httpx.AsyncClient và AsyncMock.
  - ✅ **Hoàn thành chuyển đổi Async API cho endpoints**: Tất cả các endpoints đã chuyển đổi sang async/await pattern.
  - ✅ **Để phòng ngoài lỗi coroutine**: Sử dụng `finally: driver.close()` trong session handler để tránh lỗi "Task exception was never retrieved".
-- ✅ **Thách thức trong chuyển đổi async integration tests**:
-  - Đã xây dựng một hệ thống fixture async nhất quán (`async_test_client`) để sử dụng trong các test cases.
-  - Đã chuyển đổi `setup_method` truyền thống sang async fixture `setup_test` của pytest-asyncio.
-  {{ ... }}
-  - Đã tổ chức lại các mock bằng cách sử dụng `AsyncMock` thay vì `MagicMock` để tranh giả lập coroutine.
-  - Đã tạo tài liệu hướng dẫn đầy đủ về cách viết và bảo trì các integration test mới.
-- ⚠️ **Chưa hoàn thành áp dụng Adapter Decorator**: Phát hiện lỗi khi triển khai decorator cho Task endpoints. Trong file `trm_api/api/v1/endpoints/task.py`, có sử dụng decorator `@adapt_datetime_response` nhưng không được định nghĩa đúng cách, gây lỗi NameError. Cần kiểm tra module `decorators.py` và áp dụng decorator đúng (có thể là `adapt_task_response` hoặc `adapt_ontology_response` đã được chuẩn hóa mới).
-- ⚠️ **Cần điều chỉnh Task API endpoints**: Phải sửa lỗi decorator cho các Task endpoints để phù hợp với mô hình adapter pattern đã chuẩn hóa trước khi kiểm thử toàn diện.
-- ✅ **Đã áp dụng thành công cho WIN API**: Triển khai các adapter function `normalize_win_status`, `normalize_win_type` và `normalize_dict_datetimes` áp dụng cho tất cả API endpoints của WIN.
-- ✅ **Đã áp dụng cho KnowledgeSnippet API**: Áp dụng decorator `adapt_datetime_response` cho tất cả endpoint của KnowledgeSnippet, đảm bảo chuẩn hóa nhất quán.
-- **Bài học từ API Async**:
-   - Async pattern giúp tăng hiệu suất API và dễ dàng xử lý đồng thời nhiều request.
-   - Adapter pattern kết hợp với async tạo nên cơ sở vững chắc cho triết lý ontology-first.
-   - Tạo các adapter function riêng biệt theo entity (`normalize_win_status`, `normalize_win_type`) giúp làm rõ mục đích và dễ dàng bảo trì.
-   - Kết hợp logging chi tiết với adapter giúp phát hiện và khắc phục vấn đề một cách hiệu quả.
- - **Kế hoạch nâng cao**:
-   - Tổ chức các adapter vào một module riêng (`trm_api/adapters/`) để tăng khả năng tái sử dụng.
-   - Tạo các decorator để áp dụng adapter một cách tự động cho các endpoint.
-   - Phát triển các test case riêng cho logic của adapter.
-   - Xây dựng các migration script để chuẩn hóa dữ liệu legacy, từ đó có thể bật lại `response_model` validation.
+ - ✅ **Thách thức trong chuyển đổi async integration tests**:
+   - Đã xây dựng một hệ thống fixture async nhất quán (`async_test_client`) để sử dụng trong các test cases.
+   - Đã chuyển đổi `setup_method` truyền thống sang async fixture `setup_test` của pytest-asyncio.
+{{ ... }}
+   - Đã tổ chức lại các mock bằng cách sử dụng `AsyncMock` thay vì `MagicMock` để tranh giả lập coroutine.
+   - Đã tạo tài liệu hướng dẫn đầy đủ về cách viết và bảo trì các integration test mới.
+ - ⚠️ **Chưa hoàn thành áp dụng Adapter Decorator**: Phát hiện lỗi khi triển khai decorator cho Task endpoints. Trong file `trm_api/api/v1/endpoints/task.py`, có sử dụng decorator `@adapt_datetime_response` nhưng không được định nghĩa đúng cách, gây lỗi NameError. Cần kiểm tra module `decorators.py` và áp dụng decorator đúng (có thể là `adapt_task_response` hoặc `adapt_ontology_response` đã được chuẩn hóa mới).
+ - ⚠️ **Cần điều chỉnh Task API endpoints**: Phải sửa lỗi decorator cho các Task endpoints để phù hợp với mô hình adapter pattern đã chuẩn hóa trước khi kiểm thử toàn diện.
+ - ✅ **Đã áp dụng thành công cho WIN API**: Triển khai các adapter function `normalize_win_status`, `normalize_win_type` và `normalize_dict_datetimes` áp dụng cho tất cả API endpoints của WIN.
+ - ✅ **Đã áp dụng cho KnowledgeSnippet API**: Áp dụng decorator `adapt_datetime_response` cho tất cả endpoint của KnowledgeSnippet, đảm bảo chuẩn hóa nhất quán.
+  - **Bài học từ API Async và Xử lý Enum**:
+    - Async pattern giúp tăng hiệu suất API và dễ dàng xử lý đồng thời nhiều request.
+    - Adapter pattern kết hợp với async tạo nên cơ sở vững chắc cho triết lý ontology-first.
+    - **EnumAdapter là then chốt cho tính nhất quán dữ liệu**: Cần triển khai xử lý enum đồng bộ giữa Python và Neo4j để tránh InflateError.
+    - **Enum phải được chuẩn hóa ở tầng repository**: Xử lý enum ở lớp gần database nhất để đảm bảo dữ liệu lưu vào Neo4j đúng định dạng.
+    - **Neo4j yêu cầu enum ở định dạng camelCase không prefix**: Tất cả enum phải được chuẩn hóa (ví dụ: "TaskStatus.TODO" thành "ToDo") trước khi lưu vào Neo4j.
+    - Tạo các adapter function riêng biệt theo entity (`normalize_win_status`, `normalize_task_status`) giúp làm rõ mục đích và dễ dàng bảo trì.
+    - Kết hợp logging chi tiết với adapter giúp phát hiện và khắc phục vấn đề một cách hiệu quả.
+  - **Kế hoạch nâng cao**:
+    - ✅ **Tổ chức các adapter vào một module riêng**: Đã tổ chức trong `trm_api/adapters/` để tăng khả năng tái sử dụng.
+    - ✅ **Chuẩn hóa cách xử lý enum trong toàn hệ thống**: Tất cả repository đã được cập nhật để sử dụng `EnumAdapter.normalize_enum_value()` cho mọi enum trước khi lưu vào Neo4j.
+    - ✅ **Xử lý định dạng phân trang mới**: Đã cập nhật các script để xử lý định dạng phân trang {"items": [...], "metadata": {...}} trong Ontology V3.2.
+    - ✅ **Thống nhất trường `uid` thay thế cho các tên trường khác**: Đã chuẩn hóa việc sử dụng `uid` thay vì các trường như `userId`, `taskId`, `projectId` theo đúng chuẩn Ontology V3.2.
+    - Phát triển các test case riêng cho logic của adapter.
+    - Xây dựng các migration script để chuẩn hóa dữ liệu legacy, từ đó có thể bật lại `response_model` validation.
 
-#### Cập nhật tài liệu
+4.  **Cập nhật tài liệu:**
  - Liên tục cập nhật `GAP_ANALYSIS_ONTOLOGY_V3.2.md` này.
  - Đảm bảo tài liệu phản ánh chính xác trạng thái triển khai hiện tại.
  - Cập nhật OpenAPI spec theo các API endpoints đã triển khai.

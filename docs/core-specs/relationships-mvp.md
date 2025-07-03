@@ -16,9 +16,11 @@ This document defines the core relationships (edges) between the entities for th
 - **Target Node:** `Tension`
 - **Properties (Optional for MVP):**
   - `effectivenessScore` (Float): A score indicating how effectively the task resolved the tension, can be added later. [Thay thế cho `effectiveness_score`]
-- **Hiện trạng (2025-06-15):** 
-  - Đã định nghĩa trong ontology nhưng chưa triển khai trong code
-  - Cần triển khai sau khi hoàn thiện Tension API và Task API
+- **Hiện trạng (2025-07-03):** 
+  - Đã triển khai đầy đủ trong graph_models, repositories, services và API endpoints
+  - Đã cung cấp đầy đủ phương thức connect/disconnect/query trong TaskRepository
+  - Đã triển khai các API endpoints trong TaskController: `/tasks/{task_id}/resolves/{tension_id}`, `/tasks/{task_id}/resolves`, và `/tasks/{task_id}/with-relationships`
+  - Đã viết test cases cho quan hệ RESOLVES
 
 ---
 
@@ -97,6 +99,24 @@ This document defines the core relationships (edges) between the entities for th
 - **Example Usage:**
 
   ```json
+
+---
+
+## 7. `(Tension)-[:LEADS_TO_WIN]->(WIN)`
+
+- **Description:** Quan hệ thể hiện rằng một `Tension` đã dẫn đến việc tạo ra hoặc đóng góp cho một `WIN` (What's Important Now).
+- **Direction:** `Tension` -> `WIN`
+- **Source Node:** `Tension`
+- **Target Node:** `WIN`
+- **Properties:**
+  - `contributionLevel` (Integer): Mức độ đóng góp của Tension cho WIN, từ 1 (thấp) đến 5 (cao).
+  - `directContribution` (Boolean): Xác định liệu Tension có trực tiếp dẫn đến WIN hay không.
+  - `createdAt` (Datetime): Thời điểm thiết lập mối quan hệ.
+- **Hiện trạng (2025-07-03):**
+  - Đã triển khai đầy đủ trong graph_models (Tension và WIN), repositories, services và API endpoints
+  - Đã cung cấp đầy đủ phương thức connect/disconnect/query trong TensionRepository
+  - Đã triển khai các API endpoints trong TensionController: `/tensions/{tension_id}/leads-to-win/{win_id}`, `/tensions/{tension_id}/leads-to-win`, và `/tensions/{tension_id}/with-relationships`
+  - Đã viết test cases cho quan hệ LEADS_TO_WIN
   {
     "name": "TASK_COMPLETED",
     "description": "A task was completed",

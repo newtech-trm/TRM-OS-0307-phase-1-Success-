@@ -63,3 +63,15 @@ class EventType(str, Enum):
     WIN_CREATED = "WIN_CREATED"
     WIN_APPROVED = "WIN_APPROVED"
     RECOGNITION_GIVEN = "RECOGNITION_GIVEN"
+
+# Enum cho Entity Types - Ontology V3.2
+class EntityType(str, Enum):
+    """Các loại entity trong ontology."""
+    WIN = "WIN"
+    RECOGNITION = "RECOGNITION"
+    TASK = "TASK"
+    EVENT = "EVENT"
+    KNOWLEDGE_SNIPPET = "KNOWLEDGE_SNIPPET"
+    PROJECT = "PROJECT"
+    AGENT = "AGENT"
+    USER = "USER"

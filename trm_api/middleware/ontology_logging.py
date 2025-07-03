@@ -1,9 +1,9 @@
 from fastapi import Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
 import logging
 import json
 import time
 from typing import Callable, Dict, Any, Optional
-from starlette.middleware.base import BaseHTTPMiddleware
 from trm_api.core.config import settings
 
 # Thiết lập logger riêng cho ontology validation
@@ -70,8 +70,6 @@ class OntologyLoggingMiddleware(BaseHTTPMiddleware):
                     log_data["request_body"] = body_json
                 except json.JSONDecodeError:
                     log_data["request_body"] = "[Non-JSON body]"
-                # Reset request body để các handler khác có thể đọc nó
-                await request.body()
             except Exception as e:
                 log_data["request_body_error"] = str(e)
         

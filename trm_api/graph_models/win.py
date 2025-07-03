@@ -44,7 +44,8 @@ class WIN(BaseNode):
     # '.event.Event' assumes event.py exists in the current package (graph_models)
     led_to_by_events = RelationshipFrom('.event.Event', 'LEADS_TO_WIN', model=LeadsToWinRel)
     led_to_by_projects = RelationshipFrom('.project.Project', 'LEADS_TO_WIN', model=LeadsToWinRel)
-    # Consider if other entities like Task can also lead to a WIN as per Ontology V3.2
+    led_to_by_tensions = RelationshipFrom('.tension.Tension', 'LEADS_TO_WIN', model=LeadsToWinRel)
+    # Ontology V3.2 defines that Tensions can lead to WINs through the LEADS_TO_WIN relationship
 
     # What this WIN is recognized by
     # '.recognition.Recognition' assumes recognition.py exists here

@@ -167,6 +167,125 @@ def disconnect_project_from_tension(
         )
     return None
 
+# Task - Tension relationship endpoints (RESOLVES)
+@router.post("/{tension_id}/resolved-by-task/{task_id}", status_code=status.HTTP_201_CREATED)
+def connect_task_to_tension(
+    *,
+    tension_id: str,
+    task_id: str,
+    repo: TensionRepository = Depends(get_tension_repo)
+) -> Any:
+    """
+    Establish a RESOLVES relationship from a Task to a Tension.
+    This indicates that the Task was created to resolve this Tension.
+    """
+    success = repo.connect_task_to_tension(tension_id=tension_id, task_id=task_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not establish relationship. Either Tension or Task not found."
+        )
+    return {"detail": f"Task {task_id} now resolves Tension {tension_id}"}
+
+@router.get("/{tension_id}/resolving-tasks", response_model=List[dict])
+def get_tasks_resolving_tension(
+    *,
+    tension_id: str,
+    skip: int = 0,
+    limit: int = 100,
+    repo: TensionRepository = Depends(get_tension_repo)
+) -> Any:
+    """
+    Get all Tasks that are resolving a specific Tension.
+    """
+    tasks = repo.get_tasks_resolving_tension(tension_id=tension_id, skip=skip, limit=limit)
+    if not tasks and not repo.get_tension_by_uid(tension_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tension not found"
+        )
+    return [{
+        "uid": task.uid,
+        "name": task.name,
+        "description": task.description,
+        "status": task.status,
+        "priority": task.priority
+    } for task in tasks]
+
+@router.delete("/{tension_id}/resolved-by-task/{task_id}")
+def disconnect_task_from_tension(
+    *,
+    tension_id: str,
+    task_id: str,
+    repo: TensionRepository = Depends(get_tension_repo)
+) -> Any:
+    """
+    Remove the RESOLVES relationship between a Task and a Tension.
+    """
+    success = repo.disconnect_task_from_tension(tension_id=tension_id, task_id=task_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not remove relationship. Either Tension or Task not found."
+        )
+    return {"detail": f"Task {task_id} no longer resolves Tension {tension_id}"}
+
+# Tension - WIN relationship endpoints (LEADS_TO_WIN)
+@router.post("/{tension_id}/leads-to-win/{win_id}", status_code=status.HTTP_201_CREATED)
+def connect_tension_to_win(
+    *,
+    tension_id: str,
+    win_id: str,
+    repo: TensionRepository = Depends(get_tension_repo)
+) -> Any:
+    """
+    Establish a LEADS_TO_WIN relationship from a Tension to a WIN.
+    This indicates that resolving the Tension led to this WIN.
+    """
+    success = repo.connect_tension_to_win(tension_id=tension_id, win_id=win_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not establish relationship. Either Tension or WIN not found."
+        )
+    return {"detail": f"Tension {tension_id} now leads to WIN {win_id}"}
+
+@router.delete("/{tension_id}/leads-to-win/{win_id}")
+def disconnect_tension_from_win(
+    *,
+    tension_id: str,
+    win_id: str,
+    repo: TensionRepository = Depends(get_tension_repo)
+) -> Any:
+    """
+    Remove the LEADS_TO_WIN relationship between a Tension and a WIN.
+    """
+    success = repo.disconnect_tension_from_win(tension_id=tension_id, win_id=win_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not remove relationship. Either Tension or WIN not found."
+        )
+    return {"detail": f"Tension {tension_id} no longer leads to WIN {win_id}"}
+
+@router.get("/{tension_id}/with-relationships", response_model=dict)
+def get_tension_with_relationships(
+    *,
+    tension_id: str,
+    repo: TensionRepository = Depends(get_tension_repo)
+) -> Any:
+    """
+    Get a comprehensive view of a tension with all its relationships loaded.
+    This endpoint provides a complete picture of the tension as defined in Ontology V3.2.
+    """
+    tension_data = repo.get_tension_with_relationships(tension_id=tension_id)
+    if not tension_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tension not found"
+        )
+    return tension_data
+
 # TODO: Refactor this relationship endpoint using the repository pattern.
 # @router.post("/{tension_id}/identified-by/{user_id}", response_model=Relationship, status_code=status.HTTP_201_CREATED)
 # def identify_tension_by_user(

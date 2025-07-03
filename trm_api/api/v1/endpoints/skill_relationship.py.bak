@@ -1,0 +1,148 @@
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
+from pydantic import BaseModel
+from typing import List, Optional
+import uuid
+from datetime import datetime
+
+from trm_api.models.relationships import Relationship, TargetEntityTypeEnum
+from trm_api.services.relationship_service import relationship_service, RelationshipService
+from trm_api.adapters.decorators import adapt_ontology_response
+
+router = APIRouter()
+
+# HAS_SKILL endpoints
+
+class HasSkillRequest(BaseModel):
+    """Optional properties for the HAS_SKILL relationship."""
+    proficiency_level: Optional[int] = None  # 1-5 scale
+    certified: Optional[bool] = False
+    years_experience: Optional[float] = None
+    notes: Optional[str] = None
+
+@router.post("/agents/{agent_id}/has-skill/{skill_id}", status_code=status.HTTP_201_CREATED)
+@adapt_ontology_response(entity_type="relationship")
+async def create_has_skill_relationship(
+    agent_id: str,
+    skill_id: str,
+    relationship_data: HasSkillRequest = Body(None),
+    service: RelationshipService = Depends(lambda: relationship_service)
+):
+    """
+    Create a HAS_SKILL relationship from an Agent to a Skill.
+    
+    Parameters:
+    - agent_id: The ID of the Agent
+    - skill_id: The ID of the Skill
+    - relationship_data: Optional properties for the relationship
+    
+    Returns:
+    - The created relationship
+    """
+    # Prepare optional properties
+    properties = {}
+    if relationship_data:
+        if relationship_data.proficiency_level is not None:
+            properties['proficiency_level'] = relationship_data.proficiency_level
+        if relationship_data.certified is not None:
+            properties['certified'] = relationship_data.certified
+        if relationship_data.years_experience is not None:
+            properties['years_experience'] = relationship_data.years_experience
+        if relationship_data.notes:
+            properties['notes'] = relationship_data.notes
+    
+    relationship = await service.create_relationship(
+        source_id=agent_id,
+        source_type=TargetEntityTypeEnum.AGENT,
+        target_id=skill_id,
+        target_type=TargetEntityTypeEnum.SKILL,
+        relationship_type="HAS_SKILL",
+        relationship_property=properties
+    )
+    
+    if not relationship:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent or Skill not found or relationship could not be created."
+        )
+    
+    return relationship
+
+@router.get("/agents/{agent_id}/skills")
+@adapt_ontology_response(entity_type="relationship")
+async def get_skills_for_agent(
+    agent_id: str,
+    service: RelationshipService = Depends(lambda: relationship_service)
+):
+    """
+    Get all Skills that a specific Agent has.
+    
+    Parameters:
+    - agent_id: The ID of the Agent
+    
+    Returns:
+    - A list of relationships representing Skills that the Agent has
+    """
+    relationships = await service.get_relationships(
+        entity_id=agent_id,
+        entity_type=TargetEntityTypeEnum.AGENT,
+        direction="outgoing",
+        relationship_type="HAS_SKILL",
+        related_entity_type=TargetEntityTypeEnum.SKILL
+    )
+    
+    return relationships
+
+@router.get("/skills/{skill_id}/agents")
+@adapt_ontology_response(entity_type="relationship")
+async def get_agents_with_skill(
+    skill_id: str,
+    service: RelationshipService = Depends(lambda: relationship_service)
+):
+    """
+    Get all Agents that have a specific Skill.
+    
+    Parameters:
+    - skill_id: The ID of the Skill
+    
+    Returns:
+    - A list of relationships representing Agents that have the Skill
+    """
+    relationships = await service.get_relationships(
+        entity_id=skill_id,
+        entity_type=TargetEntityTypeEnum.SKILL,
+        direction="incoming",
+        relationship_type="HAS_SKILL",
+        related_entity_type=TargetEntityTypeEnum.AGENT
+    )
+    
+    return relationships
+
+@router.delete("/agents/{agent_id}/has-skill/{skill_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_has_skill_relationship(
+    agent_id: str,
+    skill_id: str,
+    service: RelationshipService = Depends(lambda: relationship_service)
+):
+    """
+    Delete a HAS_SKILL relationship between an Agent and a Skill.
+    
+    Parameters:
+    - agent_id: The ID of the Agent
+    - skill_id: The ID of the Skill
+    
+    Returns:
+    - 204 No Content if successful
+    """
+    success = await service.delete_relationship(
+        source_id=agent_id,
+        source_type=TargetEntityTypeEnum.AGENT,
+        target_id=skill_id,
+        target_type=TargetEntityTypeEnum.SKILL,
+        relationship_type="HAS_SKILL"
+    )
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Relationship not found or could not be deleted."
+        )

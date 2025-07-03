@@ -27,7 +27,7 @@ async def list_tasks_for_project(
     Retrieve paginated tasks for a specific project.
     """
     # Use TaskService to handle pagination logic
-    return await service.get_paginated_tasks_for_project(
+    return service.get_paginated_tasks_for_project(
         project_id=project_id, 
         page=page, 
         page_size=page_size
@@ -44,7 +44,7 @@ async def create_task(
     Create a new task for a project according to Ontology V3.2.
     """
     # The service handles validation, finding the project and linking it
-    created_task = await service.create_task(task_data=task_in)
+    created_task = service.create_task(task_data=task_in)
     if not created_task:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -286,22 +286,98 @@ def complete_task_assignment(
         "completed": True
     }
 
-@router.delete("/{task_id}/assignment/{assignee_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_task_assignment(
-    *,
+@router.delete("/{task_id}/assignee/{assignee_id}")
+async def remove_task_assignment(
+    *, 
     task_id: str,
     assignee_id: str,
     service: TaskService = Depends(get_task_service)
-) -> None:
+) -> Any:
     """
     Remove a task assignment (ASSIGNS_TASK relationship) between a task and a user/agent.
     """
-    success = service.remove_task_assignment(task_id=task_id, assignee_id=assignee_id)
-    
+    success = await service.remove_task_assignment(task_id=task_id, assignee_id=assignee_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task, assignee, or assignment relationship not found"
+            detail="Could not remove assignment. Either task or assignee not found, or no assignment exists."
         )
+    return {"detail": f"Assignment removed between task {task_id} and assignee {assignee_id}"}
+
+# --- Task-Tension Relationship Endpoints ---
+
+@router.post("/{task_id}/resolves/{tension_id}", status_code=status.HTTP_201_CREATED)
+async def connect_task_to_tension(
+    *, 
+    task_id: str,
+    tension_id: str,
+    service: TaskService = Depends(get_task_service)
+) -> Any:
+    """
+    Establish a RESOLVES relationship from a Task to a Tension.
+    This indicates that the Task was created to resolve this Tension.
     
-    return None
+    According to Ontology V3.2, this creates a bidirectional relationship between Task and Tension.
+    """
+    success = await service.connect_task_to_tension(task_id=task_id, tension_id=tension_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not establish relationship. Either Task or Tension not found."
+        )
+    return {"detail": f"Task {task_id} now resolves Tension {tension_id}"}
+
+@router.delete("/{task_id}/resolves/{tension_id}")
+async def disconnect_task_from_tension(
+    *, 
+    task_id: str,
+    tension_id: str,
+    service: TaskService = Depends(get_task_service)
+) -> Any:
+    """
+    Remove the RESOLVES relationship between a Task and a Tension.
+    """
+    success = await service.disconnect_task_from_tension(task_id=task_id, tension_id=tension_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not remove relationship. Either Task or Tension not found, or no relationship exists."
+        )
+    return {"detail": f"Task {task_id} no longer resolves Tension {tension_id}"}
+
+@router.get("/{task_id}/resolves", response_model=List[Dict])
+async def get_tensions_resolved_by_task(
+    *, 
+    task_id: str,
+    skip: int = Query(0, ge=0, description="Number of items to skip"),
+    limit: int = Query(100, ge=1, le=500, description="Maximum number of items to return"),
+    service: TaskService = Depends(get_task_service)
+) -> Any:
+    """
+    Get all Tensions that are resolved by a specific Task.
+    """
+    tensions = await service.get_tensions_resolved_by_task(task_id=task_id, skip=skip, limit=limit)
+    if tensions is None:  # Different from empty list
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    return tensions
+
+@router.get("/{task_id}/with-relationships", response_model=Dict)
+async def get_task_with_relationships(
+    *, 
+    task_id: str,
+    service: TaskService = Depends(get_task_service)
+) -> Any:
+    """
+    Get a comprehensive view of a task with all its relationships loaded.
+    This endpoint provides a complete picture of the task as defined in Ontology V3.2.
+    """
+    task_data = await service.get_task_with_relationships(task_id=task_id)
+    if not task_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    return task_data

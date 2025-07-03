@@ -39,6 +39,7 @@ TRM-OS là một hệ thống quản lý tri thức và workflow dựa trên ont
 - ✅ **Entity Recognition**: Đã triển khai thành công, sửa các lỗi validation và enum không đồng nhất
 - ✅ **Entity Win**: Đã triển khai đầy đủ, chuyển đổi sang async hoàn chỉnh cho tất cả phương thức
 - ✅ **Entity KnowledgeSnippet**: Đã triển khai đầy đủ theo ontology-first
+- ✅ **Entity Tension**: Đã triển khai đầy đủ, API endpoint hoạt động ổn định với validation phù hợp
 - ✅ **Relationships**: Đã triển khai thành công các relationship chính:
   - ACTOR_TRIGGERED_EVENT (Agent -> Event)
   - EVENT_CONTEXT (Event -> [Agent, Project, Task, Resource])
@@ -47,7 +48,10 @@ TRM-OS là một hệ thống quản lý tri thức và workflow dựa trên ont
   - RECOGNIZES_CONTRIBUTION_TO (Recognition -> [Project, Task, Resource])
   - GENERATES_KNOWLEDGE (WIN -> KnowledgeSnippet)
   - LEADS_TO_WIN (Project/Event -> WIN)
+  - RESOLVES (Task -> Tension) ✨
+  - LEADS_TO_WIN (Tension -> WIN) ✨
 - ✅ **Pydantic v2 Migration**: Đã cập nhật tất cả model từ `class Config` cũ sang `model_config` với `ConfigDict` phù hợp với Pydantic v2
+- ✅ **Documentation**: Đã cập nhật tài liệu API cho các endpoints mới theo Ontology V3.2
 
 ### Chuyển đổi Async hoàn chỉnh
 
