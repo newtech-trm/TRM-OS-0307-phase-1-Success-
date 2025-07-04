@@ -3,7 +3,7 @@ from datetime import datetime
 import uuid
 import asyncio
 
-from trm_api.schemas.recognition import RecognitionCreate, RecognitionUpdate, Recognition
+from trm_api.schemas.recognition import RecognitionCreate, RecognitionUpdate
 from trm_api.graph_models.recognition import Recognition as RecognitionGraphModel
 from trm_api.graph_models.agent import Agent as AgentGraphModel
 from trm_api.graph_models.win import WIN as WINGraphModel
@@ -20,7 +20,7 @@ class RecognitionService:
     Refactored to use Neomodel OGM and follow Ontology V3.2.
     """
     
-    async def create_recognition(self, recognition_data: RecognitionCreate) -> Optional[Recognition]:
+    async def create_recognition(self, recognition_data: RecognitionCreate) -> Optional[RecognitionGraphModel]:
         """
         Create a new Recognition and establish relationships according to Ontology V3.2.
         
@@ -58,9 +58,9 @@ class RecognitionService:
                         recognition.given_by.connect(granter)
                     except AgentGraphModel.DoesNotExist:
                         # Agent không tồn tại nhưng đây là test nên không cần báo lỗi
-                        logger.debug("Agent with ID %s does not exist (silently continuing)", recognition_data.given_by_agent_id)
+                        print(f"Agent with ID {recognition_data.given_by_agent_id} does not exist (silently continuing)")
             except Exception as e:
-                logger.warning("Failed to establish GIVEN_BY relationship: %s", e)
+                print(f"Warning: Failed to establish GIVEN_BY relationship: {e}")
             
             # Establish RECEIVED_BY relationships with Agents
             for recipient_id in recognition_data.received_by_agent_ids:
@@ -80,9 +80,9 @@ class RecognitionService:
                             recognition.received_by.connect(recipient)
                         except AgentGraphModel.DoesNotExist:
                             # Agent không tồn tại nhưng đây là test nên không cần báo lỗi
-                            logger.debug("Agent with ID %s does not exist (silently continuing)", recipient_id)
+                            print(f"Agent with ID {recipient_id} does not exist (silently continuing)")
                 except Exception as e:
-                    logger.warning("Failed to establish RECEIVED_BY relationship with %s: %s", recipient_id, e)
+                    print(f"Warning: Failed to establish RECEIVED_BY relationship with {recipient_id}: {e}")
             
             # Establish RECOGNIZES_WIN relationship if applicable
             if recognition_data.recognizes_win_id:
@@ -90,7 +90,7 @@ class RecognitionService:
                     win = WINGraphModel.nodes.get(uid=recognition_data.recognizes_win_id)
                     recognition.recognizes_win.connect(win)
                 except (WINGraphModel.DoesNotExist, Exception) as e:
-                    logger.warning("Failed to establish RECOGNIZES_WIN relationship: %s", e)
+                    print(f"Warning: Failed to establish RECOGNIZES_WIN relationship: {e}")
             
             # Handle contributions to Projects/Tasks/Resources if provided
             if recognition_data.recognizes_contributions:
@@ -114,9 +114,9 @@ class RecognitionService:
                                     recognition.recognizes_contribution_to_project.connect(project)
                                 except ProjectGraphModel.DoesNotExist:
                                     # Project không tồn tại nhưng đây là test nên không cần báo lỗi
-                                    logger.debug("Project with ID %s does not exist (silently continuing)", project_id)
+                                    print(f"Project with ID {project_id} does not exist (silently continuing)")
                         except Exception as e:
-                            logger.warning("Failed to establish RECOGNIZES_CONTRIBUTION_TO with Project %s: %s", project_id, e)
+                            print(f"Warning: Failed to establish RECOGNIZES_CONTRIBUTION_TO with Project {project_id}: {e}")
             
                 # Process task contributions
                 if recognition_data.recognizes_contributions and "task" in recognition_data.recognizes_contributions:
@@ -136,9 +136,9 @@ class RecognitionService:
                                     recognition.recognizes_contribution_to_task.connect(task)
                                 except TaskGraphModel.DoesNotExist:
                                     # Task không tồn tại nhưng đây là test nên không cần báo lỗi
-                                    logger.debug("Task with ID %s does not exist (silently continuing)", task_id)
+                                    print(f"Task with ID {task_id} does not exist (silently continuing)")
                         except Exception as e:
-                            logger.warning("Failed to establish RECOGNIZES_CONTRIBUTION_TO with Task %s: %s", task_id, e)
+                            print(f"Warning: Failed to establish RECOGNIZES_CONTRIBUTION_TO with Task {task_id}: {e}")
             
                 # Process resource contributions
                 if recognition_data.recognizes_contributions and "resource" in recognition_data.recognizes_contributions:
@@ -159,9 +159,9 @@ class RecognitionService:
                                     recognition.recognizes_contribution_to_resource.connect(resource)
                                 except ResourceGraphModel.DoesNotExist:
                                     # Resource không tồn tại nhưng đây là test nên không cần báo lỗi
-                                    logger.debug("Resource with ID %s does not exist (silently continuing)", resource_id)
+                                    print(f"Resource with ID {resource_id} does not exist (silently continuing)")
                         except Exception as e:
-                            logger.warning("Failed to establish RECOGNIZES_CONTRIBUTION_TO with Resource %s: %s", resource_id, e)
+                            print(f"Warning: Failed to establish RECOGNIZES_CONTRIBUTION_TO with Resource {resource_id}: {e}")
             
             # Generate an Event for this Recognition
             try:
@@ -184,32 +184,18 @@ class RecognitionService:
                     granter = AgentGraphModel.nodes.get(uid=recognition_data.given_by_agent_id)
                     event.triggered_by_actor.connect(granter)
                 except (AgentGraphModel.DoesNotExist, Exception) as e:
-                    logger.warning("Failed to establish TRIGGERED_BY relationship for Event: %s", e)
+                    print(f"Warning: Failed to establish TRIGGERED_BY relationship for Event: {e}")
                 
             except Exception as e:
-                logger.warning("Failed to generate Event for Recognition: %s", e)
+                print(f"Warning: Failed to generate Event for Recognition: {e}")
             
-            # Convert graph model to Pydantic model
-            # Import enum classes for proper conversion
-            from trm_api.schemas.recognition import RecognitionType, RecognitionStatus
-            
-            return Recognition(
-                uid=recognition.uid,
-                name=recognition.name,
-                message=recognition.message,
-                recognition_type=RecognitionType(recognition.recognitionType) if recognition.recognitionType else RecognitionType.ACHIEVEMENT,
-                status=RecognitionStatus(recognition.status) if recognition.status else RecognitionStatus.PROPOSED,
-                value_level=recognition.value_level,
-                tags=recognition.tags or [],
-                created_at=recognition.created_at.isoformat() if recognition.created_at else None,
-                updated_at=recognition.updated_at.isoformat() if recognition.updated_at else None
-            )
+            return recognition
             
         except Exception as e:
-            logger.error("Error creating Recognition: %s", e)
+            print(f"Error creating Recognition: {e}")
             return None
     
-    async def get_recognition_by_id(self, recognition_id: str) -> Optional[Recognition]:
+    async def get_recognition_by_id(self, recognition_id: str) -> Optional[RecognitionGraphModel]:
         """
         Get a Recognition by its ID.
         
@@ -220,26 +206,11 @@ class RecognitionService:
             RecognitionGraphModel if found, None otherwise
         """
         try:
-            recognition = RecognitionGraphModel.nodes.get(uid=recognition_id)
-            # Convert graph model to Pydantic model
-            # Import enum classes for proper conversion
-            from trm_api.schemas.recognition import RecognitionType, RecognitionStatus
-            
-            return Recognition(
-                uid=recognition.uid,
-                name=recognition.name,
-                message=recognition.message,
-                recognition_type=RecognitionType(recognition.recognitionType) if recognition.recognitionType else RecognitionType.ACHIEVEMENT,
-                status=RecognitionStatus(recognition.status) if recognition.status else RecognitionStatus.PROPOSED,
-                value_level=recognition.value_level,
-                tags=recognition.tags or [],
-                created_at=recognition.created_at.isoformat() if recognition.created_at else None,
-                updated_at=recognition.updated_at.isoformat() if recognition.updated_at else None
-            )
+            return RecognitionGraphModel.nodes.get(uid=recognition_id)
         except RecognitionGraphModel.DoesNotExist:
             return None
         except Exception as e:
-            logger.error("Error retrieving Recognition %s: %s", recognition_id, e)
+            print(f"Error retrieving Recognition {recognition_id}: {e}")
             return None
     
     async def update_recognition(self, recognition_id: str, recognition_data: RecognitionUpdate) -> Optional[RecognitionGraphModel]:
@@ -291,14 +262,14 @@ class RecognitionService:
                             agent = AgentGraphModel.nodes.get(uid=agent_id)
                             recognition.received_by.connect(agent)
                         except AgentGraphModel.DoesNotExist:
-                            logger.warning("Agent with ID %s not found for RECEIVED_BY relationship", agent_id)
+                            print(f"Agent with ID {agent_id} not found for RECEIVED_BY relationship")
             
             return recognition
             
         except RecognitionGraphModel.DoesNotExist:
             return None
         except Exception as e:
-            logger.error("Error updating Recognition %s: %s", recognition_id, e)
+            print(f"Error updating Recognition {recognition_id}: {e}")
             return None
     
     async def delete_recognition(self, recognition_id: str) -> bool:
@@ -350,7 +321,7 @@ class RecognitionService:
         except RecognitionGraphModel.DoesNotExist:
             return False
         except Exception as e:
-            logger.error("Error deleting Recognition %s: %s", recognition_id, e)
+            print(f"Error deleting Recognition {recognition_id}: {e}")
             return False
     
     async def list_recognitions(self, skip: int = 0, limit: int = 100) -> List[RecognitionGraphModel]:
@@ -370,7 +341,7 @@ class RecognitionService:
             paginated_recognitions = list(all_recognitions)[skip:skip+limit]
             return paginated_recognitions
         except Exception as e:
-            logger.error("Error listing Recognitions: %s", e)
+            print(f"Error listing Recognitions: {e}")
             return []
     
     async def get_recognition_with_relationships(self, recognition_id: str) -> Optional[Dict[str, Any]]:
@@ -433,7 +404,7 @@ class RecognitionService:
         except RecognitionGraphModel.DoesNotExist:
             return None
         except Exception as e:
-            logger.error("Error retrieving Recognition with relationships %s: %s", recognition_id, e)
+            print(f"Error retrieving Recognition with relationships {recognition_id}: {e}")
             return None
 
 

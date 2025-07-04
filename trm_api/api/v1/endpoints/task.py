@@ -169,7 +169,7 @@ async def assign_task_to_agent(
     
     This follows the TRM Ontology V3.2 specification for ASSIGNS_TASK relationship.
     """
-    result = service.assign_task_to_agent(
+    result = await service.assign_task_to_agent(
         task_id=task_id, 
         agent_id=agent_id,
         assignment_type=assignment_type,

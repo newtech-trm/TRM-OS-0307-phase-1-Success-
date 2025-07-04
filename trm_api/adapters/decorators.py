@@ -58,15 +58,14 @@ def _process_items(items: Any, adapt_datetime: bool, adapt_enums: Optional[List[
             
             # Xử lý tất cả các trường trong dictionary
             for key, value in items.items():
-                # Xử lý datetime objects trực tiếp trước tiên
-                if adapt_datetime and isinstance(value, datetime):
-                    logging.info(f"Converting datetime field '{key}': {value} -> {value.isoformat()}")
-                    result[key] = value.isoformat()
                 # Xử lý trường hợp datetime đặc biệt
-                elif adapt_datetime and key in datetime_keys:
+                if adapt_datetime and key in datetime_keys:
                     from .datetime_adapter import normalize_datetime
                     iso_value = normalize_datetime(value)
                     result[key] = iso_value if iso_value is not None else value
+                # Xử lý datetime objects trực tiếp
+                elif adapt_datetime and isinstance(value, datetime):
+                    result[key] = value.isoformat()
                 # Xử lý nested dictionaries
                 elif isinstance(value, dict):
                     result[key] = _process_items(value, adapt_datetime, adapt_enums)
@@ -124,7 +123,6 @@ def adapt_response(
             try:
                 # Gọi endpoint function gốc
                 response = await func(*args, **kwargs)
-                logging.info(f"Adapter processing response from {func.__name__}: {type(response)}")
 
                 # Chuyển đổi Pydantic model thành dict để xử lý nhất quán
                 if isinstance(response, BaseModel):

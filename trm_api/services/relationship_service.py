@@ -6,8 +6,6 @@ import traceback
 import asyncio
 import logging
 
-logger = logging.getLogger(__name__)
-
 from trm_api.db.session import get_driver
 from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
 from trm_api.services.utils import process_relationship_record
@@ -24,7 +22,7 @@ class RelationshipService:
     def _get_db(self) -> Driver:
         return get_driver()
 
-    def create_relationship(
+    async def create_relationship(
         self,
         source_id: str,
         source_type: TargetEntityTypeEnum,
@@ -56,9 +54,9 @@ class RelationshipService:
         if relationship_properties is not None:
             properties.update(relationship_properties)
             
-        db = self._get_db()
-        with db.session() as session:
-            result = session.execute_write(
+        db = await self._get_db()
+        async with db.session() as session:
+            result = await session.execute_write(
                 self._create_relationship_tx,
                 source_id,
                 source_type,
@@ -92,7 +90,6 @@ class RelationshipService:
             "(target.{target_id_field} = $target_id OR target.uid = $target_id) "
             "MERGE (source)-[rel:{rel_type}]->(target) "
             "ON CREATE SET rel.createdAt = datetime() "
-            "SET rel.createdAt = COALESCE(rel.createdAt, datetime()) "
             "RETURN "
             "    source.uid AS source_id, "
             "    '{source_type}' AS source_type, "
@@ -119,45 +116,21 @@ class RelationshipService:
             "Tool": "toolId"
         }
 
-        # Format query with the right labels and ID fields  
-        # Map enum values to actual Neo4j labels
-        label_mapping = {
-            "Win": "WIN",  # TargetEntityTypeEnum.WIN.value = "Win" but Neo4j label is "WIN"
-            "KnowledgeSnippet": "KnowledgeSnippet",  # This should match
-            "Agent": "Agent",
-            "Project": "Project", 
-            "Task": "Task",
-            "Event": "Event",
-            "Recognition": "Recognition",
-            "Tension": "Tension",
-            "Resource": "Resource"
-        }
-        
+        # Format query with the right labels and ID fields
         source_type_value = source_type.value if isinstance(source_type, TargetEntityTypeEnum) else source_type
         target_type_value = target_type.value if isinstance(target_type, TargetEntityTypeEnum) else target_type
         rel_type_value = relationship_type.value if isinstance(relationship_type, RelationshipType) else relationship_type
-        
-        # Apply label mapping
-        source_label = label_mapping.get(source_type_value, source_type_value)
-        target_label = label_mapping.get(target_type_value, target_type_value)
 
         source_id_field = id_field_map.get(source_type_value, "uid")
         target_id_field = id_field_map.get(target_type_value, "uid")
 
         formatted_query = query.format(
-            source_type=source_label,
+            source_type=source_type_value,
             source_id_field=source_id_field,
-            target_type=target_label,
+            target_type=target_type_value,
             target_id_field=target_id_field,
             rel_type=rel_type_value
         )
-
-        logger.debug("===== RELATIONSHIP CREATION DEBUG =====")
-        logger.debug("Source: %s -> %s (ID: %s)", source_type_value, source_label, source_id)
-        logger.debug("Target: %s -> %s (ID: %s)", target_type_value, target_label, target_id)
-        logger.debug("Relationship: %s", rel_type_value)
-        logger.debug("Query: %s", formatted_query)
-        logger.debug("=======================================")
 
         result = tx.run(
             formatted_query,
@@ -198,7 +171,7 @@ class RelationshipService:
                 return normalize_dict_datetimes(result_dict)
         return None
 
-    def get_relationships(
+    async def get_relationships(
         self,
         entity_id: str,
         entity_type: str,
@@ -223,21 +196,22 @@ class RelationshipService:
             A list of relationships for the entity
         """
         # Ghi log chi tiết các tham số
-        logger.debug("===== GET RELATIONSHIPS PARAMS =====")
-        logger.debug("entity_id: %s", entity_id)
-        logger.debug("entity_type: %s", entity_type)
-        logger.debug("direction: %s", direction)
-        logger.debug("relationship_type: %s", relationship_type)
-        logger.debug("related_entity_type: %s", related_entity_type)
-        logger.debug("==================================")
+        print(f"\n===== GET RELATIONSHIPS PARAMS =====")
+        print(f"entity_id: {entity_id}")
+        print(f"entity_type: {entity_type}")
+        print(f"direction: {direction}")
+        print(f"relationship_type: {relationship_type}")
+        print(f"related_entity_type: {related_entity_type}")
+        print(f"==================================\n")
         
         # Nếu không có entity_id hoặc entity_type, trả về danh sách rỗng ngay lập tức
         if not entity_id or not entity_type:
-            logger.debug("Trả về danh sách rỗng vì entity_id hoặc entity_type bị thiếu")
+            print(f"Trả về danh sách rỗng vì entity_id hoặc entity_type bị thiếu")
             return []
 
-        # Chuyển đổi entity_type thành string nếu cần
+        # Chuyển đổi entity_type thành định dạng nội bộ, hỗ trợ cả string và enum
         try:
+            # Xử lý entity_type dưới dạng string
             if isinstance(entity_type, str):
                 entity_type_mapped = EntityTypeKindMapping.get(entity_type, entity_type)
             else:
@@ -245,28 +219,28 @@ class RelationshipService:
                 entity_type_str = str(entity_type)
                 entity_type_mapped = EntityTypeKindMapping.get(entity_type_str, entity_type_str)
                 
-            logger.debug("Đã chuyển đổi entity_type: %s -> %s", entity_type, entity_type_mapped)
+            print(f"Đã chuyển đổi entity_type: {entity_type} -> {entity_type_mapped}")
         except Exception as e:
-            logger.error("Lỗi khi chuyển đổi entity_type: %s", str(e))
-            return []
-
-        try:
-            db = self._get_db()
-            with db.session() as session:
-                result = session.execute_read(
-                    self._get_relationships_tx,
+            print(f"Lỗi khi chuyển đổi entity_type: {str(e)}")
+            entity_type_mapped = str(entity_type) if entity_type else "Unknown"
+        
+        try:  
+            db = await self._get_db()
+            async with db.session() as session:
+                print(f"Thực thi truy vấn Neo4j cho entity_id={entity_id}, entity_type={entity_type_mapped}")
+                result = await session.read_transaction(
+                    self._get_relationships_tx, 
                     entity_id,
                     entity_type_mapped,
                     direction,
                     relationship_type,
                     related_entity_type
                 )
+                print(f"Đã tìm thấy {len(result)} mối quan hệ")
                 return result
         except Exception as e:
-            logger.error("===== LỖI KHI LẤY RELATIONSHIPS =====")
-            logger.error(str(e))
-            logger.error("Traceback: %s", traceback.format_exc())
-            logger.error("=============================")
+            print(f"===== LỖI KHI LẤY RELATIONSHIPS =====\n{str(e)}\n{traceback.format_exc()}\n=============================")
+            # Trả về danh sách rỗng thay vì lỗi
             return []
 
     @staticmethod
@@ -300,8 +274,8 @@ class RelationshipService:
 
         entity_type_value = entity_type.value if isinstance(entity_type, TargetEntityTypeEnum) else entity_type
         entity_id_field = id_field_map.get(entity_type_value, "uid")
-        rel_type = relationship_type.value if isinstance(relationship_type, RelationshipType) else relationship_type
-        related_type = related_entity_type.value if isinstance(related_entity_type, TargetEntityTypeEnum) else related_entity_type
+        rel_type = relationship_type.value if relationship_type else None
+        related_type = related_entity_type.value if related_entity_type else None
 
         # Build the query based on direction and filters
         if direction == "outgoing":
@@ -387,7 +361,7 @@ class RelationshipService:
         
         return relationships
 
-    def delete_relationship(
+    async def delete_relationship(
         self,
         source_id: str,
         source_type: TargetEntityTypeEnum,
@@ -395,23 +369,12 @@ class RelationshipService:
         target_type: TargetEntityTypeEnum,
         relationship_type: RelationshipType
     ) -> bool:
-        """
-        Deletes a relationship between two entities.
-        
-        Args:
-            source_id: The ID of the source entity
-            source_type: The type of the source entity
-            target_id: The ID of the target entity
-            target_type: The type of the target entity
-            relationship_type: The type of relationship to delete
-            
-        Returns:
-            True if the relationship was deleted, False otherwise
-        """
+        """Xóa một mối quan hệ giữa hai thực thể."""
         try:
-            db = self._get_db()
-            with db.session() as session:
-                result = session.execute_write(
+            print(f"\nDelete relationship: {source_id} -> {target_id} ({relationship_type})")
+            driver = await self._get_db()
+            async with driver.session() as session:
+                result = await session.execute_write(
                     self._delete_relationship_tx,
                     source_id,
                     source_type,
@@ -421,8 +384,8 @@ class RelationshipService:
                 )
                 return result
         except Exception as e:
-            logger.error("Lỗi khi xóa relationship: %s", str(e))
-            logger.error("Exception traceback: %s", traceback.format_exc())
+            logging.error(f"Lỗi khi xóa relationship: {str(e)}")
+            traceback.print_exc()
             return False
 
     @staticmethod

@@ -1,35 +1,39 @@
 import pytest
-from unittest.mock import MagicMock, patch
+import uuid
+from unittest.mock import Mock, patch, MagicMock, AsyncMock
 from datetime import datetime
 
+from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
 from trm_api.services.relationship_service import RelationshipService
-from trm_api.models.relationships import Relationship, TargetEntityTypeEnum
 
 
 class TestRecognizesWinRelationship:
-    """Test cases for RECOGNIZES_WIN relationship between Recognition and Win."""
+    """Unit tests for the RECOGNIZES_WIN relationship service methods."""
     
     def setup_method(self):
-        """Setup test fixtures."""
+        """Set up test fixtures before each test method."""
         self.service = RelationshipService()
-        self.recognition_id = "recognition-123"
-        self.win_id = "win-456"
         
-        # Sample relationship data
+        # Sample IDs for testing
+        self.recognition_id = str(uuid.uuid4())
+        self.win_id = str(uuid.uuid4())
+        
+        # Sample relationship data for Recognition -> WIN
         self.recognition_win_relationship = {
             "source_id": self.recognition_id,
             "source_type": "Recognition",
             "target_id": self.win_id,
             "target_type": "Win",
             "type": "RECOGNIZES_WIN",
-            "createdAt": datetime.now(),
-            "relationshipId": "rel-789",
-            "notes": "Recognition for achieving win"
+            "relationshipId": f"recognizes_win_{self.recognition_id}_{self.win_id}_abcd1234",
+            "notes": "Test recognition for outstanding achievements",
+            "createdAt": datetime.utcnow()
         }
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_create_recognizes_win_relationship(self, mock_get_db):
-        """Test creating a RECOGNIZES_WIN relationship from Recognition to Win."""
+    async def test_create_recognizes_win_relationship(self, mock_get_db):
+        """Test creating a RECOGNIZES_WIN relationship from Recognition to WIN."""
         # Mock setup
         mock_session = MagicMock()
         mock_tx = MagicMock()
@@ -40,20 +44,15 @@ class TestRecognizesWinRelationship:
         mock_result.single.return_value = mock_record
         mock_tx.run.return_value = mock_result
         
-        # Chuẩn bị mock cho sync
-        relationship_obj = Relationship(**self.recognition_win_relationship)
-        
-        # Thiết lập mock đúng cách cho sync
-        mock_session.execute_write.return_value = relationship_obj
-        
-        mock_session_context = MagicMock()
-        mock_session_context.__enter__.return_value = mock_session
-        mock_session_context.__exit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
+        # Cấu hình mock để hỗ trợ async context manager
+        mock_session.execute_write = AsyncMock(return_value=Relationship(**self.recognition_win_relationship))
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_context
-        mock_get_db.return_value = mock_db
+        mock_db.session.return_value = mock_session_ctx
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
         
         # Create relationship properties
         rel_props = {
@@ -61,8 +60,8 @@ class TestRecognizesWinRelationship:
             "notes": self.recognition_win_relationship["notes"]
         }
         
-        # Execute test without await
-        result = self.service.create_relationship(
+        # Execute test
+        result = await self.service.create_relationship(
             source_id=self.recognition_id,
             source_type=TargetEntityTypeEnum.RECOGNITION,
             target_id=self.win_id,
@@ -73,45 +72,35 @@ class TestRecognizesWinRelationship:
         
         # Assertions
         assert result is not None
-        
-        # Kiểm tra kết quả có thể là đối tượng Relationship hoặc dictionary
-        if isinstance(result, dict):
-            assert result["source_id"] == self.recognition_id
-            assert result["source_type"] == "Recognition"
-            assert result["target_id"] == self.win_id
-            assert result["target_type"] == "Win"
-            assert result["type"] == "RECOGNIZES_WIN"
-        else:
-            assert result.source_id == self.recognition_id
-            assert result.source_type == "Recognition"
-            assert result.target_id == self.win_id
-            assert result.target_type == "Win"
-            assert result.type == "RECOGNIZES_WIN"
+        assert result.source_id == self.recognition_id
+        assert result.source_type == "Recognition"
+        assert result.target_id == self.win_id
+        assert result.target_type == "Win"
+        assert result.type == "RECOGNIZES_WIN"
         
         # Verify mock was called correctly
         mock_session.execute_write.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_get_wins_recognized_by_recognition(self, mock_get_db):
-        """Test getting Wins recognized by a Recognition."""
+    async def test_get_wins_recognized_by_recognition(self, mock_get_db):
+        """Test getting WINs recognized by a Recognition."""
         # Mock setup
         mock_session = MagicMock()
         mock_relationships = [Relationship(**self.recognition_win_relationship)]
         
-        # Thiết lập mock đúng cách cho sync
-        mock_session.execute_read.return_value = mock_relationships
-        
-        mock_session_context = MagicMock()
-        mock_session_context.__enter__.return_value = mock_session
-        mock_session_context.__exit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
+        # Cấu hình mock để hỗ trợ async context manager
+        mock_session.read_transaction = AsyncMock(return_value=mock_relationships)
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_context
-        mock_get_db.return_value = mock_db
+        mock_db.session.return_value = mock_session_ctx
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
         
-        # Execute test without await
-        results = self.service.get_relationships(
+        # Execute test
+        results = await self.service.get_relationships(
             entity_id=self.recognition_id,
             entity_type=TargetEntityTypeEnum.RECOGNITION,
             direction="outgoing",
@@ -126,29 +115,28 @@ class TestRecognizesWinRelationship:
         assert results[0].type == "RECOGNIZES_WIN"
         
         # Verify mock was called correctly
-        mock_session.execute_read.assert_called_once()
+        mock_session.read_transaction.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_get_recognitions_for_win(self, mock_get_db):
-        """Test getting Recognitions for a Win."""
+    async def test_get_recognitions_for_win(self, mock_get_db):
+        """Test getting Recognitions for a WIN."""
         # Mock setup
         mock_session = MagicMock()
         mock_relationships = [Relationship(**self.recognition_win_relationship)]
         
-        # Thiết lập mock đúng cách cho sync
-        mock_session.execute_read.return_value = mock_relationships
-        
-        mock_session_context = MagicMock()
-        mock_session_context.__enter__.return_value = mock_session
-        mock_session_context.__exit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
+        # Cấu hình mock để hỗ trợ async context manager
+        mock_session.read_transaction = AsyncMock(return_value=mock_relationships)
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_context
-        mock_get_db.return_value = mock_db
+        mock_db.session.return_value = mock_session_ctx
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
         
-        # Execute test without await
-        results = self.service.get_relationships(
+        # Execute test
+        results = await self.service.get_relationships(
             entity_id=self.win_id,
             entity_type=TargetEntityTypeEnum.WIN,
             direction="incoming",
@@ -163,10 +151,11 @@ class TestRecognizesWinRelationship:
         assert results[0].type == "RECOGNIZES_WIN"
         
         # Verify mock was called correctly
-        mock_session.execute_read.assert_called_once()
+        mock_session.read_transaction.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_delete_recognizes_win_relationship(self, mock_get_db):
+    async def test_delete_recognizes_win_relationship(self, mock_get_db):
         """Test deleting a RECOGNIZES_WIN relationship."""
         # Mock setup
         mock_session = MagicMock()
@@ -179,20 +168,18 @@ class TestRecognizesWinRelationship:
         mock_tx = MagicMock()
         mock_tx.run.return_value = mock_result
         
-        # Thiết lập mock đúng cách cho sync
-        mock_session.execute_write.return_value = True
-        
-        mock_session_context = MagicMock()
-        mock_session_context.__enter__.return_value = mock_session
-        mock_session_context.__exit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
+        # Cấu hình mock để hỗ trợ async context manager
+        mock_session.execute_write = AsyncMock(return_value=True)
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_context
-        mock_get_db.return_value = mock_db
+        mock_db.session.return_value = mock_session_ctx
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
         
-        # Execute test without await
-        result = self.service.delete_relationship(
+        # Execute test
+        result = await self.service.delete_relationship(
             source_id=self.recognition_id,
             source_type=TargetEntityTypeEnum.RECOGNITION,
             target_id=self.win_id,
@@ -206,8 +193,9 @@ class TestRecognizesWinRelationship:
         # Verify mock was called correctly
         mock_session.execute_write.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    def test_delete_recognizes_win_relationship_not_found(self, mock_get_db):
+    async def test_delete_recognizes_win_relationship_not_found(self, mock_get_db):
         """Test deleting a non-existent RECOGNIZES_WIN relationship."""
         # Mock setup
         mock_session = MagicMock()
@@ -220,20 +208,18 @@ class TestRecognizesWinRelationship:
         mock_tx = MagicMock()
         mock_tx.run.return_value = mock_result
         
-        # Thiết lập mock đúng cách cho sync
-        mock_session.execute_write.return_value = False
-        
-        mock_session_context = MagicMock()
-        mock_session_context.__enter__.return_value = mock_session
-        mock_session_context.__exit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
+        # Cấu hình mock để hỗ trợ async context manager
+        mock_session.execute_write = AsyncMock(return_value=False)
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_context
-        mock_get_db.return_value = mock_db
+        mock_db.session.return_value = mock_session_ctx
+        # Biến _get_db thành AsyncMock để có thể sử dụng với await
+        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
         
-        # Execute test without await
-        result = self.service.delete_relationship(
+        # Execute test
+        result = await self.service.delete_relationship(
             source_id=self.recognition_id,
             source_type=TargetEntityTypeEnum.RECOGNITION,
             target_id=self.win_id,
