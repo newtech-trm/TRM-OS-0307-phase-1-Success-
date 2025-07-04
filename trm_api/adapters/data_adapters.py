@@ -123,7 +123,7 @@ class EnumAdapter:
             value: Giá trị cần chuẩn hóa
             
         Returns:
-            Giá trị đã được chuẩn hóa theo enum
+            Giá trị đã được chuẩn hóa theo enum (trả về .value của enum cho production)
             
         Raises:
             ValueError: Nếu giá trị không tồn tại trong enum
@@ -131,9 +131,9 @@ class EnumAdapter:
         if value is None or enum_class is None:
             return value
         
-        # Nếu value đã là instance của enum_class, trả về luôn
+        # Nếu value đã là instance của enum_class, trả về .value cho production
         if isinstance(value, enum_class):
-            return value
+            return value.value
         
         # Chuyển đổi sang chuỗi và chuẩn hóa
         str_value = str(value).strip()
@@ -150,20 +150,21 @@ class EnumAdapter:
                     for enum_item in enum_class:
                         if enum_item.name == enum_key:
                             logging.info(f"Normalized prefixed enum '{str_value}' to '{enum_item.value}' using enum name")
-                            return enum_item
+                            return enum_item.value  # Trả về .value cho production
                 except (ValueError, KeyError):
                     pass
         
         # Trường hợp dễ: giá trị chính xác là một enum value
         try:
-            return enum_class(str_value)
+            enum_obj = enum_class(str_value)
+            return enum_obj.value  # Trả về .value cho production
         except (ValueError, KeyError):
             pass
         
         # Tìm kiếm không phân biệt hoa thường
         for enum_item in enum_class:
             if str(enum_item.value).lower() == str_value.lower():
-                return enum_item
+                return enum_item.value  # Trả về .value cho production
                 
         # Xử lý các trường hợp đặc biệt giữa Neo4j và code
         # Ví dụ: trong code enum là DRAFT nhưng trong Neo4j lưu là "draft" 
@@ -174,14 +175,10 @@ class EnumAdapter:
                normalized_value.replace('_', '') == enum_value.replace('_', '') or \
                normalized_value.replace(' ', '_') == enum_value.replace(' ', '_'):
                 logging.info(f"Normalized enum value '{str_value}' to '{enum_item.value}' ({enum_class.__name__})")
-                return enum_item
+                return enum_item.value  # Trả về .value cho production
                 
         # Nếu không tìm thấy, trả về giá trị gốc
         logging.warning(f"Could not normalize enum value '{str_value}' for {enum_class.__name__}")
-        return value
-        
-        # Ghi nhật ký nếu không tìm thấy
-        logging.warning(f"Could not normalize enum value '{value}' as {enum_class.__name__}")
         return value
         
     @classmethod

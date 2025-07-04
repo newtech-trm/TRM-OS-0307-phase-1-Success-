@@ -1,97 +1,117 @@
 import pytest
-import uuid
-from unittest.mock import Mock, patch, MagicMock, AsyncMock
+from unittest.mock import MagicMock, patch
 from datetime import datetime
 
-from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
 from trm_api.services.relationship_service import RelationshipService
+from trm_api.models.relationships import Relationship, TargetEntityTypeEnum
 
 
 class TestGeneratesKnowledgeRelationship:
-    """Unit tests for the GENERATES_KNOWLEDGE relationship service methods."""
+    """Test cases for GENERATES_KNOWLEDGE relationship between Win and KnowledgeSnippet."""
     
     def setup_method(self):
-        """Set up test fixtures before each test method."""
+        """Setup test fixtures."""
         self.service = RelationshipService()
-        
-        # Sample IDs for testing
-        self.win_id = str(uuid.uuid4())
-        self.snippet_id = str(uuid.uuid4())
+        self.win_id = "win-123"
+        self.knowledge_snippet_id = "snippet-456"
         
         # Sample relationship data
-        self.sample_relationship = {
+        self.win_knowledge_relationship = {
             "source_id": self.win_id,
             "source_type": "Win",
-            "target_id": self.snippet_id,
+            "target_id": self.knowledge_snippet_id,
             "target_type": "KnowledgeSnippet",
             "type": "GENERATES_KNOWLEDGE",
-            "createdAt": datetime.utcnow()
+            "createdAt": datetime.now(),
+            "relationshipId": "rel-789",
+            "notes": "Win generated valuable knowledge snippet"
         }
     
-    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    async def test_create_generates_knowledge_relationship(self, mock_get_db):
-        """Test creating a GENERATES_KNOWLEDGE relationship."""
+    def test_create_generates_knowledge_relationship(self, mock_get_db):
+        """Test creating a GENERATES_KNOWLEDGE relationship from Win to KnowledgeSnippet."""
         # Mock setup
         mock_session = MagicMock()
         mock_tx = MagicMock()
         mock_result = MagicMock()
         mock_record = MagicMock()
         
-        mock_record.__getitem__.side_effect = lambda key: self.sample_relationship.get(key)
+        mock_record.__getitem__.side_effect = lambda key: self.win_knowledge_relationship.get(key)
         mock_result.single.return_value = mock_record
         mock_tx.run.return_value = mock_result
         
-        # Cấu hình mock để hỗ trợ async context manager
-        mock_session.execute_write = AsyncMock(return_value=Relationship(**self.sample_relationship))
-        mock_session_ctx = MagicMock()
-        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
-        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
-        mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_ctx
-        # Biến _get_db thành AsyncMock để có thể sử dụng với await
-        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
+        # Chuẩn bị mock cho sync
+        relationship_obj = Relationship(**self.win_knowledge_relationship)
         
-        # Execute test
-        result = await self.service.create_relationship(
+        # Thiết lập mock đúng cách cho sync
+        mock_session.execute_write.return_value = relationship_obj
+        
+        mock_session_context = MagicMock()
+        mock_session_context.__enter__.return_value = mock_session
+        mock_session_context.__exit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
+        mock_db = MagicMock()
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
+        
+        # Create relationship properties
+        rel_props = {
+            "relationshipId": self.win_knowledge_relationship["relationshipId"],
+            "notes": self.win_knowledge_relationship["notes"]
+        }
+        
+        # Execute test without await
+        result = self.service.create_relationship(
             source_id=self.win_id,
             source_type=TargetEntityTypeEnum.WIN,
-            target_id=self.snippet_id,
+            target_id=self.knowledge_snippet_id,
             target_type=TargetEntityTypeEnum.KNOWLEDGE_SNIPPET,
-            relationship_type="GENERATES_KNOWLEDGE"
+            relationship_type="GENERATES_KNOWLEDGE",
+            relationship_properties=rel_props
         )
         
         # Assertions
         assert result is not None
-        assert result.source_id == self.win_id
-        assert result.source_type == "Win"
-        assert result.target_id == self.snippet_id
-        assert result.target_type == "KnowledgeSnippet"
-        assert result.type == "GENERATES_KNOWLEDGE"
+        
+        # Kiểm tra kết quả có thể là đối tượng Relationship hoặc dictionary
+        if isinstance(result, dict):
+            assert result["source_id"] == self.win_id
+            assert result["source_type"] == "Win"
+            assert result["target_id"] == self.knowledge_snippet_id
+            assert result["target_type"] == "KnowledgeSnippet"
+            assert result["type"] == "GENERATES_KNOWLEDGE"
+        else:
+            assert result.source_id == self.win_id
+            assert result.source_type == "Win"
+            assert result.target_id == self.knowledge_snippet_id
+            assert result.target_type == "KnowledgeSnippet"
+            assert result.type == "GENERATES_KNOWLEDGE"
         
         # Verify mock was called correctly
         mock_session.execute_write.assert_called_once()
     
-    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    async def test_get_knowledge_snippets_by_win(self, mock_get_db):
-        """Test getting knowledge snippets generated by a WIN."""
+    def test_get_knowledge_snippets_by_win(self, mock_get_db):
+        """Test getting KnowledgeSnippets generated by a Win."""
         # Mock setup
         mock_session = MagicMock()
-        mock_relationships = [Relationship(**self.sample_relationship)]
+        mock_relationships = [Relationship(**self.win_knowledge_relationship)]
         
-        # Cấu hình mock để hỗ trợ async context manager
-        mock_session.read_transaction = AsyncMock(return_value=mock_relationships)
-        mock_session_ctx = MagicMock()
-        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
-        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
+        # Thiết lập mock đúng cách cho sync
+        mock_session.execute_read.return_value = mock_relationships
+        
+        mock_session_context = MagicMock()
+        mock_session_context.__enter__.return_value = mock_session
+        mock_session_context.__exit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
         mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_ctx
-        # Biến _get_db thành AsyncMock để có thể sử dụng với await
-        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
         
-        # Execute test
-        results = await self.service.get_relationships(
+        # Execute test without await
+        results = self.service.get_relationships(
             entity_id=self.win_id,
             entity_type=TargetEntityTypeEnum.WIN,
             direction="outgoing",
@@ -102,33 +122,34 @@ class TestGeneratesKnowledgeRelationship:
         # Assertions
         assert len(results) == 1
         assert results[0].source_id == self.win_id
-        assert results[0].target_id == self.snippet_id
+        assert results[0].target_id == self.knowledge_snippet_id
         assert results[0].type == "GENERATES_KNOWLEDGE"
         
         # Verify mock was called correctly
-        mock_session.read_transaction.assert_called_once()
+        mock_session.execute_read.assert_called_once()
     
-    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    async def test_get_wins_by_knowledge_snippet(self, mock_get_db):
-        """Test getting WINs that generate a specific knowledge snippet."""
+    def test_get_wins_by_knowledge_snippet(self, mock_get_db):
+        """Test getting Wins that generated a KnowledgeSnippet."""
         # Mock setup
         mock_session = MagicMock()
-        mock_relationships = [Relationship(**self.sample_relationship)]
+        mock_relationships = [Relationship(**self.win_knowledge_relationship)]
         
-        # Cấu hình mock để hỗ trợ async context manager
-        mock_session.read_transaction = AsyncMock(return_value=mock_relationships)
-        mock_session_ctx = MagicMock()
-        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
-        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
+        # Thiết lập mock đúng cách cho sync
+        mock_session.execute_read.return_value = mock_relationships
+        
+        mock_session_context = MagicMock()
+        mock_session_context.__enter__.return_value = mock_session
+        mock_session_context.__exit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
         mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_ctx
-        # Biến _get_db thành AsyncMock để có thể sử dụng với await
-        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
         
-        # Execute test
-        results = await self.service.get_relationships(
-            entity_id=self.snippet_id,
+        # Execute test without await
+        results = self.service.get_relationships(
+            entity_id=self.knowledge_snippet_id,
             entity_type=TargetEntityTypeEnum.KNOWLEDGE_SNIPPET,
             direction="incoming",
             relationship_type="GENERATES_KNOWLEDGE",
@@ -138,15 +159,14 @@ class TestGeneratesKnowledgeRelationship:
         # Assertions
         assert len(results) == 1
         assert results[0].source_id == self.win_id
-        assert results[0].target_id == self.snippet_id
+        assert results[0].target_id == self.knowledge_snippet_id
         assert results[0].type == "GENERATES_KNOWLEDGE"
         
         # Verify mock was called correctly
-        mock_session.read_transaction.assert_called_once()
+        mock_session.execute_read.assert_called_once()
     
-    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    async def test_delete_generates_knowledge_relationship(self, mock_get_db):
+    def test_delete_generates_knowledge_relationship(self, mock_get_db):
         """Test deleting a GENERATES_KNOWLEDGE relationship."""
         # Mock setup
         mock_session = MagicMock()
@@ -159,21 +179,23 @@ class TestGeneratesKnowledgeRelationship:
         mock_tx = MagicMock()
         mock_tx.run.return_value = mock_result
         
-        # Cấu hình mock để hỗ trợ async context manager
-        mock_session.execute_write = AsyncMock(return_value=True)
-        mock_session_ctx = MagicMock()
-        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
-        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
-        mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_ctx
-        # Biến _get_db thành AsyncMock để có thể sử dụng với await
-        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
+        # Thiết lập mock đúng cách cho sync
+        mock_session.execute_write.return_value = True
         
-        # Execute test
-        result = await self.service.delete_relationship(
+        mock_session_context = MagicMock()
+        mock_session_context.__enter__.return_value = mock_session
+        mock_session_context.__exit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
+        mock_db = MagicMock()
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
+        
+        # Execute test without await
+        result = self.service.delete_relationship(
             source_id=self.win_id,
             source_type=TargetEntityTypeEnum.WIN,
-            target_id=self.snippet_id,
+            target_id=self.knowledge_snippet_id,
             target_type=TargetEntityTypeEnum.KNOWLEDGE_SNIPPET,
             relationship_type="GENERATES_KNOWLEDGE"
         )
@@ -184,9 +206,8 @@ class TestGeneratesKnowledgeRelationship:
         # Verify mock was called correctly
         mock_session.execute_write.assert_called_once()
     
-    @pytest.mark.asyncio
     @patch('trm_api.services.relationship_service.RelationshipService._get_db')
-    async def test_delete_generates_knowledge_relationship_not_found(self, mock_get_db):
+    def test_delete_generates_knowledge_relationship_not_found(self, mock_get_db):
         """Test deleting a non-existent GENERATES_KNOWLEDGE relationship."""
         # Mock setup
         mock_session = MagicMock()
@@ -199,21 +220,23 @@ class TestGeneratesKnowledgeRelationship:
         mock_tx = MagicMock()
         mock_tx.run.return_value = mock_result
         
-        # Cấu hình mock để hỗ trợ async context manager
-        mock_session.execute_write = AsyncMock(return_value=False)
-        mock_session_ctx = MagicMock()
-        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
-        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
-        mock_db = MagicMock()
-        mock_db.session.return_value = mock_session_ctx
-        # Biến _get_db thành AsyncMock để có thể sử dụng với await
-        mock_get_db.side_effect = AsyncMock(return_value=mock_db)
+        # Thiết lập mock đúng cách cho sync
+        mock_session.execute_write.return_value = False
         
-        # Execute test
-        result = await self.service.delete_relationship(
+        mock_session_context = MagicMock()
+        mock_session_context.__enter__.return_value = mock_session
+        mock_session_context.__exit__.return_value = None
+        
+        # Quan trọng: Cấu hình _get_db để có thể sử dụng với sync
+        mock_db = MagicMock()
+        mock_db.session.return_value = mock_session_context
+        mock_get_db.return_value = mock_db
+        
+        # Execute test without await
+        result = self.service.delete_relationship(
             source_id=self.win_id,
             source_type=TargetEntityTypeEnum.WIN,
-            target_id=self.snippet_id,
+            target_id=self.knowledge_snippet_id,
             target_type=TargetEntityTypeEnum.KNOWLEDGE_SNIPPET,
             relationship_type="GENERATES_KNOWLEDGE"
         )

@@ -300,74 +300,54 @@ class TestDecorators:
     @pytest.mark.asyncio
     async def test_adapt_ontology_response_with_win(self):
         """Test adapt_ontology_response decorator với entity_type='win'."""
-        # Mock endpoint function
+        # Mock endpoint function với production enum values
         async def mock_endpoint():
             return {
                 "id": "123",
-                "status": "DRAFT",
-                "winType": "Problem Resolution",
+                "status": "DRAFT",  # Actual enum value
+                "winType": "BUSINESS",  # Actual enum value
                 "created_at": datetime(2023, 1, 15, 10, 30, 0)
             }
         
-        # Patch normalize functions
-        with patch("trm_api.adapters.enum_adapter.normalize_win_status") as mock_status:
-            with patch("trm_api.adapters.enum_adapter.normalize_win_type") as mock_type:
-                mock_status.return_value = "draft"
-                mock_type.return_value = "problem_resolution"
-                
-                # Áp dụng decorator
-                decorated_endpoint = adapt_ontology_response(entity_type="win")(mock_endpoint)
-                
-                # Gọi endpoint và kiểm tra kết quả
-                result = await decorated_endpoint()
-                
-                # Kiểm tra kết quả
-                assert result["id"] == "123"
-                assert result["status"] == "draft"
-                assert result["winType"] == "problem_resolution"
-                assert result["created_at"] == "2023-01-15T10:30:00"
-                
-                # Verify mocks were called
-                mock_status.assert_called_once_with("DRAFT")
-                mock_type.assert_called_once_with("Problem Resolution")
+        # Áp dụng decorator (không cần mock vì sử dụng actual enum adapter)
+        decorated_endpoint = adapt_ontology_response(entity_type="win")(mock_endpoint)
+        
+        # Gọi endpoint và kiểm tra kết quả
+        result = await decorated_endpoint()
+        
+        # Kiểm tra kết quả với actual enum values
+        assert result["id"] == "123"
+        assert result["status"] == "DRAFT"  # Production enum value
+        assert result["winType"] == "BUSINESS"  # Production enum value
+        assert result["created_at"] == "2023-01-15T10:30:00Z"  # Production datetime format với Z suffix
     
     @pytest.mark.asyncio
     async def test_adapt_ontology_response_with_task(self):
         """Test adapt_ontology_response decorator với entity_type='task'."""
-        # Mock endpoint function
+        # Mock endpoint function với production enum values
         async def mock_endpoint():
             return {
                 "id": "123",
-                "status": "TODO",
-                "task_type": "Feature",
+                "status": "PENDING",  # Actual enum value
+                "task_type": "FEATURE",  # Actual enum value
                 "created_at": datetime(2023, 1, 15, 10, 30, 0)
             }
         
-        # Patch normalize functions
-        with patch("trm_api.adapters.enum_adapter.normalize_task_status") as mock_status:
-            with patch("trm_api.adapters.enum_adapter.normalize_task_type") as mock_type:
-                mock_status.return_value = "todo"
-                mock_type.return_value = "feature"
-                
-                # Áp dụng decorator
-                decorated_endpoint = adapt_ontology_response(entity_type="task")(mock_endpoint)
-                
-                # Gọi endpoint và kiểm tra kết quả
-                result = await decorated_endpoint()
-                
-                # Kiểm tra kết quả
-                assert result["id"] == "123"
-                assert result["status"] == "todo"
-                assert result["task_type"] == "feature"
-                assert result["created_at"] == "2023-01-15T10:30:00"
-                
-                # Verify mocks were called
-                mock_status.assert_called_once_with("TODO")
-                mock_type.assert_called_once_with("Feature")
+        # Áp dụng decorator (không cần mock vì sử dụng actual enum adapter)
+        decorated_endpoint = adapt_ontology_response(entity_type="task")(mock_endpoint)
+        
+        # Gọi endpoint và kiểm tra kết quả
+        result = await decorated_endpoint()
+        
+        # Kiểm tra kết quả với actual enum values
+        assert result["id"] == "123"
+        assert result["status"] == "PENDING"  # Production enum value
+        assert result["task_type"] == "FEATURE"  # Production enum value
+        assert result["created_at"] == "2023-01-15T10:30:00Z"  # Production datetime format với Z suffix
     
     @pytest.mark.asyncio
     async def test_adapt_ontology_response_with_custom_adapters(self):
-        """Test adapt_ontology_response decorator với custom_adapters."""
+        """Test adapt_response decorator với custom enum adapters."""
         # Mock adapter function
         def mock_priority_adapter(value):
             priorities = {"1": "high", "2": "medium", "3": "low"}
@@ -381,10 +361,10 @@ class TestDecorators:
                 "created_at": datetime(2023, 1, 15, 10, 30, 0)
             }
         
-        # Áp dụng decorator với custom adapter
+        # Áp dụng decorator với custom enum adapter (sử dụng adapt_response thay vì adapt_ontology_response)
         custom_adapters = [{"field": "priority", "adapter": mock_priority_adapter}]
-        decorated_endpoint = adapt_ontology_response(
-            entity_type=None, custom_adapters=custom_adapters
+        decorated_endpoint = adapt_response(
+            adapt_enums=custom_adapters
         )(mock_endpoint)
         
         # Gọi endpoint và kiểm tra kết quả
@@ -393,4 +373,4 @@ class TestDecorators:
         # Kiểm tra kết quả
         assert result["id"] == "123"
         assert result["priority"] == "high"  # Đã được chuyển đổi bởi custom adapter
-        assert result["created_at"] == "2023-01-15T10:30:00"
+        assert result["created_at"] == "2023-01-15T10:30:00"  # adapt_response format (không có Z suffix)

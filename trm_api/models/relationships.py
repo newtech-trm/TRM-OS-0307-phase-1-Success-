@@ -16,7 +16,7 @@ class TargetEntityTypeEnum(str, Enum):
     TENSION = "Tension"
     TOOL = "Tool"
     USER = "User"
-    WIN = "Win"
+    WIN = "WIN"
 
 
 class RelationshipType(str, Enum):

@@ -5,6 +5,9 @@ from fastapi import HTTPException
 
 from trm_api.db.session import get_driver
 from trm_api.models.agent import Agent, AgentCreate, AgentUpdate, AgentInDB
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AgentService:
     """
@@ -19,7 +22,7 @@ class AgentService:
         agent_db_for_params = AgentInDB(**agent_create.model_dump(exclude_unset=True))
         params = agent_db_for_params.model_dump(by_alias=True)
 
-        print(f"DEBUG: Params sent to _create_agent_tx: {params}") # For debugging
+        logger.debug(Params sent to _create_agent_tx: {params}) # For debugging
 
         # Sử dụng async session
         async with self._get_db().driver.session() as session:
@@ -36,7 +39,7 @@ class AgentService:
             if hasattr(result_data['lastModifiedDate'], 'to_native'): # Check if it's a neo4j datetime object
                 result_data['lastModifiedDate'] = result_data['lastModifiedDate'].to_native()
 
-        # print(f"DEBUG: Result data from DB before Pydantic model: {result_data}") # For debugging
+        # logger.debug(Result data from DB before Pydantic model: {result_data}) # For debugging
         return Agent(**result_data)
 
     @staticmethod
@@ -79,14 +82,14 @@ class AgentService:
             # tool_ids are not directly on the Agent node in graph_model, handle via relationships if needed
         )
         
-        print(f"DEBUG: Cypher query for CREATE Agent: {query}") # For debugging
-        print(f"DEBUG: Cypher params for CREATE Agent: {params}") # For debugging
+        logger.debug(Cypher query for CREATE Agent: {query}) # For debugging
+        logger.debug(Cypher params for CREATE Agent: {params}) # For debugging
 
         result = tx.run(query, params)
         record = result.single()
         
         if record:
-            print(f"DEBUG: Record from DB after CREATE Agent: {dict(record)}") # For debugging
+            logger.debug(Record from DB after CREATE Agent: {dict(record)}) # For debugging
             return dict(record)
         return None
 

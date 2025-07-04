@@ -9,6 +9,9 @@ from trm_api.graph_models.project import Project as GraphProject
 from trm_api.graph_models.agent import Agent as GraphAgent
 from trm_api.graph_models.task import Task as GraphTask
 from trm_api.graph_models.win import WIN as GraphWIN
+import logging
+
+logger = logging.getLogger(__name__)
 
 class TensionRepository:
     """
@@ -48,7 +51,7 @@ class TensionRepository:
                 new_tension.reported_by.connect(reporter_agent)
             except GraphAgent.DoesNotExist:
                 # Log this, but continue with tension creation
-                print(f"Warning: Reporter agent {tension_data.reporterAgentId} not found")
+                logger.warning("Reporter agent {tension_data.reporterAgentId} not found")
 
         # 5. Connect to owner agent if specified
         if hasattr(tension_data, 'ownerAgentId') and tension_data.ownerAgentId:
@@ -57,7 +60,7 @@ class TensionRepository:
                 new_tension.owned_by.connect(owner_agent)
             except GraphAgent.DoesNotExist:
                 # Log this, but continue with tension creation
-                print(f"Warning: Owner agent {tension_data.ownerAgentId} not found")
+                logger.warning("Owner agent {tension_data.ownerAgentId} not found")
 
         return new_tension
 
@@ -130,7 +133,7 @@ class TensionRepository:
                     tension.owned_by.connect(new_owner)
                 except GraphAgent.DoesNotExist:
                     # Log but continue with other updates
-                    print(f"Warning: Owner agent {tension_data.ownerAgentId} not found")
+                    logger.warning("Owner agent {tension_data.ownerAgentId} not found")
 
         # Update resolution date if status is now Resolved and no resolution date exists
         if hasattr(tension_data, 'status') and tension_data.status == 'Resolved' and not tension.resolutionDate:

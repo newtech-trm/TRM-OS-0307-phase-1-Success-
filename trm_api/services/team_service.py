@@ -16,7 +16,7 @@ class TeamService:
     def _get_db(self) -> Driver:
         return get_driver()
 
-    def create_team(self, team_create: TeamCreate) -> Team:
+    async def create_team(self, team_create: TeamCreate) -> Team:
         """Creates a new Team node."""
         params = team_create.model_dump()
         params["teamId"] = str(uuid.uuid4())
@@ -24,8 +24,8 @@ class TeamService:
         params["createdAt"] = now
         params["updatedAt"] = now
 
-        with self._get_db().session() as session:
-            result = session.execute_write(self._create_team_tx, params)
+        async with self._get_db().session() as session:
+            result = await session.execute_write(self._create_team_tx, params)
             return Team(**result) if result else None
 
     @staticmethod
@@ -44,10 +44,10 @@ class TeamService:
         record = result.single()
         return process_record(record) if record else None
 
-    def get_team_by_id(self, team_id: str) -> Optional[Team]:
+    async def get_team_by_id(self, team_id: str) -> Optional[Team]:
         """Retrieves a single team by its unique ID."""
-        with self._get_db().session() as session:
-            result = session.execute_read(self._get_team_by_id_tx, team_id)
+        async with self._get_db().session() as session:
+            result = await session.execute_read(self._get_team_by_id_tx, team_id)
             return Team(**result) if result else None
 
     @staticmethod
@@ -57,10 +57,10 @@ class TeamService:
         record = result.single()
         return process_record(record)
 
-    def list_teams(self, skip: int = 0, limit: int = 100) -> List[Team]:
+    async def list_teams(self, skip: int = 0, limit: int = 100) -> List[Team]:
         """Retrieves a list of teams with pagination."""
-        with self._get_db().session() as session:
-            results = session.execute_read(self._list_teams_tx, skip, limit)
+        async with self._get_db().session() as session:
+            results = await session.execute_read(self._list_teams_tx, skip, limit)
             return [Team(**result) for result in results if result]
 
     @staticmethod
@@ -74,16 +74,16 @@ class TeamService:
         result = tx.run(query, skip=skip, limit=limit)
         return [process_record(record) for record in result]
 
-    def update_team(self, team_id: str, team_update: TeamUpdate) -> Optional[Team]:
+    async def update_team(self, team_id: str, team_update: TeamUpdate) -> Optional[Team]:
         """Updates an existing team."""
         update_data = team_update.model_dump(exclude_unset=True, by_alias=True)
         if not update_data:
-            return self.get_team_by_id(team_id)
+            return await self.get_team_by_id(team_id)
 
         update_data['updatedAt'] = datetime.utcnow()
 
-        with self._get_db().session() as session:
-            result = session.execute_write(self._update_team_tx, team_id, update_data)
+        async with self._get_db().session() as session:
+            result = await session.execute_write(self._update_team_tx, team_id, update_data)
             return Team(**result) if result else None
 
     @staticmethod
@@ -103,10 +103,10 @@ class TeamService:
         record = result.single()
         return process_record(record)
 
-    def delete_team(self, team_id: str) -> bool:
+    async def delete_team(self, team_id: str) -> bool:
         """Deletes a team by its ID."""
-        with self._get_db().session() as session:
-            result = session.execute_write(self._delete_team_tx, team_id)
+        async with self._get_db().session() as session:
+            result = await session.execute_write(self._delete_team_tx, team_id)
             return result
 
     @staticmethod
@@ -116,10 +116,10 @@ class TeamService:
         summary = result.consume()
         return summary.counters.nodes_deleted > 0
 
-    def add_member_to_team(self, team_id: str, user_id: str) -> Optional[Relationship]:
+    async def add_member_to_team(self, team_id: str, user_id: str) -> Optional[Relationship]:
         """Adds a user to a team, creating a HAS_MEMBER relationship."""
-        with self._get_db().session() as session:
-            result = session.execute_write(self._add_member_to_team_tx, team_id, user_id)
+        async with self._get_db().session() as session:
+            result = await session.execute_write(self._add_member_to_team_tx, team_id, user_id)
             return Relationship(**result) if result else None
 
     @staticmethod

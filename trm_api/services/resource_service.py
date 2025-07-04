@@ -22,7 +22,7 @@ class ResourceService:
     def _get_db(self) -> Driver:
         return get_driver()
 
-    def create_resource(self, resource_create: ResourceBase) -> Optional[Resource]:
+    async def create_resource(self, resource_create: ResourceBase) -> Optional[Resource]:
         """Creates a new Resource node with type-specific details."""
         params = resource_create.model_dump(by_alias=True)
 
@@ -41,8 +41,8 @@ class ResourceService:
         params["createdAt"] = now
         params["updatedAt"] = now
 
-        with self._get_db().session() as session:
-            result_properties = session.execute_write(self._create_resource_tx, params)
+        async with self._get_db().session() as session:
+            result_properties = await session.execute_write(self._create_resource_tx, params)
             
             if result_properties:
                 # result_properties is from process_record, should align with ResourceInDB fields
@@ -82,34 +82,34 @@ class ResourceService:
         # and map 'resourceId' to 'uid' for Pydantic model compatibility.
         return process_record(record) if record else None
     
-    def create_financial_resource(self, resource_create: FinancialResourceCreate) -> Resource:
+    async def create_financial_resource(self, resource_create: FinancialResourceCreate) -> Resource:
         """Creates a new Financial resource."""
-        return self.create_resource(resource_create)
+        return await self.create_resource(resource_create)
     
-    def create_knowledge_resource(self, resource_create: KnowledgeResourceCreate) -> Resource:
+    async def create_knowledge_resource(self, resource_create: KnowledgeResourceCreate) -> Resource:
         """Creates a new Knowledge resource."""
-        return self.create_resource(resource_create)
+        return await self.create_resource(resource_create)
     
-    def create_human_resource(self, resource_create: HumanResourceCreate) -> Resource:
+    async def create_human_resource(self, resource_create: HumanResourceCreate) -> Resource:
         """Creates a new Human resource."""
-        return self.create_resource(resource_create)
+        return await self.create_resource(resource_create)
     
-    def create_tool_resource(self, resource_create: ToolResourceCreate) -> Resource:
+    async def create_tool_resource(self, resource_create: ToolResourceCreate) -> Resource:
         """Creates a new Tool resource."""
-        return self.create_resource(resource_create)
+        return await self.create_resource(resource_create)
     
-    def create_equipment_resource(self, resource_create: EquipmentResourceCreate) -> Resource:
+    async def create_equipment_resource(self, resource_create: EquipmentResourceCreate) -> Resource:
         """Creates a new Equipment resource."""
-        return self.create_resource(resource_create)
+        return await self.create_resource(resource_create)
     
-    def create_space_resource(self, resource_create: SpaceResourceCreate) -> Resource:
+    async def create_space_resource(self, resource_create: SpaceResourceCreate) -> Resource:
         """Creates a new Space resource."""
-        return self.create_resource(resource_create)
+        return await self.create_resource(resource_create)
 
-    def get_resource_by_id(self, resource_id: str) -> Optional[Resource]:
+    async def get_resource_by_id(self, resource_id: str) -> Optional[Resource]:
         """Retrieves a single resource by its unique ID."""
-        with self._get_db().session() as session:
-            result = session.execute_read(self._get_resource_by_id_tx, resource_id)
+        async with self._get_db().session() as session:
+            result = await session.execute_read(self._get_resource_by_id_tx, resource_id)
             return Resource(**result) if result else None
 
     @staticmethod
@@ -119,10 +119,10 @@ class ResourceService:
         record = result.single()
         return process_record(record) if record else None
 
-    def list_resources(self, skip: int = 0, limit: int = 100, resource_type: Optional[ResourceType] = None) -> List[Resource]:
+    async def list_resources(self, skip: int = 0, limit: int = 100, resource_type: Optional[ResourceType] = None) -> List[Resource]:
         """Retrieves a list of resources with optional type filtering and pagination."""
-        with self._get_db().session() as session:
-            results = session.execute_read(self._list_resources_tx, skip, limit, resource_type.value if resource_type else None)
+        async with self._get_db().session() as session:
+            results = await session.execute_read(self._list_resources_tx, skip, limit, resource_type.value if resource_type else None)
             return [Resource(**result) for result in results if result]
 
     @staticmethod
@@ -149,16 +149,16 @@ class ResourceService:
         result = tx.run(query, params)
         return [process_record(record) for record in result]
 
-    def update_resource(self, resource_id: str, update_data: Dict[str, Any]) -> Optional[Resource]:
+    async def update_resource(self, resource_id: str, update_data: Dict[str, Any]) -> Optional[Resource]:
         """Updates an existing resource."""
         if not update_data:
-            return self.get_resource_by_id(resource_id)
+            return await self.get_resource_by_id(resource_id)
 
         # Add updated timestamp
         update_data['updatedAt'] = datetime.utcnow()
 
-        with self._get_db().session() as session:
-            result = session.execute_write(self._update_resource_tx, resource_id, update_data)
+        async with self._get_db().session() as session:
+            result = await session.execute_write(self._update_resource_tx, resource_id, update_data)
             return Resource(**result) if result else None
 
     @staticmethod
@@ -187,10 +187,10 @@ class ResourceService:
         record = result.single()
         return process_record(record) if record else None
 
-    def delete_resource(self, resource_id: str) -> bool:
+    async def delete_resource(self, resource_id: str) -> bool:
         """Deletes a resource by its ID."""
-        with self._get_db().session() as session:
-            result = session.execute_write(self._delete_resource_tx, resource_id)
+        async with self._get_db().session() as session:
+            result = await session.execute_write(self._delete_resource_tx, resource_id)
             return result
 
     @staticmethod
@@ -200,10 +200,10 @@ class ResourceService:
         summary = result.consume()
         return summary.counters.nodes_deleted > 0
     
-    def assign_resource_to_project(self, resource_id: str, project_id: str) -> Optional[Relationship]:
+    async def assign_resource_to_project(self, resource_id: str, project_id: str) -> Optional[Relationship]:
         """Assigns a resource to a project, creating a HAS_RESOURCE relationship."""
-        with self._get_db().session() as session:
-            result = session.execute_write(self._assign_resource_to_project_tx, resource_id, project_id)
+        async with self._get_db().session() as session:
+            result = await session.execute_write(self._assign_resource_to_project_tx, resource_id, project_id)
             return Relationship(**result) if result else None
 
     @staticmethod
@@ -225,10 +225,10 @@ class ResourceService:
         record = result.single()
         return process_relationship_record(record) if record else None
     
-    def assign_resource_to_task(self, resource_id: str, task_id: str) -> Optional[Relationship]:
+    async def assign_resource_to_task(self, resource_id: str, task_id: str) -> Optional[Relationship]:
         """Assigns a resource to a task, creating a USES_RESOURCE relationship."""
-        with self._get_db().session() as session:
-            result = session.execute_write(self._assign_resource_to_task_tx, resource_id, task_id)
+        async with self._get_db().session() as session:
+            result = await session.execute_write(self._assign_resource_to_task_tx, resource_id, task_id)
             return Relationship(**result) if result else None
 
     @staticmethod

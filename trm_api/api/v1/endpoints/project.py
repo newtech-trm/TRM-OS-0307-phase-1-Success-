@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Any, List, Optional, Dict
 from datetime import datetime
+import logging
 
 from trm_api.models.project import Project, ProjectCreate, ProjectUpdate
 from trm_api.repositories.project_repository import ProjectRepository
@@ -12,6 +13,7 @@ from trm_api.models.agent import Agent
 from trm_api.adapters.decorators import adapt_project_response, adapt_ontology_response
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # Dependencies to get the repository and service instances
 def get_project_repo() -> ProjectRepository:
@@ -47,7 +49,7 @@ async def create_project(
         graph_project = await repo.create_project(project_data=project_in)
         return graph_project
     except Exception as e:
-        print(f"AN ERROR OCCURRED: {e}")
+        logger.debug("AN ERROR OCCURRED: {e}")
         import traceback
         traceback.print_exc()
         raise HTTPException(

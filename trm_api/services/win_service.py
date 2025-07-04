@@ -7,7 +7,7 @@ import uuid
 import asyncio
 
 from trm_api.db.session import get_driver
-from trm_api.models.win import Win, WinCreate, WinUpdate, WinInDB
+from trm_api.schemas.win import WIN as Win, WINCreate as WinCreate, WINUpdate as WinUpdate
 
 class WinService:
     """
@@ -96,7 +96,7 @@ class WinService:
     def _create_win_tx(tx, win_data: dict) -> dict:
         """Create a WIN node transaction."""
         create_query = (
-            "CREATE (w:WIN {uid: $uid, summary: $summary, description: $description, win_type: $win_type}) "
+            "CREATE (w:WIN {uid: $uid, name: $name, narrative: $narrative, status: $status, winType: $winType, impact_level: $impact_level, tags: $tags}) "
             "SET w.created_at = datetime(), w.updated_at = datetime() "
             "RETURN w as win"
         )
@@ -106,9 +106,12 @@ class WinService:
         result = tx.run(
             create_query,
             uid=win_data.get('uid') or str(uuid.uuid4()),
-            summary=win_data.get('summary'),
-            description=win_data.get('description', ''),
-            win_type=win_data.get('win_type', 'standard'),
+            name=win_data.get('name'),
+            narrative=win_data.get('narrative', ''),
+            status=win_data.get('status', 'draft'),
+            winType=win_data.get('winType', 'strategic_achievement'),
+            impact_level=win_data.get('impact_level', 1),
+            tags=win_data.get('tags', []),
         )
         
         record = result.single()
@@ -176,10 +179,9 @@ class WinService:
         logging.debug(f"WinService._list_wins_tx: Thực thi truy vấn lấy WINs. Skip: {skip}, Limit: {limit}")
         query = (
             "MATCH (w:WIN) "
-            "RETURN w.uid AS uid, w.summary AS summary, w.description AS description, w.win_type AS win_type, "
-            "w.created_at AS created_at, w.updated_at AS updated_at, w.status AS status, w.priority AS priority, "
-            "w.start_date AS start_date, w.end_date AS end_date, w.target_date AS target_date, w.progress AS progress, "
-            "w.owner_id AS owner_id, w.team_id AS team_id, w.tags AS tags, w.properties AS properties "
+            "RETURN w.uid AS uid, w.name AS name, w.narrative AS narrative, w.status AS status, w.winType AS winType, "
+            "w.impact_level AS impact_level, w.tags AS tags, "
+            "w.created_at AS created_at, w.updated_at AS updated_at "
             "ORDER BY w.created_at DESC "
             "SKIP $skip LIMIT $limit"
         )

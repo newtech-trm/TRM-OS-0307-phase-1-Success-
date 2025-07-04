@@ -16,6 +16,9 @@ import httpx
 from datetime import datetime
 import neomodel
 from enum import Enum
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Áp dụng mark asyncio chọn lọc thay vì toàn bộ file
 # pytestmark = pytest.mark.asyncio
@@ -44,7 +47,7 @@ def setup_neo4j_connection():
     Fixture tự động chạy khi bắt đầu test session để cấu hình kết nối Neo4j.
     Sử dụng thông tin kết nối từ settings (từ file .env)
     """
-    print(f"Thiết lập kết nối Neo4j tới: {settings.NEO4J_URI}")
+    logger.info("Thiết lập kết nối Neo4j tới: %s", settings.NEO4J_URI)
     connect_to_db()
     yield
     # Không cần đóng kết nối vì neomodel quản lý kết nối theo thread
@@ -232,9 +235,9 @@ def seed_test_data():
         DELETE r, n
         """
         db.cypher_query(query)
-        print("Đã dọn dẹp dữ liệu test từ Neo4j")
+        logger.info("Đã dọn dẹp dữ liệu test từ Neo4j")
     except Exception as e:
-        print(f"Lỗi khi dọn dẹp dữ liệu test: {e}")
+        logger.error("Lỗi khi dọn dẹp dữ liệu test: %s", e)
 
 
 # Các fixture bổ sung có thể được thêm vào đây khi cần

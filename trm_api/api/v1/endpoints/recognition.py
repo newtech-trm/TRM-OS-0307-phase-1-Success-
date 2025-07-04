@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 @router.post("/", response_model=Recognition, status_code=status.HTTP_201_CREATED)
-@adapt_recognition_response()
+# @adapt_recognition_response()  # Temporarily disabled for debugging
 async def create_recognition(
     recognition_data: RecognitionCreate
 ):

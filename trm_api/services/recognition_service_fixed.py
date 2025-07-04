@@ -6,6 +6,9 @@ import traceback
 
 from trm_api.db.session import get_driver
 from trm_api.models.recognition import Recognition, RecognitionCreate, RecognitionUpdate, RecognitionInDB
+import logging
+
+logger = logging.getLogger(__name__)
 
 class RecognitionService:
     """
@@ -18,10 +21,10 @@ class RecognitionService:
 
     def create_recognition(self, recognition_create: RecognitionCreate) -> Optional[Recognition]:
         """Creates a new recognition in the database"""
-        print(f"Creating recognition with params: {recognition_create}")
+        logger.debug("Creating recognition with params: {recognition_create}")
         # Convert to dict for consistency
         params = recognition_create.model_dump(by_alias=True)
-        print(f"Converted params: {params}")
+        logger.debug("Converted params: {params}")
         
         # Generate unique ID if one wasn't provided
         if "recognitionId" not in params:
@@ -41,17 +44,17 @@ class RecognitionService:
         
         try:
             # In chi tiết các tham số
-            print(f"\n===== THÔNG TIN TẠO RECOGNITION =====")
-            print(f"RecognitionId: {params.get('recognitionId')}")
-            print(f"WinId: {params.get('winId')}")
-            print(f"GranterId: {params.get('granterId')}")
-            print(f"RecipientIds: {params.get('recipientIds')}")
-            print(f"Title: {params.get('title')}")
-            print(f"Description: {params.get('description')}")
-            print(f"RecognitionType: {params.get('recognitionType')}")
-            print(f"RecognitionDate: {params.get('recognitionDate')}")
-            print(f"CreatedAt: {params.get('createdAt')}")
-            print(f"======================================\n")
+            logger.debug("\n===== THÔNG TIN TẠO RECOGNITION =====")
+            logger.debug("RecognitionId: {params.get('recognitionId')}")
+            logger.debug("WinId: {params.get('winId')}")
+            logger.debug("GranterId: {params.get('granterId')}")
+            logger.debug("RecipientIds: {params.get('recipientIds')}")
+            logger.debug("Title: {params.get('title')}")
+            logger.debug("Description: {params.get('description')}")
+            logger.debug("RecognitionType: {params.get('recognitionType')}")
+            logger.debug("RecognitionDate: {params.get('recognitionDate')}")
+            logger.debug("CreatedAt: {params.get('createdAt')}")
+            logger.debug("======================================\n")
             
             # Đảm bảo tất cả các trường bắt buộc đều có giá trị
             if "title" not in params or not params.get("title"):
@@ -110,7 +113,7 @@ class RecognitionService:
                     if "recognitionDate" in node_data and hasattr(node_data["recognitionDate"], "to_native"):
                         node_data["recognitionDate"] = node_data["recognitionDate"].to_native()
                     
-                    print(f"ĐÃ TẠO RECOGNITION THÀNH CÔNG: {node_data}")
+                    logger.debug("ĐÃ TẠO RECOGNITION THÀNH CÔNG: {node_data}")
                     
                     # Mapping từ camelCase (từ Neo4j) sang snake_case (cho Pydantic model)
                     # Sử dụng từ điển mapping cho rõ ràng thay vì dựa vào Pydantic alias
@@ -129,7 +132,7 @@ class RecognitionService:
                     # Tạo đối tượng Recognition từ dict đã mapping
                     return Recognition.model_validate(recognition_dict)
                 else:
-                    print("KHÔNG TẠO ĐƯỢC RECOGNITION NODE")
+                    logger.debug("KHÔNG TẠO ĐƯỢC RECOGNITION NODE")
                     # Tạo fallback để tránh lỗi 500
                     fallback_data = {
                         "recognition_id": params.get("recognitionId") or str(uuid.uuid4()),
@@ -145,7 +148,7 @@ class RecognitionService:
                     return Recognition.model_validate(fallback_data)
                     
         except Exception as e:
-            print(f"===== LỖI KHI TẠO RECOGNITION =====\n{str(e)}\n{traceback.format_exc()}\n===========================")
+            logger.debug("===== LỖI KHI TẠO RECOGNITION =====\n{str(e)}\n{traceback.format_exc()}\n===========================")
             # Tạo fallback để tránh lỗi 500
             fallback_data = {
                 "recognition_id": params.get("recognitionId") or str(uuid.uuid4()),
@@ -196,7 +199,7 @@ class RecognitionService:
                     return Recognition.model_validate(recognition_dict)
                 return None
         except Exception as e:
-            print(f"===== LỖI KHI TÌM RECOGNITION =====\n{str(e)}\n{traceback.format_exc()}\n===========================")
+            logger.debug("===== LỖI KHI TÌM RECOGNITION =====\n{str(e)}\n{traceback.format_exc()}\n===========================")
             return None
 
     # Các phương thức khác được giữ nguyên...

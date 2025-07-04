@@ -13,7 +13,7 @@ from trm_api.repositories.tension_repository import TensionRepository
 class TestTaskResolvesTensionRelationship(unittest.TestCase):
     """Unit tests for the RESOLVES relationship between Task and Tension according to Ontology V3.2."""
     
-    def setup_method(self):
+    def setup_method(self, method):
         """Set up test fixtures before each test method."""
         self.task_repository = TaskRepository()
         self.task_service = TaskService(repository=self.task_repository)

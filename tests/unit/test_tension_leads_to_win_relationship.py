@@ -12,7 +12,7 @@ from trm_api.repositories.tension_repository import TensionRepository
 class TestTensionLeadsToWinRelationship(unittest.TestCase):
     """Unit tests for the LEADS_TO_WIN relationship between Tension and WIN according to Ontology V3.2."""
     
-    def setup_method(self):
+    def setup_method(self, method):
         """Set up test fixtures before each test method."""
         self.tension_repository = TensionRepository()
         self.tension_service = TensionService(repository=self.tension_repository)

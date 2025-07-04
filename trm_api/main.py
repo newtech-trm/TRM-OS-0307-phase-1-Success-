@@ -26,11 +26,11 @@ from trm_api.middleware.ontology_logging import OntologyLoggingMiddleware
 async def lifespan(app: FastAPI):
     # Actions on startup
     setup_logging()
-    print("--- Server starting up ---")
+    logger.debug("--- Server starting up ---")
     connect_to_db()
     yield
     # Actions on shutdown
-    print("--- Server shutting down ---")
+    logger.debug("--- Server shutting down ---")
     close_db_connection()
 
 # Initialize the FastAPI app with the lifespan manager
@@ -71,6 +71,8 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 if __name__ == "__main__":
     import uvicorn
     import logging
+
+    logger = logging.getLogger(__name__)
     
     # Cấu hình logging chi tiết hơn
     logging.basicConfig(
@@ -82,5 +84,5 @@ if __name__ == "__main__":
     neomodel_logger = logging.getLogger('neomodel')
     neomodel_logger.setLevel(logging.DEBUG)
     
-    print(f"[TRM API] Khởi động server trên cổng 8001 với logging cấp độ DEBUG")
+    logger.debug("[TRM API] Khởi động server trên cổng 8001 với logging cấp độ DEBUG")
     uvicorn.run(app, host="127.0.0.1", port=8001, log_level="debug")

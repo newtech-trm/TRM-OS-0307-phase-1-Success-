@@ -305,7 +305,7 @@ class TaskRepository:
             relationship_props['notes'] = notes
         
         # Connect with relationship properties
-        agent.assigned_tasks.connect(task, relationship_props)
+        task.assignees_agents.connect(agent, relationship_props)
         
         return (task, agent)
     
@@ -445,11 +445,11 @@ class TaskRepository:
         # Try to find the assignee as an Agent
         try:
             agent = GraphAgent.nodes.get(uid=assignee_uid)
-            if not agent.assigned_tasks.is_connected(task):
+            if not task.assignees_agents.is_connected(agent):
                 return False
                 
             # Get and update the relationship
-            rel = agent.assigned_tasks.relationship(task)
+            rel = task.assignees_agents.relationship(agent)
             rel.isAccepted = True
             rel.acceptanceDate = datetime.now()
             if acceptance_notes:
@@ -495,11 +495,11 @@ class TaskRepository:
         # Try to find the assignee as an Agent
         try:
             agent = GraphAgent.nodes.get(uid=assignee_uid)
-            if not agent.assigned_tasks.is_connected(task):
+            if not task.assignees_agents.is_connected(agent):
                 return False
                 
             # Get and update the relationship
-            rel = agent.assigned_tasks.relationship(task)
+            rel = task.assignees_agents.relationship(agent)
             rel.completionDate = datetime.now()
             if actual_effort is not None:
                 rel.actualEffort = actual_effort
@@ -534,8 +534,8 @@ class TaskRepository:
         # Try to find the assignee as an Agent
         try:
             agent = GraphAgent.nodes.get(uid=assignee_uid)
-            if agent.assigned_tasks.is_connected(task):
-                agent.assigned_tasks.disconnect(task)
+            if task.assignees_agents.is_connected(agent):
+                task.assignees_agents.disconnect(agent)
                 return True
         except GraphAgent.DoesNotExist:
             # Agent not found
