@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class AgentService:
     """
     Service layer for handling business logic related to Agents.
+    Uses direct Cypher queries for better reliability.
     """
 
     def _get_db(self) -> Driver:
@@ -135,47 +136,22 @@ class AgentService:
         record = result.single()
         return dict(record) if record else None
 
-    async def list_agents(self, skip: int = 0, limit: int = 100) -> List[Agent]:
-        """Retrieves a list of agents with pagination asynchronously."""
-        async with self._get_db().driver.session() as session:
-            raw_results = await session.execute_read(self._list_agents_tx, skip, limit)
-       
-        processed_agents = []
-        for agent_data in raw_results:
-            # Convert neo4j.time.DateTime to python datetime
-            if 'creationDate' in agent_data and agent_data['creationDate'] is not None:
-                if hasattr(agent_data['creationDate'], 'to_native'):
-                    agent_data['creationDate'] = agent_data['creationDate'].to_native()
-            if 'lastModifiedDate' in agent_data and agent_data['lastModifiedDate'] is not None:
-                if hasattr(agent_data['lastModifiedDate'], 'to_native'):
-                    agent_data['lastModifiedDate'] = agent_data['lastModifiedDate'].to_native()
-            processed_agents.append(Agent(**agent_data))
-        return processed_agents
+    def list_agents(self, skip: int = 0, limit: int = 100) -> List[dict]:
+        """Retrieves a list of agents with pagination."""
+        with self._get_db().session() as session:
+            results = session.read_transaction(self._list_agents_tx, skip, limit)
+            return results
 
     @staticmethod
     def _list_agents_tx(tx, skip: int, limit: int) -> List[dict]:
         query = (
             "MATCH (a:Agent) "
-            "RETURN "
-            "  a.uid AS agentId, "
-            "  a.name AS name, "
-            "  a.agent_type AS agentType, "
-            "  a.purpose AS purpose, "
-            "  a.description AS description, "
-            "  a.status AS status, "
-            "  a.capabilities AS capabilities, "
-            "  a.job_title AS jobTitle, "
-            "  a.department AS department, "
-            "  a.is_founder AS isFounder, "
-            "  a.founder_recognition_authority AS founderRecognitionAuthority, "
-            "  a.contact_info AS contactInfo, "
-            "  a.creation_date AS creationDate, "
-            "  a.last_modified_date AS lastModifiedDate "
-            "ORDER BY a.name ASC "
+            "RETURN a "
+            "ORDER BY a.creation_date DESC "
             "SKIP $skip LIMIT $limit"
         )
         result = tx.run(query, skip=skip, limit=limit)
-        return [dict(record) for record in result]
+        return [dict(record['a']) for record in result]
 
     async def update_agent(self, agent_id: str, agent_update: AgentUpdate) -> Optional[Agent]:
         """Updates an existing agent asynchronously."""
@@ -254,6 +230,36 @@ class AgentService:
         result = tx.run(query, agentId=agent_id)
         summary = result.consume()
         return summary.counters.nodes_deleted > 0
+
+    def get_agent_by_uid(self, uid: str) -> Optional[dict]:
+        """Retrieves a single agent by its unique ID."""
+        with self._get_db().session() as session:
+            result = session.read_transaction(self._get_agent_by_uid_tx, uid)
+            return result
+
+    @staticmethod
+    def _get_agent_by_uid_tx(tx, uid: str) -> Optional[dict]:
+        query = (
+            "MATCH (a:Agent) "
+            "WHERE a.uid = $uid "
+            "RETURN a"
+        )
+        result = tx.run(query, uid=uid)
+        record = result.single()
+        return dict(record['a']) if record and record['a'] else None
+
+    def count_agents(self) -> int:
+        """Count total number of agents."""
+        with self._get_db().session() as session:
+            result = session.read_transaction(self._count_agents_tx)
+            return result
+
+    @staticmethod
+    def _count_agents_tx(tx) -> int:
+        query = "MATCH (a:Agent) RETURN count(a) as count"
+        result = tx.run(query)
+        record = result.single()
+        return record['count'] if record else 0
 
 # Singleton instance of the service
 agent_service = AgentService()
