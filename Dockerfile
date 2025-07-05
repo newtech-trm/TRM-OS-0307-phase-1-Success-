@@ -7,7 +7,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PORT=8000
 
 # Set working directory
 WORKDIR /app
@@ -46,12 +47,12 @@ RUN chown -R trm:trm /app
 # Switch to non-root user
 USER trm
 
-# Health check
+# Health check - use PORT environment variable
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:${PORT}/health || exit 1
 
-# Expose port
-EXPOSE 8000
+# Expose port - use PORT environment variable
+EXPOSE ${PORT}
 
-# Default command for production
-CMD ["python", "-m", "uvicorn", "trm_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"] 
+# Default command for production - use PORT environment variable
+CMD ["sh", "-c", "python -m uvicorn trm_api.main:app --host 0.0.0.0 --port ${PORT} --workers 4"] 
