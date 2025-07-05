@@ -83,13 +83,16 @@ async def test_get_recognition(client):
         "message": "Công nhận đóng góp",
         "recognition_type": "GRATITUDE",
         "status": "GRANTED",
-        "value_level": 3,
+        "value_level": "3",
         "tags": ["get", "test"],
-        "given_by_agent_id": f"test_{str(uuid.uuid4())}"
+        "given_by_agent_id": f"test_{str(uuid.uuid4())}",
+        "received_by_agent_ids": [f"test_{str(uuid.uuid4())}"]
     }
     creation_response = await client.post("/api/v1/recognitions/", json=recognition_data)
     created_recognition = creation_response.json()
-    recognition_id = created_recognition["id"]
+    print(f"DEBUG: Created recognition response: {created_recognition}")
+    print(f"DEBUG: Available keys: {list(created_recognition.keys())}")
+    recognition_id = created_recognition.get("id") or created_recognition.get("uid")
     
     # Bước 2: Lấy recognition theo ID
     response = await client.get(f"/api/v1/recognitions/{recognition_id}")
@@ -123,9 +126,10 @@ async def test_list_recognitions(client):
             "message": f"Công nhận đóng góp {i}",
             "recognition_type": "GRATITUDE",
             "status": "GRANTED",
-            "value_level": i + 1,
+            "value_level": str(i + 1),
             "tags": ["list", f"test{i}"],
-            "given_by_agent_id": f"test_{str(uuid.uuid4())}"
+            "given_by_agent_id": f"test_{str(uuid.uuid4())}",
+            "received_by_agent_ids": [f"test_{str(uuid.uuid4())}"]
         }
         await client.post("/api/v1/recognitions/", json=recognition_data)
     
@@ -166,10 +170,11 @@ async def test_update_recognition(client):
         "name": "Test Recognition for Update",
         "message": "Công nhận đóng góp ban đầu",
         "recognition_type": "GRATITUDE",
-        "status": "PENDING",
-        "value_level": 2,
+        "status": "PROPOSED",
+        "value_level": "2",
         "tags": ["update", "test"],
-        "given_by_agent_id": f"test_{str(uuid.uuid4())}"
+        "given_by_agent_id": f"test_{str(uuid.uuid4())}",
+        "received_by_agent_ids": [f"test_{str(uuid.uuid4())}"]
     }
     creation_response = await client.post("/api/v1/recognitions/", json=recognition_data)
     created_recognition = creation_response.json()
@@ -180,7 +185,7 @@ async def test_update_recognition(client):
         "name": "Updated Recognition",
         "message": "Công nhận đóng góp đã cập nhật",
         "status": "GRANTED",
-        "value_level": 4
+        "value_level": "4"
     }
     response = await client.put(f"/api/v1/recognitions/{recognition_id}", json=update_data)
     
@@ -215,9 +220,10 @@ async def test_delete_recognition(client):
         "message": "Công nhận đóng góp",
         "recognition_type": "GRATITUDE",
         "status": "GRANTED",
-        "value_level": 3,
+        "value_level": "3",
         "tags": ["delete", "test"],
-        "given_by_agent_id": f"test_{str(uuid.uuid4())}"
+        "given_by_agent_id": f"test_{str(uuid.uuid4())}",
+        "received_by_agent_ids": [f"test_{str(uuid.uuid4())}"]
     }
     creation_response = await client.post("/api/v1/recognitions/", json=recognition_data)
     created_recognition = creation_response.json()

@@ -80,7 +80,11 @@ class OntologyMigrationTool:
     
     def get_all_entities(self, entity_type: EntityType, limit: Optional[int] = None, skip: Optional[int] = 0):
         """Lấy tất cả các entity theo loại từ Neo4j."""
-        label = entity_type.value.capitalize()
+        # Handle both string and enum entity types
+        if isinstance(entity_type, str):
+            label = entity_type.capitalize()
+        else:
+            label = entity_type.value.capitalize()
         
         limit_clause = f"LIMIT {limit}" if limit is not None else ""
         skip_clause = f"SKIP {skip}" if skip > 0 else ""
@@ -96,6 +100,17 @@ class OntologyMigrationTool:
     
     def migrate_entity(self, entity_data: Dict[str, Any], entity_type: EntityType) -> Dict[str, Any]:
         """Áp dụng adapter để chuẩn hóa dữ liệu entity theo ontology."""
+        # Handle both string and enum entity types
+        if isinstance(entity_type, str):
+            # For string entity types, find the corresponding enum
+            for enum_type in EntityType:
+                if enum_type.value == entity_type:
+                    entity_type = enum_type
+                    break
+            else:
+                logger.warning(f"Không tìm thấy EntityType enum cho '{entity_type}'")
+                return entity_data
+        
         adapter = self.adapters.get(entity_type)
         if not adapter:
             logger.warning(f"Không tìm thấy adapter cho entity type {entity_type}")
@@ -114,17 +129,20 @@ class OntologyMigrationTool:
         count = 0
         skip = 0
         
+        # Handle both string and enum entity types for display
+        entity_type_str = entity_type if isinstance(entity_type, str) else entity_type.value
+        
         while True:
             entities = self.get_all_entities(entity_type, limit=batch_size, skip=skip)
             if not entities:
                 break
                 
-            logger.info(f"Xử lý batch {skip//batch_size + 1} với {len(entities)} {entity_type.value}")
+            logger.info(f"Xử lý batch {skip//batch_size + 1} với {len(entities)} {entity_type_str}")
             
             for entity_record in entities:
                 count += 1
                 self.migration_stats["total"] += 1
-                self.migration_stats["entity_stats"][entity_type.value]["total"] += 1
+                self.migration_stats["entity_stats"][entity_type_str]["total"] += 1
                 
                 node = entity_record["n"]
                 node_id = entity_record["node_id"]
@@ -142,34 +160,34 @@ class OntologyMigrationTool:
                             changes[key] = value
                     
                     if changes:
-                        logger.info(f"Các thay đổi cho {entity_type.value} (uid={entity_data.get('uid')}): {json.dumps(changes)}")
+                        logger.info(f"Các thay đổi cho {entity_type_str} (uid={entity_data.get('uid')}): {json.dumps(changes)}")
                         
                         if not dry_run:
                             # Cập nhật vào Neo4j
                             self.update_node(node_id, changes)
-                            logger.info(f"Đã cập nhật {entity_type.value} với uid={entity_data.get('uid')}")
+                            logger.info(f"Đã cập nhật {entity_type_str} với uid={entity_data.get('uid')}")
                             self.migration_stats["success"] += 1
-                            self.migration_stats["entity_stats"][entity_type.value]["success"] += 1
+                            self.migration_stats["entity_stats"][entity_type_str]["success"] += 1
                         else:
-                            logger.info(f"[DRY RUN] Sẽ cập nhật {entity_type.value} với uid={entity_data.get('uid')}")
+                            logger.info(f"[DRY RUN] Sẽ cập nhật {entity_type_str} với uid={entity_data.get('uid')}")
                             self.migration_stats["skipped"] += 1
-                            self.migration_stats["entity_stats"][entity_type.value]["skipped"] += 1
+                            self.migration_stats["entity_stats"][entity_type_str]["skipped"] += 1
                     else:
-                        logger.debug(f"Không có thay đổi cho {entity_type.value} với uid={entity_data.get('uid')}")
+                        logger.debug(f"Không có thay đổi cho {entity_type_str} với uid={entity_data.get('uid')}")
                         self.migration_stats["skipped"] += 1
-                        self.migration_stats["entity_stats"][entity_type.value]["skipped"] += 1
+                        self.migration_stats["entity_stats"][entity_type_str]["skipped"] += 1
                 
                 except Exception as e:
-                    logger.error(f"Lỗi khi xử lý {entity_type.value} với uid={entity_data.get('uid')}: {str(e)}")
+                    logger.error(f"Lỗi khi xử lý {entity_type_str} với uid={entity_data.get('uid')}: {str(e)}")
                     self.migration_stats["failed"] += 1
-                    self.migration_stats["entity_stats"][entity_type.value]["failed"] += 1
+                    self.migration_stats["entity_stats"][entity_type_str]["failed"] += 1
             
             skip += batch_size
             
             if len(entities) < batch_size:
                 break
         
-        logger.info(f"Đã xử lý tổng cộng {count} {entity_type.value}")
+        logger.info(f"Đã xử lý tổng cộng {count} {entity_type_str}")
         return count
     
     def run_migration(self, entity_types=None, dry_run=True, batch_size=100):
@@ -183,10 +201,13 @@ class OntologyMigrationTool:
         
         total_count = 0
         for entity_type in entity_types:
-            logger.info(f"Bắt đầu migration cho {entity_type.value}")
+            # Handle both string and enum entity types for display
+            entity_type_str = entity_type if isinstance(entity_type, str) else entity_type.value
+            
+            logger.info(f"Bắt đầu migration cho {entity_type_str}")
             count = self.process_entity_batch(entity_type, dry_run, batch_size)
             total_count += count
-            logger.info(f"Hoàn thành migration cho {entity_type.value}. Đã xử lý {count} records.")
+            logger.info(f"Hoàn thành migration cho {entity_type_str}. Đã xử lý {count} records.")
         
         end_time = datetime.datetime.now()
         duration = end_time - start_time

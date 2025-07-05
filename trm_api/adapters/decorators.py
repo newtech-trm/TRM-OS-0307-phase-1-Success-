@@ -42,6 +42,70 @@ def _process_items(items: Any, adapt_datetime: bool, adapt_enums: Optional[List[
                 logging.error(f"Error converting datetime to ISO 8601: {e}")
                 return str(items)  # Fallback cơ bản nếu có lỗi
         
+        # Xử lý Neomodel objects - chuyển thành dict trước
+        if hasattr(items, '__node__') or hasattr(items, '_meta') or str(type(items)).find('neomodel') != -1:
+            # Đây là Neomodel object, chuyển thành dict
+            try:
+                # Chuyển Neomodel object thành dict
+                items_dict = {}
+                
+                # Lấy tất cả attributes không private
+                for key in dir(items):
+                    if not key.startswith('_') and not callable(getattr(items, key)):
+                        try:
+                            value = getattr(items, key)
+                            # Bỏ qua các relationship và method
+                            if not hasattr(value, 'connect') and not hasattr(value, 'disconnect'):
+                                if hasattr(value, 'to_native'):  # Neo4j datetime
+                                    try:
+                                        items_dict[key] = value.to_native()
+                                    except:
+                                        items_dict[key] = str(value)
+                                else:
+                                    items_dict[key] = value
+                        except:
+                            continue
+                
+                # Thêm id từ uid nếu có
+                if hasattr(items, 'uid') and items.uid:
+                    items_dict['id'] = items.uid
+                
+                # Thêm các trường datetime cơ bản nếu có
+                if hasattr(items, 'created_at'):
+                    items_dict['created_at'] = getattr(items, 'created_at')
+                if hasattr(items, 'updated_at'):
+                    items_dict['updated_at'] = getattr(items, 'updated_at')
+                
+                logging.debug(f"Converted Neomodel to dict: {items_dict}")
+                
+                # Recursive xử lý dict đã chuyển đổi
+                return _process_items(items_dict, adapt_datetime, adapt_enums)
+                
+            except Exception as e:
+                logging.error(f"Error converting Neomodel object to dict: {e}")
+                # Fallback: thử chuyển thành dict đơn giản
+                try:
+                    items_dict = {}
+                    if hasattr(items, 'uid'):
+                        items_dict['id'] = items.uid
+                    if hasattr(items, 'name'):
+                        items_dict['name'] = getattr(items, 'name', 'Unknown')
+                    if hasattr(items, 'created_at'):
+                        created_at = getattr(items, 'created_at')
+                        if hasattr(created_at, 'to_native'):
+                            items_dict['created_at'] = created_at.to_native().isoformat()
+                        else:
+                            items_dict['created_at'] = str(created_at)
+                    if hasattr(items, 'updated_at'):
+                        updated_at = getattr(items, 'updated_at')
+                        if hasattr(updated_at, 'to_native'):
+                            items_dict['updated_at'] = updated_at.to_native().isoformat()
+                        else:
+                            items_dict['updated_at'] = str(updated_at)
+                    return items_dict
+                except:
+                    return str(items)
+        
         # Xử lý danh sách các item
         if isinstance(items, list):
             return [_process_items(item, adapt_datetime, adapt_enums) for item in items]
@@ -66,6 +130,13 @@ def _process_items(items: Any, adapt_datetime: bool, adapt_enums: Optional[List[
                 # Xử lý datetime objects trực tiếp
                 elif adapt_datetime and isinstance(value, datetime):
                     result[key] = value.isoformat()
+                # Xử lý Neo4j datetime objects
+                elif adapt_datetime and hasattr(value, 'to_native'):
+                    try:
+                        native_dt = value.to_native()
+                        result[key] = native_dt.isoformat() if isinstance(native_dt, datetime) else str(native_dt)
+                    except:
+                        result[key] = str(value)
                 # Xử lý nested dictionaries
                 elif isinstance(value, dict):
                     result[key] = _process_items(value, adapt_datetime, adapt_enums)
@@ -123,10 +194,15 @@ def adapt_response(
             try:
                 # Gọi endpoint function gốc
                 response = await func(*args, **kwargs)
+                
+                # Debug logging
+                logging.debug(f"Decorator {func.__name__}: response type = {type(response)}")
+                logging.debug(f"Decorator {func.__name__}: response = {response}")
 
                 # Chuyển đổi Pydantic model thành dict để xử lý nhất quán
                 if isinstance(response, BaseModel):
                     response = response.model_dump(by_alias=True)
+                    logging.debug(f"Decorator {func.__name__}: converted BaseModel to dict")
                 
                 # Xử lý giá trị None
                 if response is None:
@@ -170,6 +246,7 @@ def adapt_response(
                 
                 # Trường hợp response là dict hoặc Pydantic model
                 if isinstance(response, dict):
+                    logging.debug(f"Decorator {func.__name__}: processing dict response")
                     # Xử lý collection item nếu được chỉ định
                     if response_item_key and response_item_key in response:
                         # Tạo bản sao của response để tránh thay đổi trực tiếp
@@ -181,10 +258,15 @@ def adapt_response(
                         return result
                     
                     # Xử lý toàn bộ dictionary nếu không có response_item_key
-                    return _process_items(response, adapt_datetime, adapt_enums)
+                    processed_response = _process_items(response, adapt_datetime, adapt_enums)
+                    logging.debug(f"Decorator {func.__name__}: processed dict = {processed_response}")
+                    return processed_response
                 
-                # Trường hợp response là list hoặc giá trị khác
-                return _process_items(response, adapt_datetime, adapt_enums)
+                # Trường hợp response là list hoặc giá trị khác (bao gồm Neomodel objects)
+                logging.debug(f"Decorator {func.__name__}: processing other type response")
+                processed_response = _process_items(response, adapt_datetime, adapt_enums)
+                logging.debug(f"Decorator {func.__name__}: processed other = {processed_response}")
+                return processed_response
             
             except HTTPException:
                 # Cho phép HTTPException được raise lên để FastAPI xử lý

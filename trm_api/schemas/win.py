@@ -25,12 +25,15 @@ class WINBase(BaseModel):
     Schema base cho WIN (Wisdom-Infused Narrative) trong TRM-OS.
     Chứa các thuộc tính chung cho mọi chức năng liên quan.
     """
-    name: str = Field(..., description="Tên mô tả ngắn gọn cho WIN")
-    narrative: str = Field(..., description="Chi tiết câu chuyện WIN, bao gồm context, actions, outcomes, và key learnings")
+    summary: str = Field(..., description="Tên mô tả ngắn gọn cho WIN")
+    description: str = Field(..., description="Chi tiết câu chuyện WIN, bao gồm context, actions, outcomes, và key learnings")
     status: str = Field(default=WINStatus.DRAFT, description="Trạng thái hiện tại của WIN")
-    winType: Optional[str] = Field(None, description="Phân loại hoặc loại WIN")
+    win_type: Optional[str] = Field(None, description="Phân loại hoặc loại WIN")
     impact_level: int = Field(default=1, description="Đại diện số cho mức độ ảnh hưởng của WIN (1-Low đến 5-High)")
     tags: List[str] = Field(default_factory=list, description="Các tag liên quan để phân loại và tìm kiếm WINs")
+    
+    # Required fields that were missing
+    relatedEntityIds: List[str] = Field(default_factory=list, description="Danh sách ID của các entity liên quan")
 
 # Schema cho việc tạo mới WIN
 class WINCreate(WINBase):
@@ -41,12 +44,13 @@ class WINCreate(WINBase):
 # Schema cho việc cập nhật WIN
 class WINUpdate(BaseModel):
     """Schema cho việc cập nhật một WIN hiện có"""
-    name: Optional[str] = Field(None, description="Tên mô tả ngắn gọn cho WIN")
-    narrative: Optional[str] = Field(None, description="Chi tiết câu chuyện WIN")
+    summary: Optional[str] = Field(None, description="Tên mô tả ngắn gọn cho WIN")
+    description: Optional[str] = Field(None, description="Chi tiết câu chuyện WIN")
     status: Optional[str] = Field(None, description="Trạng thái hiện tại của WIN")
-    winType: Optional[str] = Field(None, description="Phân loại hoặc loại WIN")
+    win_type: Optional[str] = Field(None, description="Phân loại hoặc loại WIN")
     impact_level: Optional[int] = Field(None, description="Đại diện số cho mức độ ảnh hưởng của WIN")
     tags: Optional[List[str]] = Field(None, description="Các tag liên quan để phân loại và tìm kiếm WINs")
+    relatedEntityIds: Optional[List[str]] = Field(None, description="Danh sách ID của các entity liên quan")
 
 # Schema đầy đủ cho WIN bao gồm thông tin từ database
 class WINInDB(WINBase):

@@ -34,7 +34,7 @@ async def create_win(
         # Chuẩn hóa enum
         win_data = win_in.model_dump()
         win_data["status"] = normalize_win_status(win_data.get("status"))
-        win_data["winType"] = normalize_win_type(win_data.get("winType"))
+        win_data["win_type"] = normalize_win_type(win_data.get("win_type"))
         
         # Tạo WIN
         result = await service.create_win(win_data=win_data)
@@ -57,7 +57,7 @@ async def create_win(
         )
 
 @router.get("/{win_id}")
-def get_win(
+async def get_win(
     win_id: str,
     service: WinService = Depends(lambda: win_service)
 ):
@@ -66,7 +66,7 @@ def get_win(
     """
     try:
         logging.info(f"Đang lấy thông tin WIN với ID: {win_id}")
-        db_win = service.get_win(uid=win_id)
+        db_win = await service.get_win(win_id=win_id)
         
         if db_win is None:
             raise HTTPException(
@@ -80,8 +80,8 @@ def get_win(
             # Chuẩn hóa enum
             if "status" in win_data:
                 win_data["status"] = normalize_win_status(win_data.get("status"))
-            if "winType" in win_data:
-                win_data["winType"] = normalize_win_type(win_data.get("winType"))
+            if "win_type" in win_data:
+                win_data["win_type"] = normalize_win_type(win_data.get("win_type"))
             
             # Chuẩn hóa datetime
             win_data = normalize_dict_datetimes(win_data)
@@ -100,7 +100,7 @@ def get_win(
         )
 
 @router.get("/")
-def list_wins(
+async def list_wins(
     skip: int = Query(0, ge=0, description="Số item bỏ qua (dùng cho phân trang)"),
     limit: int = Query(25, ge=1, le=100, description="Số item tối đa trả về"),
     service: WinService = Depends(lambda: win_service)
@@ -112,7 +112,7 @@ def list_wins(
         logging.info(f"Đang lấy danh sách WINs. Skip: {skip}, Limit: {limit}")
         
         # Lấy dữ liệu từ service
-        wins = service.list_wins(skip=skip, limit=limit)
+        wins = await service.list_wins(skip=skip, limit=limit)
         
         # Xử lý trường hợp không có kết quả
         if not wins:
@@ -129,8 +129,8 @@ def list_wins(
                     # Chuẩn hóa enum
                     if "status" in item:
                         item["status"] = normalize_win_status(item.get("status"))
-                    if "winType" in item:
-                        item["winType"] = normalize_win_type(item.get("winType"))
+                    if "win_type" in item:
+                        item["win_type"] = normalize_win_type(item.get("win_type"))
                         
                     # Chuẩn hóa datetime
                     normalized_item = normalize_dict_datetimes(item)
@@ -158,7 +158,7 @@ def list_wins(
         )
 
 @router.put("/{win_id}")
-def update_win(
+async def update_win(
     win_id: str,
     win_in: WINUpdate,
     service: WinService = Depends(lambda: win_service)
@@ -170,24 +170,15 @@ def update_win(
         logging.info(f"Đang cập nhật WIN với ID: {win_id}. Dữ liệu: {win_in.model_dump()}")
         
         # Kiểm tra WIN có tồn tại
-        db_win = service.get_win(uid=win_id)
+        db_win = await service.get_win(win_id=win_id)
         if db_win is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
                 detail=f"Không tìm thấy WIN với ID: {win_id}"
             )
         
-        # Chuẩn hóa các trường enum trong dữ liệu cập nhật
-        update_data = win_in.model_dump(exclude_unset=True)
-        
-        if "status" in update_data:
-            update_data["status"] = normalize_win_status(update_data.get("status"))
-            
-        if "winType" in update_data:
-            update_data["winType"] = normalize_win_type(update_data.get("winType"))
-        
         # Cập nhật WIN
-        updated_win = service.update_win(win_id=win_id, update_data=update_data)
+        updated_win = await service.update_win(win_id=win_id, win_update=win_in)
         
         if not updated_win:
             raise HTTPException(
@@ -211,7 +202,7 @@ def update_win(
         )
 
 @router.delete("/{win_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_win(
+async def delete_win(
     win_id: str,
     service: WinService = Depends(lambda: win_service)
 ):
@@ -222,7 +213,7 @@ def delete_win(
         logging.info(f"Đang xóa WIN với ID: {win_id}")
         
         # Kiểm tra WIN có tồn tại không
-        db_win = service.get_win(uid=win_id)
+        db_win = await service.get_win(win_id=win_id)
         if db_win is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
@@ -230,7 +221,7 @@ def delete_win(
             )
         
         # Thực hiện xóa WIN
-        deleted = service.delete_win(win_id=win_id)
+        deleted = await service.delete_win(win_id=win_id)
         
         if not deleted:
             raise HTTPException(

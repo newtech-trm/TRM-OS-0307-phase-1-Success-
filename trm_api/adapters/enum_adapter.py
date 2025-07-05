@@ -7,7 +7,7 @@ def normalize_enum_value(value: Optional[str], enum_choices: Dict[str, str], def
     
     Args:
         value: Giá trị enum cần chuẩn hóa (có thể là None)
-        enum_choices: Dictionary chứa các giá trị enum hợp lệ (key là giá trị chuẩn, value là label)
+        enum_choices: Dictionary chứa các giá trị enum hợp lệ (key là input pattern, value là output value)
         default: Giá trị mặc định nếu không tìm thấy kết quả phù hợp
         
     Returns:
@@ -22,12 +22,12 @@ def normalize_enum_value(value: Optional[str], enum_choices: Dict[str, str], def
         
         # Case 1: Value đã đúng định dạng chuẩn (key của enum_choices)
         if normalized_input in enum_choices:
-            return normalized_input
+            return normalized_input  # Return the KEY, not the value
         
         # Case 2: Value tương ứng với một trong các label (value của enum_choices)
         for enum_key, enum_label in enum_choices.items():
             if normalized_input == enum_label.lower().strip():
-                return enum_key
+                return enum_key  # Return the KEY, not the value
         
         # Case 3: Value trùng với một phần của key hoặc label
         best_match = None
@@ -39,7 +39,7 @@ def normalize_enum_value(value: Optional[str], enum_choices: Dict[str, str], def
                 # Tính điểm match dựa trên độ dài của chuỗi match
                 match_score = len(normalized_input) / max(len(enum_key), len(enum_label.lower()))
                 if match_score > best_match_score:
-                    best_match = enum_key
+                    best_match = enum_key  # Store the KEY, not the value
                     best_match_score = match_score
         
         if best_match:
@@ -87,12 +87,12 @@ def normalize_recognition_type(recognition_type: Optional[str]) -> Optional[str]
     Chuẩn hóa loại Recognition theo ontology.
     """
     RECOGNITION_TYPE_CHOICES = {
-        "kudos": "Kudos",
-        "appreciation": "Appreciation",
-        "celebration": "Celebration",
-        "achievement": "Achievement",
-        "milestone": "Milestone",
-        "breakthrough": "Breakthrough"
+        "kudos": "kudos",
+        "appreciation": "appreciation",
+        "celebration": "celebration",
+        "achievement": "achievement",
+        "milestone": "milestone",
+        "breakthrough": "breakthrough"
     }
     return normalize_enum_value(recognition_type, RECOGNITION_TYPE_CHOICES, None)
 
@@ -101,12 +101,35 @@ def normalize_recognition_status(status: Optional[str]) -> Optional[str]:
     Chuẩn hóa trạng thái Recognition theo ontology.
     """
     RECOGNITION_STATUS_CHOICES = {
-        "draft": "Draft",
-        "published": "Published",
-        "acknowledged": "Acknowledged",
-        "archived": "Archived"
+        "proposed": "PROPOSED",
+        "granted": "GRANTED", 
+        "archived": "ARCHIVED"
     }
-    return normalize_enum_value(status, RECOGNITION_STATUS_CHOICES, "draft")
+    
+    if status is None:
+        return "GRANTED"
+    
+    # Chuẩn hóa input thành lowercase và loại bỏ dấu cách
+    normalized_input = str(status).lower().strip()
+    
+    # Kiểm tra exact match với key
+    if normalized_input in RECOGNITION_STATUS_CHOICES:
+        return RECOGNITION_STATUS_CHOICES[normalized_input]
+    
+    # Kiểm tra exact match với value (case insensitive)
+    for key, value in RECOGNITION_STATUS_CHOICES.items():
+        if normalized_input == value.lower():
+            return value
+    
+    # Fuzzy matching với labels
+    for key, value in RECOGNITION_STATUS_CHOICES.items():
+        if normalized_input in key.lower() or key.lower() in normalized_input:
+            return value
+        if normalized_input in value.lower() or value.lower() in normalized_input:
+            return value
+    
+    # Fallback to default
+    return "GRANTED"
 
 def normalize_task_type(task_type: Optional[str]) -> Optional[str]:
     """
@@ -122,12 +145,11 @@ def normalize_task_type(task_type: Optional[str]) -> Optional[str]:
         return None
         
     TASK_TYPE_CHOICES = {
-        "feature": "Feature",
-        "bug": "Bug",
-        "chore": "Chore",
-        "research": "Research",
-        "documentation": "Documentation",
-        "meeting": "Meeting"
+        "feature": "FEATURE",
+        "bug": "BUG",
+        "improvement": "IMPROVEMENT",
+        "documentation": "DOCUMENTATION",
+        "research": "RESEARCH"
     }
     
     # Xử lý các trường hợp đặc biệt
@@ -135,13 +157,17 @@ def normalize_task_type(task_type: Optional[str]) -> Optional[str]:
     
     # Xử lý các trường hợp đặc biệt
     if "doc" in normalized_input and "documentation" not in normalized_input:
-        logging.warning(f"Special case: Mapping '{task_type}' to 'documentation'")
-        return "documentation"
+        logging.warning(f"Special case: Mapping '{task_type}' to 'DOCUMENTATION'")
+        return "DOCUMENTATION"
     elif "research" in normalized_input:
-        logging.warning(f"Special case: Mapping '{task_type}' to 'research'")
-        return "research"
+        logging.warning(f"Special case: Mapping '{task_type}' to 'RESEARCH'")
+        return "RESEARCH"
     
-    return normalize_enum_value(task_type, TASK_TYPE_CHOICES, None)
+    # Sử dụng normalize_enum_value và chuyển key thành value
+    normalized_key = normalize_enum_value(task_type, TASK_TYPE_CHOICES, None)
+    if normalized_key and normalized_key in TASK_TYPE_CHOICES:
+        return TASK_TYPE_CHOICES[normalized_key]
+    return normalized_key
 
 def normalize_task_status(status: Optional[str]) -> Optional[str]:
     """
@@ -151,14 +177,14 @@ def normalize_task_status(status: Optional[str]) -> Optional[str]:
         status: Giá trị status cần chuẩn hóa
         
     Returns:
-        Giá trị status đã được chuẩn hóa theo ontology
+        Giá trị status đã được chuẩn hóa theo ontology (exact enum values)
     """
     if status is None:
-        return "todo"  # Giá trị mặc định
+        return "ToDo"  # Giá trị mặc định
         
     TASK_STATUS_CHOICES = {
         "todo": "ToDo",
-        "inprogress": "InProgress",
+        "inprogress": "InProgress", 
         "blocked": "Blocked",
         "inreview": "InReview",
         "done": "Done",
@@ -169,18 +195,23 @@ def normalize_task_status(status: Optional[str]) -> Optional[str]:
     # Xử lý các trường hợp đặc biệt
     normalized_input = str(status).lower().strip()
     
+    # Xử lý exact match với enum values
+    for key, value in TASK_STATUS_CHOICES.items():
+        if normalized_input == value.lower():
+            return value
+    
     # Xử lý các trường hợp đặc biệt
     if "progress" in normalized_input and "inprogress" not in normalized_input:
-        logging.warning(f"Special case: Mapping '{status}' to 'inprogress'")
-        return "inprogress"
+        logging.warning(f"Special case: Mapping '{status}' to 'InProgress'")
+        return "InProgress"
     elif "review" in normalized_input and "inreview" not in normalized_input:
-        logging.warning(f"Special case: Mapping '{status}' to 'inreview'")
-        return "inreview"
+        logging.warning(f"Special case: Mapping '{status}' to 'InReview'")
+        return "InReview"
     elif "in progress" == normalized_input:
-        logging.warning(f"Special case: Mapping '{status}' to 'inprogress'")
-        return "inprogress"
+        logging.warning(f"Special case: Mapping '{status}' to 'InProgress'")
+        return "InProgress"
     
-    return normalize_enum_value(status, TASK_STATUS_CHOICES, "todo")
+    return normalize_enum_value(status, TASK_STATUS_CHOICES, "ToDo")
 
 def normalize_knowledge_snippet_type(snippet_type: Optional[str]) -> Optional[str]:
     """
@@ -218,13 +249,13 @@ def normalize_event_type(event_type: Optional[str]) -> Optional[str]:
     """
     # Dựa trên các loại sự kiện phổ biến trong ontology của TRM-OS
     EVENT_TYPE_CHOICES = {
-        "meeting": "Meeting",
-        "deadline": "Deadline",
-        "milestone": "Milestone",
-        "release": "Release",
-        "review": "Review",
-        "workshop": "Workshop",
-        "presentation": "Presentation",
-        "other": "Other"
+        "meeting": "meeting",
+        "deadline": "deadline",
+        "milestone": "milestone",
+        "release": "release",
+        "review": "review",
+        "workshop": "workshop",
+        "presentation": "presentation",
+        "other": "other"
     }
     return normalize_enum_value(event_type, EVENT_TYPE_CHOICES, "other")

@@ -14,7 +14,7 @@ class KnowledgeSnippet(BaseNode):
 
     # --- Relationships ---
     # A knowledge snippet can be generated from a WIN.
-    source_win = RelationshipFrom('WIN', 'GENERATES_KNOWLEDGE')
+    source_win = RelationshipFrom('.win.WIN', 'GENERATES_KNOWLEDGE')
 
     def __str__(self):
         # Return the first 80 characters of the content for a concise representation

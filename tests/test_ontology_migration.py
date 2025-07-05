@@ -68,7 +68,10 @@ class TestOntologyMigration:
                 'node_id': 1
             }
         ]
-        mock_driver.return_value.session.return_value.run.return_value.data.return_value = mock_result
+        
+        # Setup mock correctly
+        mock_session = mock_driver.return_value.session.return_value.__enter__.return_value
+        mock_session.run.return_value.data.return_value = mock_result
         
         result = migration_tool.get_all_entities(StubEntityType.WIN, limit=10)
         
@@ -76,8 +79,8 @@ class TestOntologyMigration:
         assert result == mock_result
         
         # Kiểm tra query được tạo đúng
-        mock_driver.return_value.session.return_value.run.assert_called_once()
-        query_arg = mock_driver.return_value.session.return_value.run.call_args[0][0]
+        mock_session.run.assert_called_once()
+        query_arg = mock_session.run.call_args[0][0]
         assert 'MATCH (n:Win)' in query_arg
         assert 'LIMIT 10' in query_arg
     

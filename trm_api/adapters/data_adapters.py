@@ -176,13 +176,13 @@ class EnumAdapter:
                 logging.info(f"Normalized enum value '{str_value}' to '{enum_item.value}' ({enum_class.__name__})")
                 return enum_item
                 
-        # Nếu không tìm thấy, trả về giá trị gốc
+        # Nếu không tìm thấy, raise ValueError thay vì trả về giá trị gốc
         logging.warning(f"Could not normalize enum value '{str_value}' for {enum_class.__name__}")
-        return value
+        raise ValueError(f"Invalid enum value '{str_value}' for {enum_class.__name__}")
         
         # Ghi nhật ký nếu không tìm thấy
         logging.warning(f"Could not normalize enum value '{value}' as {enum_class.__name__}")
-        return value
+        raise ValueError(f"Invalid enum value '{value}' for {enum_class.__name__}")
         
     @classmethod
     def normalize_field(cls, data: Dict[str, Any], field_name: str, enum_class: Enum, fallback_value: Optional[Any] = None) -> Dict[str, Any]:
@@ -206,16 +206,18 @@ class EnumAdapter:
             # Tìm kiếm và chuyển đổi theo enum
             value = data[field_name]
             normalized = cls.normalize_enum_value(enum_class, value)
-            
-            # Nếu không thành công, sử dụng fallback
-            if normalized == value and fallback_value is not None:
-                normalized = fallback_value
-                logging.debug(f"Using fallback value '{fallback_value}' for field '{field_name}'")
-            
             result[field_name] = normalized
+        except ValueError:
+            # Nếu có fallback_value, sử dụng nó thay vì raise exception
+            if fallback_value is not None:
+                result[field_name] = fallback_value
+                logging.debug(f"Using fallback value '{fallback_value}' for field '{field_name}' due to invalid enum value")
+            else:
+                # Re-raise ValueError nếu không có fallback
+                raise
         except Exception as e:
             logging.error(f"Error normalizing field '{field_name}': {e}")
-            # Giữ nguyên giá trị nếu có lỗi
+            # Giữ nguyên giá trị nếu có lỗi khác
         
         return result
         

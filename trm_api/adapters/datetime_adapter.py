@@ -26,16 +26,37 @@ def normalize_datetime(dt_value: Any) -> Optional[str]:
     
     # Chuyển đổi chuỗi sang datetime nếu cần
     if isinstance(dt_value, str):
-        try:
-            # Thử parse nhiều định dạng khác nhau
-            for fmt in ["%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"]:
-                try:
-                    dt_value = datetime.strptime(dt_value, fmt)
-                    break
-                except ValueError:
-                    continue
-        except Exception as e:
-            logging.error(f"Error parsing datetime string '{dt_value}': {e}")
+        # Loại bỏ timezone info nếu có để xử lý dễ hơn
+        dt_str = dt_value.strip()
+        if dt_str.endswith('+00:00'):
+            dt_str = dt_str[:-6] + 'Z'
+        elif dt_str.endswith('Z') and '.' not in dt_str:
+            # Thêm microseconds nếu thiếu
+            dt_str = dt_str[:-1] + '.000000Z'
+        
+        # Thử parse nhiều định dạng khác nhau
+        parsed = False
+        for fmt in [
+            "%Y-%m-%dT%H:%M:%S.%fZ",      # ISO with microseconds and Z
+            "%Y-%m-%dT%H:%M:%S.%f+00:00", # ISO with microseconds and timezone
+            "%Y-%m-%dT%H:%M:%SZ",         # ISO without microseconds
+            "%Y-%m-%dT%H:%M:%S+00:00",    # ISO without microseconds with timezone
+            "%Y-%m-%dT%H:%M:%S.%f",       # ISO with microseconds, no timezone
+            "%Y-%m-%dT%H:%M:%S",          # ISO basic
+            "%Y-%m-%d %H:%M:%S.%f",       # Space separated with microseconds
+            "%Y-%m-%d %H:%M:%S",          # Space separated basic
+            "%Y-%m-%d"                    # Date only
+        ]:
+            try:
+                dt_value = datetime.strptime(dt_str, fmt)
+                parsed = True
+                logging.debug(f"Successfully parsed datetime '{dt_value}' using format '{fmt}'")
+                break
+            except ValueError:
+                continue
+        
+        if not parsed:
+            logging.error(f"Could not parse datetime string '{dt_value}' with any known format")
             return None
     
     # Nếu không phải datetime object sau tất cả các chuyển đổi

@@ -147,10 +147,10 @@ def seed_test_data():
     test_task = Task(
         name="Test Task",
         description="Task created for testing",
-        status=TaskStatus.TODO.value,
+        status='ToDo',  # Sử dụng valid choice từ Task model
         task_type=TaskType.FEATURE.value,
         priority=0,  # Normal
-        effort_estimate=10.0,
+        effort_estimate=10,  # Sử dụng IntegerProperty thay vì float
         effort_unit=EffortUnit.HOURS.value,
         is_test_data=True,
         tags=["test", "integration"],
@@ -184,8 +184,8 @@ def seed_test_data():
     
     # Tạo các mối quan hệ giữa các entities
     # User1 quản lý Project
-    # Bỏ properties vì User.managed_projects không có model định nghĩa
-    test_user1.managed_projects.connect(test_project)
+    # Bỏ properties vì User.manages_projects không có model định nghĩa
+    test_user1.manages_projects.connect(test_project)
     
     # TODO: Relationship assigned_to_projects không tồn tại trong User model
     # Cần xem xét Ontology V3.2 để đồng bộ mối quan hệ User-Project
@@ -202,7 +202,7 @@ def seed_test_data():
     })
     
     # Gán Task cho User2
-    test_user2.assigned_tasks.connect(test_task, {
+    test_user2.assigns_tasks.connect(test_task, {
         "assignment_type": "Primary",
         "priority_level": 1,
         "created_at": timestamp,

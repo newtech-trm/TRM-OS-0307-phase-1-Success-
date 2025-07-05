@@ -83,8 +83,14 @@ class WinService:
                             converted_data[dt_field] = converted_data[dt_field].to_native()
                             logging.debug(f"Specially handling timestamp {dt_field}: {converted_data[dt_field]}")
 
-                    # Create the Win model for validation and return
-                    return Win(**converted_data)
+                    # Convert datetime objects to ISO format strings for API response
+                    if 'created_at' in converted_data and isinstance(converted_data['created_at'], datetime):
+                        converted_data['created_at'] = converted_data['created_at'].isoformat()
+                    if 'updated_at' in converted_data and isinstance(converted_data['updated_at'], datetime):
+                        converted_data['updated_at'] = converted_data['updated_at'].isoformat()
+
+                    # Return as dict for API response (not Win model)
+                    return converted_data
                 except Exception as e:
                     logging.error(f"Error creating WIN: {e}")
                     raise
@@ -96,12 +102,16 @@ class WinService:
     def _create_win_tx(tx, win_data: dict) -> dict:
         """Create a WIN node transaction."""
         create_query = (
-            "CREATE (w:WIN {uid: $uid, summary: $summary, description: $description, win_type: $win_type}) "
+            "CREATE (w:WIN {uid: $uid, summary: $summary, description: $description, win_type: $win_type, "
+            "related_entity_ids: $related_entity_ids, status: $status, impact_level: $impact_level, tags: $tags}) "
             "SET w.created_at = datetime(), w.updated_at = datetime() "
             "RETURN w as win"
         )
         
         logging.debug(f"Executing Neo4j query: {create_query} with params: {win_data}")
+        
+        # Handle relatedEntityIds alias
+        related_entity_ids = win_data.get('relatedEntityIds', []) or win_data.get('related_entity_ids', [])
         
         result = tx.run(
             create_query,
@@ -109,6 +119,10 @@ class WinService:
             summary=win_data.get('summary'),
             description=win_data.get('description', ''),
             win_type=win_data.get('win_type', 'standard'),
+            related_entity_ids=related_entity_ids,
+            status=win_data.get('status', 'draft'),
+            impact_level=win_data.get('impact_level', 1),
+            tags=win_data.get('tags', []),
         )
         
         record = result.single()
@@ -118,6 +132,11 @@ class WinService:
         win_node = record.get('win')
         # Convert Neo4j node to dictionary
         win_data = dict(win_node.items())
+        
+        # Ensure related_entity_ids is included for Win model validation
+        if 'related_entity_ids' not in win_data:
+            win_data['related_entity_ids'] = related_entity_ids
+            
         logging.debug(f"WIN data from Neo4j: {win_data}")
         return win_data
 
@@ -135,8 +154,14 @@ class WinService:
                 processed_result = self._convert_neo4j_types(raw_result)
                 logging.debug(f"Processed WIN data: {processed_result}")
                 
-                # Return as a Win model instance
-                return Win(**processed_result)
+                # Convert datetime objects to ISO format strings for API response
+                if 'created_at' in processed_result and isinstance(processed_result['created_at'], datetime):
+                    processed_result['created_at'] = processed_result['created_at'].isoformat()
+                if 'updated_at' in processed_result and isinstance(processed_result['updated_at'], datetime):
+                    processed_result['updated_at'] = processed_result['updated_at'].isoformat()
+                
+                # Return as dict for API response
+                return processed_result
         except Exception as e:
             logging.error(f"Error getting WIN: {str(e)}")
             logging.error(f"Traceback: {traceback.format_exc()}")
@@ -146,9 +171,15 @@ class WinService:
         query = "MATCH (w:WIN {uid: $uid}) RETURN w"
         result = tx.run(query, uid=uid)
         record = result.single()
-        return dict(record['w']) if record and record['w'] else None
+        if record and record['w']:
+            win_data = dict(record['w'])
+            # Ensure related_entity_ids is included
+            if 'related_entity_ids' not in win_data:
+                win_data['related_entity_ids'] = []
+            return win_data
+        return None
 
-    async def list_wins(self, skip: int = 0, limit: int = 25) -> List[Win]:
+    async def list_wins(self, skip: int = 0, limit: int = 25) -> List[Dict[str, Any]]:
         """Retrieves a list of WINs with pagination theo Ontology V3.2."""
         logging.debug(f"WinService.list_wins: Bắt đầu lấy danh sách WINs. Skip: {skip}, Limit: {limit}")
         try:
@@ -161,8 +192,15 @@ class WinService:
                 for raw_win_data in raw_results:
                     # Chuyển đổi các kiểu dữ liệu Neo4j, đặc biệt là DateTime
                     converted_data = self._convert_neo4j_types(raw_win_data)
+                    
+                    # Convert datetime objects to ISO format strings for API response
+                    if 'created_at' in converted_data and isinstance(converted_data['created_at'], datetime):
+                        converted_data['created_at'] = converted_data['created_at'].isoformat()
+                    if 'updated_at' in converted_data and isinstance(converted_data['updated_at'], datetime):
+                        converted_data['updated_at'] = converted_data['updated_at'].isoformat()
+                    
                     logging.debug(f"WinService.list_wins: Dữ liệu WIN đã chuyển đổi: {converted_data}")
-                    processed_wins.append(Win(**converted_data))
+                    processed_wins.append(converted_data)
                 
                 logging.debug(f"WinService.list_wins: Hoàn thành, trả về {len(processed_wins)} WINs.")
                 return processed_wins
@@ -177,9 +215,10 @@ class WinService:
         query = (
             "MATCH (w:WIN) "
             "RETURN w.uid AS uid, w.summary AS summary, w.description AS description, w.win_type AS win_type, "
-            "w.created_at AS created_at, w.updated_at AS updated_at, w.status AS status, w.priority AS priority, "
-            "w.start_date AS start_date, w.end_date AS end_date, w.target_date AS target_date, w.progress AS progress, "
-            "w.owner_id AS owner_id, w.team_id AS team_id, w.tags AS tags, w.properties AS properties "
+            "w.created_at AS created_at, w.updated_at AS updated_at, w.status AS status, w.impact_level AS impact_level, "
+            "w.priority AS priority, w.start_date AS start_date, w.end_date AS end_date, w.target_date AS target_date, "
+            "w.progress AS progress, w.owner_id AS owner_id, w.team_id AS team_id, w.tags AS tags, w.properties AS properties, "
+            "w.related_entity_ids AS related_entity_ids "
             "ORDER BY w.created_at DESC "
             "SKIP $skip LIMIT $limit"
         )
@@ -190,6 +229,12 @@ class WinService:
             # Neo4j driver tự động chuyển đổi các kiểu cơ bản (string, int, float, boolean, list, dict)
             # DateTime cần được xử lý đặc biệt sau khi lấy dữ liệu
             win_list = [record.data() for record in result] # record.data() trả về dict của tất cả các trường
+            
+            # Ensure related_entity_ids is not None
+            for win in win_list:
+                if win.get('related_entity_ids') is None:
+                    win['related_entity_ids'] = []
+                    
             logging.debug(f"WinService._list_wins_tx: Truy vấn thành công, {len(win_list)} WINs được trả về.")
             return win_list
         except Exception as e:
@@ -197,7 +242,7 @@ class WinService:
             logging.error(f"Traceback: {traceback.format_exc()}")
             return []
 
-    async def update_win(self, win_id: str, win_update: WinUpdate) -> Optional[Win]:
+    async def update_win(self, win_id: str, win_update: WinUpdate) -> Optional[Dict[str, Any]]:
         """Updates an existing WIN theo Ontology V3.2."""
         logging.debug(f"WinService.update_win: Cập nhật WIN với ID {win_id}")
         
@@ -227,7 +272,13 @@ class WinService:
                 # Chuyển đổi dữ liệu từ Neo4j sang Python types
                 converted_result = self._convert_neo4j_types(result)
                 
-                return Win(**converted_result)
+                # Convert datetime objects to ISO format strings for API response
+                if 'created_at' in converted_result and isinstance(converted_result['created_at'], datetime):
+                    converted_result['created_at'] = converted_result['created_at'].isoformat()
+                if 'updated_at' in converted_result and isinstance(converted_result['updated_at'], datetime):
+                    converted_result['updated_at'] = converted_result['updated_at'].isoformat()
+                
+                return converted_result
         except Exception as e:
             logging.error(f"WinService.update_win: Lỗi khi cập nhật WIN {win_id}: {str(e)}")
             logging.error(f"Traceback: {traceback.format_exc()}")

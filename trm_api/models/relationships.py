@@ -10,6 +10,7 @@ class TargetEntityTypeEnum(str, Enum):
     KNOWLEDGE_SNIPPET = "KnowledgeSnippet"
     PROJECT = "Project"
     RECOGNITION = "Recognition"
+    RESOURCE = "Resource"
     SKILL = "Skill"
     TASK = "Task"
     TEAM = "Team"
@@ -36,6 +37,7 @@ class RelationshipType(str, Enum):
     RELATES_TO = "RELATES_TO"      # Task -> Tension/Win
     REQUIRES = "REQUIRES"          # Task -> Skill
     USES = "USES"                  # Task -> Tool
+    ASSIGNS_TASK = "ASSIGNS_TASK"  # Agent/User -> Task
 
     # Project/Team-centric
     HAS_TENSION = "HAS_TENSION"    # Project -> Tension
@@ -52,6 +54,16 @@ class RelationshipType(str, Enum):
     TRIGGERED_BY = "TRIGGERED_BY"  # Event/Task/Tension -> Event/Task/User
     TRIGGERS = "TRIGGERS"          # Event/Task/User -> Event/Task/Tension
     RELATED_TO = "RELATED_TO"      # Any entity -> Any entity
+    
+    # Recognition-centric
+    RECOGNIZES_WIN = "RECOGNIZES_WIN"  # Recognition -> WIN
+    GIVEN_BY = "GIVEN_BY"              # Recognition -> Agent
+    RECEIVED_BY = "RECEIVED_BY"        # Recognition -> Agent
+    RECOGNIZES_CONTRIBUTION_TO = "RECOGNIZES_CONTRIBUTION_TO"  # Recognition -> Project/Task/Resource
+    
+    # WIN-centric
+    LEADS_TO_WIN = "LEADS_TO_WIN"      # Project/Event -> WIN
+    GENERATES_KNOWLEDGE = "GENERATES_KNOWLEDGE"  # WIN -> KnowledgeSnippet
 
 
 class Relationship(BaseModel):

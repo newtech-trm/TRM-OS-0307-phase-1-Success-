@@ -1,19 +1,20 @@
 import pytest
 import pytest_asyncio
 import uuid
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch, MagicMock, AsyncMock
 from datetime import datetime
-from httpx import AsyncClient
+import httpx
 from fastapi import status
+from httpx import AsyncClient, ASGITransport
 
 from trm_api.main import app
 from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
-from tests.conftest import get_test_client
 
 
 class TestRecognizesWinAPI:
     """Integration tests for the RECOGNIZES_WIN relationship API endpoints."""
 
+    @pytest_asyncio.fixture(autouse=True)
     async def setup_method(self):
         """Setup test fixtures before each test method."""
         # Sample IDs for testing
@@ -28,34 +29,33 @@ class TestRecognizesWinAPI:
             "target_type": "Win",
             "type": "RECOGNIZES_WIN",
             "relationshipId": f"recognizes_win_{self.recognition_id}_{self.win_id}_abcd1234",
-            "notes": "Test recognition for outstanding achievements",
+            "recognition_notes": "This WIN demonstrates excellent achievement",
             "createdAt": datetime.now()
         }
         
-        # Sample relationship request data
+        # Sample request data
         self.recognizes_win_request = {
-            "notes": "Recognition for exceptional problem solving"
+            "recognition_notes": "This WIN demonstrates excellent achievement"
         }
         
-        # Tạo async client
-        self.client = await get_test_client()
+        # Set up async client
+        self.client = AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
     
     @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
     async def test_create_recognizes_win_relationship(self, mock_service):
         """Test creating a RECOGNIZES_WIN relationship from Recognition to WIN."""
         # Set up mock
-        mock_service.create_relationship.return_value = Relationship(**self.recognition_win_relationship)
-        mock_service.create_relationship.side_effect = AsyncMock(return_value=Relationship(**self.recognition_win_relationship))
+        mock_service.create_relationship = AsyncMock(return_value=Relationship(**self.recognition_win_relationship))
         
-        # Call API with async client
+        # Call API
         response = await self.client.post(
             f"/api/v1/relationships/recognizes-win?recognition_id={self.recognition_id}&win_id={self.win_id}",
             json=self.recognizes_win_request
         )
         
         # Assertions
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_201_CREATED
         data = response.json()
         assert data["source_id"] == self.recognition_id
         assert data["source_type"] == "Recognition"

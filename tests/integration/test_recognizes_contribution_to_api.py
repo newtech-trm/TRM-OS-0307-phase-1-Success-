@@ -1,20 +1,21 @@
 import pytest
 import pytest_asyncio
 import uuid
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch, MagicMock
 from datetime import datetime
-from httpx import AsyncClient
+import httpx
 from fastapi import status
+from httpx import AsyncClient, ASGITransport
 
 from trm_api.main import app
 from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
 from trm_api.api.v1.endpoints.relationship import ContributionTargetTypeEnum
-from tests.conftest import get_test_client
 
 
 class TestRecognizesContributionToAPI:
     """Integration tests for the RECOGNIZES_CONTRIBUTION_TO relationship API endpoints."""
 
+    @pytest_asyncio.fixture(autouse=True)
     async def setup_method(self):
         """Setup test fixtures before each test method."""
         # Sample IDs for testing
@@ -50,9 +51,6 @@ class TestRecognizesContributionToAPI:
             "createdAt": datetime.now()
         }
         
-        # Tạo async client
-        self.client = await get_test_client()
-        
         self.recognition_resource_relationship = {
             "source_id": self.recognition_id,
             "source_type": "Recognition",
@@ -72,6 +70,9 @@ class TestRecognizesContributionToAPI:
             "contribution_level": "High",
             "impact_notes": "Significant leadership of the project"
         }
+        
+        # Set up async client
+        self.client = AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
     
     @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
@@ -79,7 +80,6 @@ class TestRecognizesContributionToAPI:
         """Test creating a RECOGNIZES_CONTRIBUTION_TO relationship from Recognition to Project."""
         # Set up mock
         mock_service.create_relationship.return_value = Relationship(**self.recognition_project_relationship)
-        mock_service.create_relationship.side_effect = AsyncMock(return_value=Relationship(**self.recognition_project_relationship))
         
         # Call API với async client
         response = await self.client.post(
@@ -105,7 +105,6 @@ class TestRecognizesContributionToAPI:
         """Test creating a RECOGNIZES_CONTRIBUTION_TO relationship from Recognition to Task."""
         # Set up mock
         mock_service.create_relationship.return_value = Relationship(**self.recognition_task_relationship)
-        mock_service.create_relationship.side_effect = AsyncMock(return_value=Relationship(**self.recognition_task_relationship))
         
         # Call API với async client
         response = await self.client.post(
@@ -123,14 +122,15 @@ class TestRecognizesContributionToAPI:
         # Verify service was called correctly
         mock_service.create_relationship.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_create_recognizes_contribution_to_resource(self, mock_service):
+    async def test_create_recognizes_contribution_to_resource(self, mock_service):
         """Test creating a RECOGNIZES_CONTRIBUTION_TO relationship from Recognition to Resource."""
         # Set up mock
         mock_service.create_relationship.return_value = Relationship(**self.recognition_resource_relationship)
         
         # Call API
-        response = client.post(
+        response = await self.client.post(
             f"/api/v1/relationships/recognizes-contribution-to?recognition_id={self.recognition_id}&target_id={self.resource_id}&target_type=Resource",
             json=self.contribution_request
         )
@@ -145,11 +145,12 @@ class TestRecognizesContributionToAPI:
         # Verify service was called correctly
         mock_service.create_relationship.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_create_recognizes_contribution_to_invalid_type(self, mock_service):
+    async def test_create_recognizes_contribution_to_invalid_type(self, mock_service):
         """Test creating a RECOGNIZES_CONTRIBUTION_TO relationship with invalid target type."""
         # Call API with invalid target type
-        response = client.post(
+        response = await self.client.post(
             f"/api/v1/relationships/recognizes-contribution-to?recognition_id={self.recognition_id}&target_id={self.project_id}&target_type=InvalidType",
             json=self.contribution_request
         )
@@ -160,14 +161,15 @@ class TestRecognizesContributionToAPI:
         # Verify service was NOT called
         mock_service.create_relationship.assert_not_called()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_create_recognizes_contribution_to_entity_not_found(self, mock_service):
+    async def test_create_recognizes_contribution_to_entity_not_found(self, mock_service):
         """Test creating a RECOGNIZES_CONTRIBUTION_TO relationship when entities don't exist."""
         # Set up mock
         mock_service.create_relationship.return_value = None
         
         # Call API
-        response = client.post(
+        response = await self.client.post(
             f"/api/v1/relationships/recognizes-contribution-to?recognition_id={self.recognition_id}&target_id={self.project_id}&target_type=Project",
             json=self.contribution_request
         )
@@ -178,8 +180,9 @@ class TestRecognizesContributionToAPI:
         # Verify service was called correctly
         mock_service.create_relationship.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_get_contributions_recognized_by_recognition(self, mock_service):
+    async def test_get_contributions_recognized_by_recognition(self, mock_service):
         """Test getting all entities that a Recognition recognizes contributions to."""
         # Set up mock
         mock_service.get_relationships.return_value = [
@@ -189,7 +192,7 @@ class TestRecognizesContributionToAPI:
         ]
         
         # Call API
-        response = client.get(f"/api/v1/relationships/recognitions/{self.recognition_id}/recognizes-contributions")
+        response = await self.client.get(f"/api/v1/relationships/recognitions/{self.recognition_id}/recognizes-contributions")
         
         # Assertions
         assert response.status_code == status.HTTP_200_OK
@@ -202,14 +205,17 @@ class TestRecognizesContributionToAPI:
         # Verify service was called correctly
         mock_service.get_relationships.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_get_contributions_recognized_by_recognition_filtered(self, mock_service):
+    async def test_get_contributions_recognized_by_recognition_filtered(self, mock_service):
         """Test getting entities of a specific type that a Recognition recognizes contributions to."""
         # Set up mock
         mock_service.get_relationships.return_value = [Relationship(**self.recognition_project_relationship)]
         
-        # Call API with target_type filter
-        response = client.get(f"/api/v1/relationships/recognitions/{self.recognition_id}/recognizes-contributions?target_type=Project")
+        # Call API with target type filter
+        response = await self.client.get(
+            f"/api/v1/relationships/recognitions/{self.recognition_id}/recognizes-contributions?target_type=Project"
+        )
         
         # Assertions
         assert response.status_code == status.HTTP_200_OK
@@ -221,14 +227,15 @@ class TestRecognizesContributionToAPI:
         # Verify service was called correctly
         mock_service.get_relationships.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_get_recognitions_for_project_contribution(self, mock_service):
+    async def test_get_recognitions_for_project_contribution(self, mock_service):
         """Test getting Recognitions that recognize contributions to a Project."""
         # Set up mock
         mock_service.get_relationships.return_value = [Relationship(**self.recognition_project_relationship)]
         
         # Call API
-        response = client.get(f"/api/v1/relationships/projects/{self.project_id}/recognized-contributions")
+        response = await self.client.get(f"/api/v1/relationships/projects/{self.project_id}/recognized-contributions")
         
         # Assertions
         assert response.status_code == status.HTTP_200_OK
@@ -236,18 +243,20 @@ class TestRecognizesContributionToAPI:
         assert len(data) == 1
         assert data[0]["source_id"] == self.recognition_id
         assert data[0]["target_id"] == self.project_id
+        assert data[0]["type"] == "RECOGNIZES_CONTRIBUTION_TO"
         
         # Verify service was called correctly
         mock_service.get_relationships.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_get_recognitions_for_task_contribution(self, mock_service):
+    async def test_get_recognitions_for_task_contribution(self, mock_service):
         """Test getting Recognitions that recognize contributions to a Task."""
         # Set up mock
         mock_service.get_relationships.return_value = [Relationship(**self.recognition_task_relationship)]
         
         # Call API
-        response = client.get(f"/api/v1/relationships/tasks/{self.task_id}/recognized-contributions")
+        response = await self.client.get(f"/api/v1/relationships/tasks/{self.task_id}/recognized-contributions")
         
         # Assertions
         assert response.status_code == status.HTTP_200_OK
@@ -255,18 +264,20 @@ class TestRecognizesContributionToAPI:
         assert len(data) == 1
         assert data[0]["source_id"] == self.recognition_id
         assert data[0]["target_id"] == self.task_id
+        assert data[0]["type"] == "RECOGNIZES_CONTRIBUTION_TO"
         
         # Verify service was called correctly
         mock_service.get_relationships.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_delete_recognizes_contribution_to_relationship(self, mock_service):
+    async def test_delete_recognizes_contribution_to_relationship(self, mock_service):
         """Test deleting a RECOGNIZES_CONTRIBUTION_TO relationship."""
         # Set up mock
         mock_service.delete_relationship.return_value = True
         
         # Call API
-        response = client.delete(
+        response = await self.client.delete(
             f"/api/v1/relationships/recognizes-contribution-to?recognition_id={self.recognition_id}&target_id={self.project_id}&target_type=Project"
         )
         
@@ -276,14 +287,15 @@ class TestRecognizesContributionToAPI:
         # Verify service was called correctly
         mock_service.delete_relationship.assert_called_once()
     
+    @pytest.mark.asyncio
     @patch("trm_api.api.v1.endpoints.relationship.relationship_service")
-    def test_delete_recognizes_contribution_to_relationship_not_found(self, mock_service):
+    async def test_delete_recognizes_contribution_to_relationship_not_found(self, mock_service):
         """Test deleting a non-existent RECOGNIZES_CONTRIBUTION_TO relationship."""
         # Set up mock
         mock_service.delete_relationship.return_value = False
         
         # Call API
-        response = client.delete(
+        response = await self.client.delete(
             f"/api/v1/relationships/recognizes-contribution-to?recognition_id={self.recognition_id}&target_id={self.project_id}&target_type=Project"
         )
         

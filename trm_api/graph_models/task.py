@@ -16,12 +16,11 @@ class Task(BaseNode):
     
     # Task type & status
     task_type = StringProperty(choices={
-        'Feature': 'Feature',
-        'Bug': 'Bug', 
-        'Chore': 'Chore', 
-        'Research': 'Research', 
-        'Documentation': 'Documentation', 
-        'Meeting': 'Meeting'
+        'FEATURE': 'FEATURE',
+        'BUG': 'BUG', 
+        'IMPROVEMENT': 'IMPROVEMENT',
+        'DOCUMENTATION': 'DOCUMENTATION', 
+        'RESEARCH': 'RESEARCH'
     }, help_text="Phân loại công việc, giúp lọc và báo cáo")
     
     status = StringProperty(choices={

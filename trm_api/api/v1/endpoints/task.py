@@ -62,7 +62,7 @@ async def get_task(
     """
     Get task by ID.
     """
-    task = await service.get_task_by_id(task_id=task_id)
+    task = service.get_task_by_id(task_id=task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -81,7 +81,7 @@ async def update_task(
     """
     Update a task according to Ontology V3.2.
     """
-    updated_task = await service.update_task(task_id=task_id, task_data=task_in)
+    updated_task = service.update_task(task_id=task_id, task_data=task_in)
     if not updated_task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -98,7 +98,7 @@ async def delete_task(
     """
     Delete a task.
     """
-    deleted = await service.delete_task(task_id=task_id)
+    deleted = service.delete_task(task_id=task_id)
     if not deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -126,7 +126,7 @@ async def assign_task_to_user(
     
     This follows the TRM Ontology V3.2 specification for ASSIGNS_TASK relationship.
     """
-    result = await service.assign_task_to_user(
+    result = service.assign_task_to_user(
         task_id=task_id, 
         user_id=user_id,
         assignment_type=assignment_type,
@@ -169,7 +169,7 @@ async def assign_task_to_agent(
     
     This follows the TRM Ontology V3.2 specification for ASSIGNS_TASK relationship.
     """
-    result = await service.assign_task_to_agent(
+    result = service.assign_task_to_agent(
         task_id=task_id, 
         agent_id=agent_id,
         assignment_type=assignment_type,
@@ -209,7 +209,7 @@ async def get_task_assignees(
     according to TRM Ontology V3.2.
     """
     # Check if task exists
-    task = await service.get_task_by_id(task_id=task_id)
+    task = service.get_task_by_id(task_id=task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -217,7 +217,7 @@ async def get_task_assignees(
         )
     
     # Get assignees with relationship details
-    assignees = await service.get_task_assignees(task_id=task_id, include_relationship_details=include_relationship_details)
+    assignees = service.get_task_assignees(task_id=task_id, include_relationship_details=include_relationship_details)
     
     return assignees
 
@@ -235,7 +235,7 @@ async def accept_task_assignment(
     
     Updates the ASSIGNS_TASK relationship with acceptance information.
     """
-    success = await service.accept_task_assignment(
+    success = service.accept_task_assignment(
         task_id=task_id,
         assignee_id=assignee_id,
         acceptance_notes=acceptance_notes
@@ -255,7 +255,7 @@ async def accept_task_assignment(
     }
 
 @router.post("/{task_id}/complete", status_code=status.HTTP_200_OK)
-def complete_task_assignment(
+async def complete_task_assignment(
     *,
     task_id: str,
     assignee_id: str = Query(..., description="ID of the user or agent completing the task"),
@@ -296,7 +296,7 @@ async def remove_task_assignment(
     """
     Remove a task assignment (ASSIGNS_TASK relationship) between a task and a user/agent.
     """
-    success = await service.remove_task_assignment(task_id=task_id, assignee_id=assignee_id)
+    success = service.remove_task_assignment(task_id=task_id, assignee_id=assignee_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -319,7 +319,7 @@ async def connect_task_to_tension(
     
     According to Ontology V3.2, this creates a bidirectional relationship between Task and Tension.
     """
-    success = await service.connect_task_to_tension(task_id=task_id, tension_id=tension_id)
+    success = service.connect_task_to_tension(task_id=task_id, tension_id=tension_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -337,7 +337,7 @@ async def disconnect_task_from_tension(
     """
     Remove the RESOLVES relationship between a Task and a Tension.
     """
-    success = await service.disconnect_task_from_tension(task_id=task_id, tension_id=tension_id)
+    success = service.disconnect_task_from_tension(task_id=task_id, tension_id=tension_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -356,7 +356,7 @@ async def get_tensions_resolved_by_task(
     """
     Get all Tensions that are resolved by a specific Task.
     """
-    tensions = await service.get_tensions_resolved_by_task(task_id=task_id, skip=skip, limit=limit)
+    tensions = service.get_tensions_resolved_by_task(task_id=task_id, skip=skip, limit=limit)
     if tensions is None:  # Different from empty list
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -374,7 +374,7 @@ async def get_task_with_relationships(
     Get a comprehensive view of a task with all its relationships loaded.
     This endpoint provides a complete picture of the task as defined in Ontology V3.2.
     """
-    task_data = await service.get_task_with_relationships(task_id=task_id)
+    task_data = service.get_task_with_relationships(task_id=task_id)
     if not task_data:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

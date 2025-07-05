@@ -122,57 +122,59 @@ class TestEnumAdapter:
     def test_normalize_recognition_status(self):
         """Test normalize_recognition_status với các trường hợp phổ biến."""
         # Giá trị chính xác
-        assert normalize_recognition_status("draft") == "draft"
-        assert normalize_recognition_status("published") == "published"
+        assert normalize_recognition_status("proposed") == "PROPOSED"
+        assert normalize_recognition_status("granted") == "GRANTED"
+        assert normalize_recognition_status("archived") == "ARCHIVED"
         
         # Giá trị tương tự
-        assert normalize_recognition_status("Draft") == "draft"
-        assert normalize_recognition_status("PUBLISHED") == "published"
+        assert normalize_recognition_status("Proposed") == "PROPOSED"
+        assert normalize_recognition_status("GRANTED") == "GRANTED"
+        assert normalize_recognition_status("Archived") == "ARCHIVED"
         
         # Giá trị không hợp lệ
-        assert normalize_recognition_status(None) == "draft"  # default
-        assert normalize_recognition_status("unknown") == "draft"  # default
+        assert normalize_recognition_status(None) == "GRANTED"  # default
+        assert normalize_recognition_status("unknown") == "GRANTED"  # default
 
     def test_normalize_task_type(self):
         """Test normalize_task_type với các trường hợp phổ biến."""
         # Giá trị chính xác
-        assert normalize_task_type("feature") == "feature"
-        assert normalize_task_type("bug") == "bug"
-        assert normalize_task_type("chore") == "chore"
+        assert normalize_task_type("feature") == "FEATURE"
+        assert normalize_task_type("bug") == "BUG"
+        assert normalize_task_type("improvement") == "IMPROVEMENT"
         
         # Giá trị tương tự
-        assert normalize_task_type("Feature") == "feature"
-        assert normalize_task_type("BUG") == "bug"
-        assert normalize_task_type("Chore") == "chore"
+        assert normalize_task_type("Feature") == "FEATURE"
+        assert normalize_task_type("BUG") == "BUG"
+        assert normalize_task_type("Improvement") == "IMPROVEMENT"
         
         # Giá trị không hợp lệ
         assert normalize_task_type(None) is None  # không có default
         
         # Fuzzy matching
         with patch("logging.warning"):
-            assert normalize_task_type("doc") == "documentation"
-            assert normalize_task_type("research task") == "research"
+            assert normalize_task_type("doc") == "DOCUMENTATION"
+            assert normalize_task_type("research task") == "RESEARCH"
     
     def test_normalize_task_status(self):
         """Test normalize_task_status với các trường hợp phổ biến."""
         # Giá trị chính xác
-        assert normalize_task_status("todo") == "todo"
-        assert normalize_task_status("inprogress") == "inprogress"
-        assert normalize_task_status("done") == "done"
+        assert normalize_task_status("todo") == "ToDo"
+        assert normalize_task_status("inprogress") == "InProgress"
+        assert normalize_task_status("done") == "Done"
         
         # Giá trị tương tự
-        assert normalize_task_status("ToDo") == "todo"
-        assert normalize_task_status("In Progress") == "inprogress"
-        assert normalize_task_status("DONE") == "done"
+        assert normalize_task_status("ToDo") == "ToDo"
+        assert normalize_task_status("In Progress") == "InProgress"
+        assert normalize_task_status("DONE") == "Done"
         
         # Giá trị không hợp lệ
-        assert normalize_task_status(None) == "todo"  # default
-        assert normalize_task_status("unknown") == "todo"  # default
+        assert normalize_task_status(None) == "ToDo"  # default
+        assert normalize_task_status("unknown") == "ToDo"  # default
         
         # Fuzzy matching
         with patch("logging.warning"):
-            assert normalize_task_status("progress") == "inprogress"
-            assert normalize_task_status("review") == "inreview"
+            assert normalize_task_status("progress") == "InProgress"
+            assert normalize_task_status("review") == "InReview"
     
     def test_normalize_knowledge_snippet_type(self):
         """Test normalize_knowledge_snippet_type với các trường hợp phổ biến."""

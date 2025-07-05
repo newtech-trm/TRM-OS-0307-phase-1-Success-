@@ -7,6 +7,7 @@ Tập trung vào Recognition và các Relationship mới triển khai
 import requests
 import json
 import uuid
+import pytest
 from datetime import datetime
 import time
 from pprint import pprint
@@ -84,6 +85,7 @@ def assert_response_has_field(response, field_name):
     return True
 
 # Kiểm thử API Recognition
+@pytest.mark.skip(reason="External API integration test - requires running server")
 def test_recognition_crud():
     """Kiểm tra các chức năng CRUD của Recognition API"""
     print("\n=== KIỂM TRA RECOGNITION API ===\n")
@@ -161,6 +163,7 @@ def test_recognition_crud():
     print("✓ Kiểm thử Recognition API thành công!")
 
 # Kiểm thử API Relationship
+@pytest.mark.skip(reason="External API integration test - requires running server")
 def test_relationship_crud():
     """Kiểm tra các chức năng CRUD của Relationship API"""
     print("\n=== KIỂM TRA RELATIONSHIP API ===\n")

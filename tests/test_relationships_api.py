@@ -6,6 +6,7 @@ Kiểm thử API Relationship của TRM-OS theo GAP Analysis V3.2
 import requests
 import json
 import uuid
+import pytest
 from datetime import datetime
 import time
 from pprint import pprint
@@ -56,6 +57,7 @@ def api_request(method, endpoint, data=None, params=None):
         print(f"\n[LỖI] Lỗi khi gọi API {url}: {str(e)}")
         return None
 
+@pytest.mark.skip(reason="External API integration test - requires running server")
 def test_relationship_creation_and_retrieval():
     """Kiểm tra tạo và lấy relationship"""
     print("\n=== KIỂM TRA RELATIONSHIP API ===\n")

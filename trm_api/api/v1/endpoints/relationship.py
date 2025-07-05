@@ -1162,3 +1162,134 @@ def delete_recognizes_contribution_relationship(
             detail="Relationship not found or could not be deleted."
         )
 
+# --- RECOGNIZES_WIN Relationship Endpoints ---
+
+class RecognizesWinRequest(BaseModel):
+    """Properties for the RECOGNIZES_WIN relationship."""
+    recognition_level: Optional[str] = None
+    impact_measurement: Optional[str] = None
+    notes: Optional[str] = None
+
+
+@router.post("/recognizes-win", response_model=Relationship, status_code=status.HTTP_201_CREATED)
+async def create_recognizes_win_relationship(
+    recognition_id: str,
+    win_id: str,
+    relationship_data: RecognizesWinRequest = Body(None),
+    service: RelationshipService = Depends(lambda: relationship_service)
+):
+    """
+    Create a RECOGNIZES_WIN relationship from a Recognition to a WIN.
+    
+    Parameters:
+    - recognition_id: The ID of the Recognition
+    - win_id: The ID of the WIN
+    - relationship_data: Optional properties for the relationship
+    
+    Returns:
+    - The created relationship
+    """
+    # Create the relationship data with optional properties
+    relationship_properties = {}
+    if relationship_data:
+        if relationship_data.recognition_level:
+            relationship_properties["recognitionLevel"] = relationship_data.recognition_level
+        if relationship_data.impact_measurement:
+            relationship_properties["impactMeasurement"] = relationship_data.impact_measurement
+        if relationship_data.notes:
+            relationship_properties["notes"] = relationship_data.notes
+    
+    relationship = await service.create_relationship(
+        source_id=recognition_id,
+        source_type=TargetEntityTypeEnum.RECOGNITION,
+        target_id=win_id,
+        target_type=TargetEntityTypeEnum.WIN,
+        relationship_type=RelationshipType.RECOGNIZES_WIN,
+        **relationship_properties
+    )
+    
+    if not relationship:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not create relationship. Recognition or WIN may not exist."
+        )
+        
+    return relationship
+
+
+@router.get("/recognitions/{recognition_id}/recognizes-wins", response_model=List[Relationship])
+async def get_wins_recognized_by_recognition(
+    recognition_id: str,
+    service: RelationshipService = Depends(lambda: relationship_service)
+):
+    """
+    Get all WINs that are recognized by a specific Recognition.
+    
+    Parameters:
+    - recognition_id: The ID of the Recognition
+    
+    Returns:
+    - A list of RECOGNIZES_WIN relationships
+    """
+    return await service.get_relationships(
+        entity_id=recognition_id,
+        entity_type=TargetEntityTypeEnum.RECOGNITION,
+        direction=DirectionEnum.OUTGOING,
+        relationship_type=RelationshipType.RECOGNIZES_WIN,
+        related_entity_type=TargetEntityTypeEnum.WIN
+    )
+
+
+@router.get("/wins/{win_id}/recognized-by", response_model=List[Relationship])
+async def get_recognitions_for_win(
+    win_id: str,
+    service: RelationshipService = Depends(lambda: relationship_service)
+):
+    """
+    Get all Recognitions that recognize a specific WIN.
+    
+    Parameters:
+    - win_id: The ID of the WIN
+    
+    Returns:
+    - A list of RECOGNIZES_WIN relationships
+    """
+    return await service.get_relationships(
+        entity_id=win_id,
+        entity_type=TargetEntityTypeEnum.WIN,
+        direction=DirectionEnum.INCOMING,
+        relationship_type=RelationshipType.RECOGNIZES_WIN,
+        related_entity_type=TargetEntityTypeEnum.RECOGNITION
+    )
+
+
+@router.delete("/recognizes-win", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_recognizes_win_relationship(
+    recognition_id: str,
+    win_id: str,
+    service: RelationshipService = Depends(lambda: relationship_service)
+):
+    """
+    Delete a RECOGNIZES_WIN relationship between a Recognition and a WIN.
+    
+    Parameters:
+    - recognition_id: The ID of the Recognition
+    - win_id: The ID of the WIN
+    
+    Returns:
+    - 204 No Content if successful
+    """
+    success = await service.delete_relationship(
+        source_id=recognition_id,
+        source_type=TargetEntityTypeEnum.RECOGNITION,
+        target_id=win_id,
+        target_type=TargetEntityTypeEnum.WIN,
+        relationship_type=RelationshipType.RECOGNIZES_WIN
+    )
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="RECOGNIZES_WIN relationship not found or could not be deleted."
+        )
+

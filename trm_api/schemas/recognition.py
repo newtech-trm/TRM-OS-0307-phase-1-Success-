@@ -67,6 +67,7 @@ class RecognitionCreate(RecognitionBase):
 class Recognition(RecognitionBase):
     """Pydantic model for representing a Recognition in API responses"""
     uid: str = Field(..., description="Unique identifier for the recognition")
+    id: str = Field(..., description="Unique identifier for the recognition (alias for uid)")
     created_at: Optional[str] = Field(None, description="Creation timestamp (ISO format)")
     updated_at: Optional[str] = Field(None, description="Last update timestamp (ISO format)")
 

@@ -20,7 +20,7 @@ class RecognitionService:
     Refactored to use Neomodel OGM and follow Ontology V3.2.
     """
     
-    async def create_recognition(self, recognition_data: RecognitionCreate) -> Optional[RecognitionGraphModel]:
+    async def create_recognition(self, recognition_data: RecognitionCreate) -> Optional[Dict[str, Any]]:
         """
         Create a new Recognition and establish relationships according to Ontology V3.2.
         
@@ -28,7 +28,7 @@ class RecognitionService:
             recognition_data: RecognitionCreate data from API request
             
         Returns:
-            RecognitionGraphModel object if created successfully, None otherwise
+            Dict representation of RecognitionGraphModel if created successfully, None otherwise
         """
         try:
             # Create the Recognition node
@@ -189,13 +189,27 @@ class RecognitionService:
             except Exception as e:
                 print(f"Warning: Failed to generate Event for Recognition: {e}")
             
-            return recognition
+            # Convert Neomodel object to dict before returning
+            recognition_dict = {
+                "uid": recognition.uid,
+                "id": recognition.uid,
+                "name": recognition.name,
+                "message": recognition.message,
+                "recognition_type": recognition.recognitionType,
+                "status": recognition.status,
+                "value_level": recognition.value_level,
+                "tags": recognition.tags or [],
+                "created_at": recognition.created_at.isoformat() if hasattr(recognition.created_at, 'isoformat') else str(recognition.created_at),
+                "updated_at": recognition.updated_at.isoformat() if hasattr(recognition.updated_at, 'isoformat') else str(recognition.updated_at)
+            }
+            
+            return recognition_dict
             
         except Exception as e:
             print(f"Error creating Recognition: {e}")
             return None
     
-    async def get_recognition_by_id(self, recognition_id: str) -> Optional[RecognitionGraphModel]:
+    async def get_recognition_by_id(self, recognition_id: str) -> Optional[Dict[str, Any]]:
         """
         Get a Recognition by its ID.
         
@@ -203,17 +217,31 @@ class RecognitionService:
             recognition_id: ID of the Recognition to retrieve
             
         Returns:
-            RecognitionGraphModel if found, None otherwise
+            Dict representation of RecognitionGraphModel if found, None otherwise
         """
         try:
-            return RecognitionGraphModel.nodes.get(uid=recognition_id)
+            recognition = RecognitionGraphModel.nodes.get(uid=recognition_id)
+            # Convert Neomodel object to dict before returning
+            recognition_dict = {
+                "uid": recognition.uid,
+                "id": recognition.uid,
+                "name": recognition.name,
+                "message": recognition.message,
+                "recognition_type": recognition.recognitionType,
+                "status": recognition.status,
+                "value_level": recognition.value_level,
+                "tags": recognition.tags or [],
+                "created_at": recognition.created_at.isoformat() if recognition.created_at else None,
+                "updated_at": recognition.updated_at.isoformat() if recognition.updated_at else None
+            }
+            return recognition_dict
         except RecognitionGraphModel.DoesNotExist:
             return None
         except Exception as e:
             print(f"Error retrieving Recognition {recognition_id}: {e}")
             return None
     
-    async def update_recognition(self, recognition_id: str, recognition_data: RecognitionUpdate) -> Optional[RecognitionGraphModel]:
+    async def update_recognition(self, recognition_id: str, recognition_data: RecognitionUpdate) -> Optional[Dict[str, Any]]:
         """
         Update a Recognition by its ID theo Ontology V3.2.
         
@@ -222,7 +250,7 @@ class RecognitionService:
             recognition_data: RecognitionUpdate data containing fields to update
             
         Returns:
-            Updated RecognitionGraphModel if successful, None otherwise
+            Updated Dict representation of RecognitionGraphModel if successful, None otherwise
         """
         try:
             recognition = RecognitionGraphModel.nodes.get(uid=recognition_id)
@@ -249,22 +277,23 @@ class RecognitionService:
             # Save changes
             recognition.save()
             
-            # Update relationships nếu có sự thay đổi
-            if recognition_data.received_by_agent_ids is not None:
-                # Xóa các relationship cũ nếu cần cập nhật danh sách nhận recognition
-                current_recipients = list(recognition.received_by.all())
-                current_recipient_ids = [agent.uid for agent in current_recipients]
-                
-                # Thêm mới những agent chưa có trong danh sách
-                for agent_id in recognition_data.received_by_agent_ids:
-                    if agent_id not in current_recipient_ids:
-                        try:
-                            agent = AgentGraphModel.nodes.get(uid=agent_id)
-                            recognition.received_by.connect(agent)
-                        except AgentGraphModel.DoesNotExist:
-                            print(f"Agent with ID {agent_id} not found for RECEIVED_BY relationship")
+            # Note: RecognitionUpdate schema doesn't include relationship fields
+            # Relationship updates should be handled through separate endpoints
             
-            return recognition
+            # Convert Neomodel object to dict before returning
+            recognition_dict = {
+                "uid": recognition.uid,
+                "id": recognition.uid,
+                "name": recognition.name,
+                "message": recognition.message,
+                "recognition_type": recognition.recognitionType,
+                "status": recognition.status,
+                "value_level": recognition.value_level,
+                "tags": recognition.tags or [],
+                "created_at": recognition.created_at.isoformat() if recognition.created_at else None,
+                "updated_at": recognition.updated_at.isoformat() if recognition.updated_at else None
+            }
+            return recognition_dict
             
         except RecognitionGraphModel.DoesNotExist:
             return None
@@ -324,7 +353,7 @@ class RecognitionService:
             print(f"Error deleting Recognition {recognition_id}: {e}")
             return False
     
-    async def list_recognitions(self, skip: int = 0, limit: int = 100) -> List[RecognitionGraphModel]:
+    async def list_recognitions(self, skip: int = 0, limit: int = 100) -> List[Dict[str, Any]]:
         """
         List all Recognitions with pagination.
         
@@ -333,13 +362,31 @@ class RecognitionService:
             limit: Maximum number of records to return
             
         Returns:
-            List of RecognitionGraphModel objects
+            List of Dict representations of RecognitionGraphModel objects
         """
         try:
             # Get all recognitions and apply pagination
             all_recognitions = RecognitionGraphModel.nodes.all()
             paginated_recognitions = list(all_recognitions)[skip:skip+limit]
-            return paginated_recognitions
+            
+            # Convert each recognition to dict
+            recognition_dicts = []
+            for recognition in paginated_recognitions:
+                recognition_dict = {
+                    "uid": recognition.uid,
+                    "id": recognition.uid,
+                    "name": recognition.name,
+                    "message": recognition.message,
+                    "recognition_type": recognition.recognitionType,
+                    "status": recognition.status,
+                    "value_level": recognition.value_level,
+                    "tags": recognition.tags or [],
+                    "created_at": recognition.created_at.isoformat() if recognition.created_at else None,
+                    "updated_at": recognition.updated_at.isoformat() if recognition.updated_at else None
+                }
+                recognition_dicts.append(recognition_dict)
+            
+            return recognition_dicts
         except Exception as e:
             print(f"Error listing Recognitions: {e}")
             return []
