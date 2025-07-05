@@ -17,8 +17,8 @@ def main():
         if port_int < 1 or port_int > 65535:
             raise ValueError(f"Port {port_int} is out of valid range")
     except ValueError as e:
-        print(f"Invalid PORT value '{port}': {e}")
-        print("Using default port 8000")
+        print(f"❌ Invalid PORT value '{port}': {e}")
+        print("✅ Using default port 8000")
         port = '8000'
     
     print(f"🚀 Starting TRM-OS API on port {port}")
@@ -40,10 +40,15 @@ def main():
     ]
     
     print(f"🔧 Command: {' '.join(cmd)}")
+    print("🎯 Starting uvicorn server...")
     
-    # Execute uvicorn
+    # Execute uvicorn using subprocess.run instead of os.execvp
     try:
-        os.execvp(sys.executable, cmd)
+        result = subprocess.run(cmd, check=True)
+        print(f"✅ Uvicorn exited with code: {result.returncode}")
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Uvicorn failed with exit code: {e.returncode}")
+        sys.exit(e.returncode)
     except Exception as e:
         print(f"❌ Failed to start uvicorn: {e}")
         sys.exit(1)

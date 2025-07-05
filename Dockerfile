@@ -57,5 +57,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
 # Expose port
 EXPOSE 8000
 
-# Use Python startup script for maximum compatibility
-CMD ["python", "/app/scripts/start.py"] 
+# Use ENTRYPOINT to ensure our script runs and cannot be overridden
+ENTRYPOINT ["python", "/app/scripts/start.py"] 
