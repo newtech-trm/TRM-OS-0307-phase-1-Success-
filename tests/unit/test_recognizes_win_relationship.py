@@ -1,6 +1,6 @@
 import pytest
 import uuid
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import Mock, patch, MagicMock, AsyncMock
 from datetime import datetime
 
 from trm_api.models.relationships import Relationship, RelationshipType, TargetEntityTypeEnum
@@ -46,13 +46,9 @@ class TestRecognizesWinRelationship:
         
         # Cấu hình mock để hỗ trợ async context manager
         mock_session.execute_write = AsyncMock(return_value=Relationship(**self.recognition_win_relationship))
-        
-        # Thiết lập mock đúng cách cho async context manager
-        mock_session_ctx = AsyncMock()
-        mock_session_ctx.__aenter__.return_value = mock_session
-        mock_session_ctx.__aexit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
         mock_db.session.return_value = mock_session_ctx
         # Biến _get_db thành AsyncMock để có thể sử dụng với await
@@ -95,13 +91,9 @@ class TestRecognizesWinRelationship:
         
         # Cấu hình mock để hỗ trợ async context manager
         mock_session.read_transaction = AsyncMock(return_value=mock_relationships)
-        
-        # Thiết lập mock đúng cách cho async context manager
-        mock_session_ctx = AsyncMock()
-        mock_session_ctx.__aenter__.return_value = mock_session
-        mock_session_ctx.__aexit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
         mock_db.session.return_value = mock_session_ctx
         # Biến _get_db thành AsyncMock để có thể sử dụng với await
@@ -135,13 +127,9 @@ class TestRecognizesWinRelationship:
         
         # Cấu hình mock để hỗ trợ async context manager
         mock_session.read_transaction = AsyncMock(return_value=mock_relationships)
-        
-        # Thiết lập mock đúng cách cho async context manager
-        mock_session_ctx = AsyncMock()
-        mock_session_ctx.__aenter__.return_value = mock_session
-        mock_session_ctx.__aexit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
         mock_db.session.return_value = mock_session_ctx
         # Biến _get_db thành AsyncMock để có thể sử dụng với await
@@ -180,17 +168,11 @@ class TestRecognizesWinRelationship:
         mock_tx = MagicMock()
         mock_tx.run.return_value = mock_result
         
-        # Thiết lập mock đúng cách cho async
-        mock_execute_write = AsyncMock()
-        mock_execute_write.return_value = True
-        mock_session.execute_write = mock_execute_write
-        
-        # Thiết lập mock đúng cách cho async context manager
-        mock_session_ctx = AsyncMock()
-        mock_session_ctx.__aenter__.return_value = mock_session
-        mock_session_ctx.__aexit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        # Cấu hình mock để hỗ trợ async context manager
+        mock_session.execute_write = AsyncMock(return_value=True)
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
         mock_db.session.return_value = mock_session_ctx
         # Biến _get_db thành AsyncMock để có thể sử dụng với await
@@ -226,17 +208,11 @@ class TestRecognizesWinRelationship:
         mock_tx = MagicMock()
         mock_tx.run.return_value = mock_result
         
-        # Thiết lập mock đúng cách cho async
-        mock_execute_write = AsyncMock()
-        mock_execute_write.return_value = False
-        mock_session.execute_write = mock_execute_write
-        
-        # Thiết lập mock đúng cách cho async context manager
-        mock_session_ctx = AsyncMock()
-        mock_session_ctx.__aenter__.return_value = mock_session
-        mock_session_ctx.__aexit__.return_value = None
-        
-        # Quan trọng: Cấu hình _get_db để có thể sử dụng với await
+        # Cấu hình mock để hỗ trợ async context manager
+        mock_session.execute_write = AsyncMock(return_value=False)
+        mock_session_ctx = MagicMock()
+        mock_session_ctx.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session_ctx.__aexit__ = AsyncMock(return_value=None)
         mock_db = MagicMock()
         mock_db.session.return_value = mock_session_ctx
         # Biến _get_db thành AsyncMock để có thể sử dụng với await
