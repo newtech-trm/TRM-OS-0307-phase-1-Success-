@@ -63,6 +63,42 @@ def health_check():
     """
     return {"status": "ok"}
 
+@app.get("/debug", tags=["Debug"])
+def debug_info():
+    """
+    Debug endpoint to check environment variables and configuration.
+    """
+    required_vars = [
+        "NEO4J_URI", "NEO4J_USER", "NEO4J_PASSWORD",
+        "SUPABASE_URL", "SUPABASE_ANON_KEY", "SUPABASE_SERVICE_KEY", "SUPABASE_DB_PASSWORD",
+        "RABBITMQ_CLOUD_URL"
+    ]
+    
+    env_status = {}
+    for var in required_vars:
+        value = os.environ.get(var)
+        if value:
+            # Mask sensitive data
+            if any(sensitive in var.lower() for sensitive in ['password', 'key', 'secret']):
+                env_status[var] = f"{value[:10]}..." if len(value) > 10 else "***"
+            else:
+                env_status[var] = value
+        else:
+            env_status[var] = "NOT_SET"
+    
+    return {
+        "environment_variables": env_status,
+        "config_loaded": {
+            "NEO4J_URI": getattr(settings, 'NEO4J_URI', 'NOT_LOADED'),
+            "PROJECT_NAME": settings.PROJECT_NAME
+        },
+        "python_info": {
+            "version": sys.version,
+            "executable": sys.executable,
+            "cwd": os.getcwd()
+        }
+    }
+
 # Include the main API router
 from trm_api.api.v1.api import api_router
 app.include_router(api_router, prefix=settings.API_V1_STR)
