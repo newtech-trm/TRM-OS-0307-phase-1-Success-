@@ -71,7 +71,7 @@ class TestAdapterIntegration(unittest.TestCase):
         
         # Kiểm tra trực tiếp với hàm chuẩn hóa enum
         # Enum adapter hiện tại sử dụng graceful fallback thay vì raise exception
-        value = normalize_win_status("invalid_status")
+            value = normalize_win_status("invalid_status")
         
         # Kiểm tra rằng giá trị default được return
         self.assertEqual(value, "draft")  # Default value cho win status

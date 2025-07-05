@@ -1,0 +1,335 @@
+2025-07-06 03:50:32,430 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 03:50:32,430 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 03:50:32,430 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 03:50:44,701 - root - WARNING - No specialized adapter found for entity type: agent. Using base adapter.
+2025-07-06 03:50:44,703 - uvicorn.access - INFO - 127.0.0.1:61106 - "GET /api/v1/agents/ HTTP/1.1" 500
+2025-07-06 03:50:44,703 - uvicorn.error - ERROR - Exception in ASGI application
+  + Exception Group Traceback (most recent call last):
+  |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_utils.py", line 87, in collapse_excgroups
+  |     yield
+  |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\base.py", line 190, in __call__
+  |     async with anyio.create_task_group() as task_group:
+  |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\anyio\_backends\_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 411, in run_asgi
+    |     result = await app(  # type: ignore[func-returns-value]
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 69, in __call__
+    |     return await self.app(scope, receive, send)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\applications.py", line 123, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    |     raise exc
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\base.py", line 189, in __call__
+    |     with collapse_excgroups():
+    |   File "C:\Program Files\Python311\Lib\contextlib.py", line 155, in __exit__
+    |     self.gen.throw(typ, value, traceback)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_utils.py", line 93, in collapse_excgroups
+    |     raise exc
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\base.py", line 191, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "E:\tech\trm-os-branches\trm_api\middleware\ontology_logging.py", line 48, in dispatch
+    |     return await call_next(request)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\base.py", line 165, in call_next
+    |     raise app_exc
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\base.py", line 151, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_exception_handler.py", line 64, in wrapped_app
+    |     raise exc
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 758, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 778, in app
+    |     await route.handle(scope, receive, send)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 299, in handle
+    |     await self.app(scope, receive, send)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 79, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_exception_handler.py", line 64, in wrapped_app
+    |     raise exc
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 74, in app
+    |     response = await func(request)
+    |                ^^^^^^^^^^^^^^^^^^^
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\fastapi\routing.py", line 296, in app
+    |     content = await serialize_response(
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\fastapi\routing.py", line 155, in serialize_response
+    |     raise ResponseValidationError(
+    | fastapi.exceptions.ResponseValidationError: 99 validation errors:
+    |   {'type': 'list_type', 'loc': ('response', 'items', 0, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 1, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 2, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 3, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 4, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 5, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 6, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 7, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 8, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 9, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 10, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 11, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 12, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 13, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 14, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 15, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 16, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 17, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 18, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 19, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 20, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 21, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 22, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 23, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 24, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 25, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 26, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 27, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 28, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 29, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 30, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 31, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 32, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 33, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 34, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 35, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 36, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 37, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 38, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 39, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 40, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 41, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 42, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 43, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 44, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 45, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 46, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 47, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 48, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 49, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 50, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 51, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 52, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 53, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 54, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 55, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 56, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 57, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 58, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 59, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 60, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 61, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 62, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 63, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 64, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 65, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 66, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 67, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 68, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 69, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 70, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 71, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 72, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 73, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 74, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 75, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 76, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 77, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 78, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 79, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 80, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 81, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 82, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 83, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 84, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 85, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 86, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 88, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 89, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 90, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 91, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 92, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 93, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 94, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 95, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 96, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 97, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 98, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    |   {'type': 'list_type', 'loc': ('response', 'items', 99, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+    | 
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\protocols\http\httptools_impl.py", line 411, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 69, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\base.py", line 189, in __call__
+    with collapse_excgroups():
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 155, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_utils.py", line 93, in collapse_excgroups
+    raise exc
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\base.py", line 191, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\tech\trm-os-branches\trm_api\middleware\ontology_logging.py", line 48, in dispatch
+    return await call_next(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\base.py", line 165, in call_next
+    raise app_exc
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\base.py", line 151, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 758, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 778, in app
+    await route.handle(scope, receive, send)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 299, in handle
+    await self.app(scope, receive, send)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 79, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 74, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\fastapi\routing.py", line 296, in app
+    content = await serialize_response(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\fastapi\routing.py", line 155, in serialize_response
+    raise ResponseValidationError(
+fastapi.exceptions.ResponseValidationError: 99 validation errors:
+  {'type': 'list_type', 'loc': ('response', 'items', 0, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 1, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 2, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 3, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 4, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 5, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 6, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 7, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 8, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 9, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 10, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 11, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 12, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 13, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 14, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 15, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 16, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 17, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 18, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 19, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 20, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 21, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 22, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 23, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 24, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 25, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 26, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 27, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 28, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 29, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 30, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 31, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 32, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 33, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 34, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 35, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 36, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 37, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 38, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 39, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 40, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 41, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 42, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 43, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 44, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 45, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 46, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 47, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 48, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 49, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 50, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 51, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 52, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 53, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 54, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 55, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 56, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 57, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 58, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 59, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 60, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 61, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 62, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 63, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 64, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 65, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 66, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 67, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 68, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 69, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 70, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 71, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 72, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 73, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 74, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 75, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 76, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 77, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 78, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 79, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 80, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 81, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 82, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 83, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 84, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 85, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 86, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 88, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 89, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 90, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 91, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 92, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 93, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 94, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 95, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 96, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 97, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 98, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+  {'type': 'list_type', 'loc': ('response', 'items', 99, 'capabilities'), 'msg': 'Input should be a valid list', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/list_type'}
+

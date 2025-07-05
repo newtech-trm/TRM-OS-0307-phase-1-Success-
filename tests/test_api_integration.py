@@ -60,77 +60,77 @@ class TestRecognitionAPI:
         user_id = test_data["user1_id"]
         
         async with async_test_client as client:
-            # 1. Tạo Recognition
-            print("\n=== TEST TẠO RECOGNITION MỚI ===")
-            recognition_data = {
+        # 1. Tạo Recognition
+        print("\n=== TEST TẠO RECOGNITION MỚI ===")
+        recognition_data = {
                 "name": "Test Recognition via API",
                 "message": "Recognition được tạo bởi integration test", 
                 "recognizes_win_id": test_data["win_id"],  # ID của WIN được ghi nhận
                 "given_by_agent_id": user_id,  # ID người tạo recognition
                 "received_by_agent_ids": [test_data["user2_id"]],  # Mảng IDs người nhận
                 "recognition_type": "GRATITUDE"  # Sử dụng enum value đúng
-            }
-            
-            # Gửi request tạo Recognition
+        }
+        
+        # Gửi request tạo Recognition
             response = await client.post(
-                "/api/v1/recognitions/",
-                json=recognition_data
-            )
-            print_response(response, "Create Recognition Response")
-            assert_status_code(response, 201)
-            
-            # Lưu ID của Recognition để sử dụng tiếp
-            recognition_id = response.json()["id"]
-            assert recognition_id, "Recognition ID should not be empty"
-            
-            # 2. Lấy chi tiết Recognition
-            print("\n=== TEST LẤY CHI TIẾT RECOGNITION ===")
+            "/api/v1/recognitions/",
+            json=recognition_data
+        )
+        print_response(response, "Create Recognition Response")
+        assert_status_code(response, 201)
+        
+        # Lưu ID của Recognition để sử dụng tiếp
+        recognition_id = response.json()["id"]
+        assert recognition_id, "Recognition ID should not be empty"
+        
+        # 2. Lấy chi tiết Recognition
+        print("\n=== TEST LẤY CHI TIẾT RECOGNITION ===")
             response = await client.get(f"/api/v1/recognitions/{recognition_id}")
-            print_response(response, "Get Recognition Detail")
-            assert_status_code(response)
-            
-            # Kiểm tra thông tin chi tiết
-            data = response.json()
+        print_response(response, "Get Recognition Detail")
+        assert_status_code(response)
+        
+        # Kiểm tra thông tin chi tiết
+        data = response.json()
             assert data["name"] == recognition_data["name"]
-            
-            # 3. Cập nhật Recognition
-            print("\n=== TEST CẬP NHẬT RECOGNITION ===")
-            update_data = {
+        
+        # 3. Cập nhật Recognition
+        print("\n=== TEST CẬP NHẬT RECOGNITION ===")
+        update_data = {
                 "name": "Updated Recognition Title",
                 "message": "Message đã được cập nhật"
-            }
-            
+        }
+        
             response = await client.put(
-                f"/api/v1/recognitions/{recognition_id}",
-                json=update_data
-            )
-            print_response(response, "Update Recognition Response")
-            assert_status_code(response)
-            
-            # Kiểm tra thông tin đã cập nhật
+            f"/api/v1/recognitions/{recognition_id}",
+            json=update_data
+        )
+        print_response(response, "Update Recognition Response")
+        assert_status_code(response)
+        
+        # Kiểm tra thông tin đã cập nhật
             assert response.json()["name"] == update_data["name"]
             assert response.json()["message"] == update_data["message"]
-            
-            # 4. Lấy danh sách Recognition
-            print("\n=== TEST LẤY DANH SÁCH RECOGNITION ===")
+        
+        # 4. Lấy danh sách Recognition
+        print("\n=== TEST LẤY DANH SÁCH RECOGNITION ===")
             response = await client.get("/api/v1/recognitions/")
-            print_response(response, "List Recognitions Response")
-            assert_status_code(response)
-            
-            # Kiểm tra cấu trúc response danh sách
-            data = response.json()
-            assert "items" in data, "Response should contain 'items' field"
-            assert isinstance(data["items"], list), "'items' should be a list"
-            
-            # 5. Xóa Recognition
-            print("\n=== TEST XÓA RECOGNITION ===")
+        print_response(response, "List Recognitions Response")
+        assert_status_code(response)
+        
+        # Kiểm tra cấu trúc response danh sách
+        data = response.json()
+        assert "items" in data, "Response should contain 'items' field"
+        assert isinstance(data["items"], list), "'items' should be a list"
+        
+        # 5. Xóa Recognition
+        print("\n=== TEST XÓA RECOGNITION ===")
             response = await client.delete(f"/api/v1/recognitions/{recognition_id}")
-            print_response(response, "Delete Recognition Response")
-            assert_status_code(response, 204)
-            
-            # Kiểm tra Recognition đã xóa
+        print_response(response, "Delete Recognition Response")
+        assert_status_code(response, 204)
+        
+        # Kiểm tra Recognition đã xóa
             response = await client.get(f"/api/v1/recognitions/{recognition_id}")
-            assert response.status_code == 404, f"Recognition {recognition_id} should be deleted"
+        assert response.status_code == 404, f"Recognition {recognition_id} should be deleted"
 
 
 class TestRelationshipAPI:
