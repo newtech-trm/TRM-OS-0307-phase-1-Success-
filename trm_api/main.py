@@ -63,6 +63,43 @@ def health_check():
     """
     return {"status": "ok"}
 
+@app.get("/info", tags=["Info"])
+def info():
+    """
+    Info endpoint to check basic configuration.
+    """
+    try:
+        from trm_api.core.config import settings
+        
+        # Check environment variables
+        env_vars = {
+            "NEO4J_URI": os.environ.get("NEO4J_URI", "NOT_SET"),
+            "NEO4J_USER": os.environ.get("NEO4J_USER", "NOT_SET"), 
+            "NEO4J_PASSWORD": "***" if os.environ.get("NEO4J_PASSWORD") else "NOT_SET",
+            "ENVIRONMENT": os.environ.get("ENVIRONMENT", "NOT_SET"),
+            "PORT": os.environ.get("PORT", "NOT_SET")
+        }
+        
+        # Check config loading
+        config_status = {
+            "neo4j_uri_loaded": hasattr(settings, 'NEO4J_URI'),
+            "neo4j_uri_value": getattr(settings, 'NEO4J_URI', 'NOT_LOADED')[:50] + "..." if hasattr(settings, 'NEO4J_URI') else 'NOT_LOADED'
+        }
+        
+        return {
+            "service": "TRM-OS API",
+            "version": "1.0",
+            "environment_variables": env_vars,
+            "config": config_status,
+            "python_version": sys.version[:20]
+        }
+    except Exception as e:
+        return {
+            "service": "TRM-OS API", 
+            "error": str(e),
+            "python_version": sys.version[:20]
+        }
+
 @app.get("/health/db", tags=["Health Check"])
 def health_check_db():
     """
