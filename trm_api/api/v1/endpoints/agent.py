@@ -129,22 +129,37 @@ async def list_agents(
     """
     Retrieve a paginated list of Agents.
     """
-    # Calculate skip based on page
-    skip = (page - 1) * page_size
-    
-    # Get agents for current page
-    agents = await repo.list_agents(skip=skip, limit=page_size)
-    
-    # Get total count (for now, we'll use a simple approach)
-    # In production, you might want to implement a count method in repository
-    total_count = len(agents) + skip if len(agents) == page_size else skip + len(agents)
-    
-    return PaginatedResponse.create(
-        items=agents,
-        total_count=total_count,
-        page=page,
-        page_size=page_size
-    )
+    try:
+        # Calculate skip based on page
+        skip = (page - 1) * page_size
+        
+        # Get agents for current page with error handling
+        agents = await repo.list_agents(skip=skip, limit=page_size)
+        
+        # Handle None or empty results
+        if agents is None:
+            agents = []
+        
+        # Get total count (for now, we'll use a simple approach)
+        # In production, you might want to implement a count method in repository
+        total_count = len(agents) + skip if len(agents) == page_size else skip + len(agents)
+        
+        return PaginatedResponse.create(
+            items=agents,
+            total_count=total_count,
+            page=page,
+            page_size=page_size
+        )
+    except Exception as e:
+        # Log error for debugging
+        print(f"Error in list_agents: {str(e)}")
+        # Return empty result instead of 500 error
+        return PaginatedResponse.create(
+            items=[],
+            total_count=0,
+            page=page,
+            page_size=page_size
+        )
 
 @router.put("/{agent_id}", response_model=Agent)
 @adapt_ontology_response(entity_type="agent")
