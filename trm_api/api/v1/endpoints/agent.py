@@ -11,6 +11,89 @@ router = APIRouter()
 def get_agent_repository() -> AgentRepository:
     return AgentRepository()
 
+@router.post("/seed", response_model=dict, status_code=status.HTTP_201_CREATED)
+async def seed_agents(
+    repo: AgentRepository = Depends(get_agent_repository)
+):
+    """
+    Seed test agents data to database.
+    """
+    # Production-ready agents data
+    production_agents = [
+        AgentCreate(
+            name="TRM AI Assistant",
+            agent_type="AIAgent",
+            status="active",
+            description="Primary AI assistant for TRM operations",
+            capabilities=["natural_language_processing", "task_automation", "data_analysis"]
+        ),
+        AgentCreate(
+            name="TRM AGE System",
+            agent_type="AGE",
+            status="active",
+            description="Artificial Genesis Engine for TRM ecosystem orchestration",
+            capabilities=["system_orchestration", "automated_decision_making", "resource_optimization"]
+        ),
+        AgentCreate(
+            name="TRM Project Manager",
+            agent_type="InternalAgent",
+            status="active",
+            description="Internal project management agent",
+            job_title="Project Manager",
+            department="Operations",
+            capabilities=["project_planning", "resource_allocation", "timeline_management"]
+        ),
+        AgentCreate(
+            name="TRM Founder",
+            agent_type="InternalAgent",
+            status="active",
+            description="TRM Founder with full system authority",
+            job_title="Founder & CEO",
+            department="Executive",
+            is_founder=True,
+            founder_recognition_authority=True,
+            capabilities=["strategic_leadership", "recognition_authority", "system_governance"]
+        ),
+        AgentCreate(
+            name="TRM External Consultant",
+            agent_type="ExternalAgent",
+            status="active",
+            description="External consulting agent for specialized tasks",
+            contact_info={"email": "consultant@trm.com", "role": "Strategic Advisor"},
+            capabilities=["strategic_consulting", "market_analysis", "business_development"]
+        )
+    ]
+    
+    created_agents = []
+    errors = []
+    
+    for agent_data in production_agents:
+        try:
+            # Check if agent already exists
+            existing = await repo.get_agent_by_name(agent_data.name)
+            if existing:
+                continue  # Skip if already exists
+                
+            agent = await repo.create_agent(agent_data)
+            created_agents.append({
+                "name": agent.name,
+                "agent_type": agent.agent_type,
+                "uid": agent.uid
+            })
+        except Exception as e:
+            errors.append({
+                "name": agent_data.name,
+                "error": str(e)
+            })
+    
+    return {
+        "message": f"Successfully seeded {len(created_agents)} agents",
+        "created_agents": created_agents,
+        "errors": errors,
+        "total_created": len(created_agents),
+        "total_errors": len(errors)
+    }
+
 @router.post("/", response_model=Agent, status_code=status.HTTP_201_CREATED)
 @adapt_ontology_response(entity_type="agent")
 async def create_agent(

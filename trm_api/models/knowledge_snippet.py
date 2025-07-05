@@ -38,29 +38,3 @@ class KnowledgeSnippetInDB(KnowledgeSnippetBase):
 
 class KnowledgeSnippet(KnowledgeSnippetInDB):
     pass
-
-class KnowledgeSnippetListResponse(BaseModel):
-    """Response model for knowledge snippet list endpoints"""
-    items: List[KnowledgeSnippet] = Field(..., description="List of knowledge snippets")
-    total: int = Field(..., description="Total number of knowledge snippets")
-    skip: int = Field(..., description="Number of items skipped")
-    limit: int = Field(..., description="Maximum number of items per page")
-    
-    model_config = ConfigDict(
-        populate_by_name=True,
-        json_schema_extra={
-            "example": {
-                "items": [
-                    {
-                        "uid": "snippet-123",
-                        "content": "Best practice example",
-                        "snippetType": "BestPractice",
-                        "tags": ["database", "connection"]
-                    }
-                ],
-                "total": 50,
-                "skip": 0,
-                "limit": 100
-            }
-        }
-    )

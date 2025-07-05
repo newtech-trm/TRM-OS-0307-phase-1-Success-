@@ -84,29 +84,3 @@ class AgentInDB(AgentBase):
 
 class Agent(AgentInDB):
     tool_ids: List[str] = Field(default_factory=list, alias="toolIds", description="List of tool IDs this agent is equipped to use.")
-
-class AgentListResponse(BaseModel):
-    """Response model for agent list endpoints"""
-    items: List[Agent] = Field(..., description="List of agents")
-    total: int = Field(..., description="Total number of agents")
-    skip: int = Field(..., description="Number of items skipped")
-    limit: int = Field(..., description="Maximum number of items per page")
-    
-    model_config = ConfigDict(
-        populate_by_name=True,
-        json_schema_extra={
-            "example": {
-                "items": [
-                    {
-                        "agentId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
-                        "name": "FounderTRM",
-                        "agentType": "InternalAgent",
-                        "status": "active"
-                    }
-                ],
-                "total": 100,
-                "skip": 0,
-                "limit": 100
-            }
-        }
-    )

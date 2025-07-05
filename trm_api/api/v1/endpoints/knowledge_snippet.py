@@ -1,8 +1,9 @@
+
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
 
-from trm_api.models.knowledge_snippet import KnowledgeSnippet, KnowledgeSnippetCreate, KnowledgeSnippetUpdate, KnowledgeSnippetListResponse
+from trm_api.models.knowledge_snippet import KnowledgeSnippet, KnowledgeSnippetCreate, KnowledgeSnippetUpdate
 from trm_api.services.knowledge_snippet_service import knowledge_snippet_service, KnowledgeSnippetService
 from trm_api.adapters.decorators import adapt_knowledge_snippet_response, adapt_ontology_response
 
@@ -36,7 +37,7 @@ async def get_knowledge_snippet(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Knowledge Snippet not found")
     return db_snippet
 
-@router.get("/", response_model=KnowledgeSnippetListResponse)
+@router.get("/", response_model=None)
 @adapt_knowledge_snippet_response(response_item_key="items")
 async def list_knowledge_snippets(
     skip: int = 0,
