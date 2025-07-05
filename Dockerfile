@@ -38,8 +38,8 @@ COPY migrations/ ./migrations/
 COPY pytest.ini .
 COPY docker-compose.yml .
 
-# Make startup script executable
-RUN chmod +x /app/scripts/start.sh
+# Make startup scripts executable
+RUN chmod +x /app/scripts/start.sh /app/scripts/start.py
 
 # Create necessary directories
 RUN mkdir -p /app/logs /app/data
@@ -57,5 +57,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
 # Expose port
 EXPOSE 8000
 
-# Use startup script for proper PORT handling
-CMD ["/app/scripts/start.sh"] 
+# Use Python startup script for maximum compatibility
+CMD ["python", "/app/scripts/start.py"] 
