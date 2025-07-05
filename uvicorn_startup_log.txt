@@ -10,3 +10,9 @@
 2025-07-05 11:35:22.166837: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
 2025-07-05 11:35:22.166837: PYTHONPATH: None
 2025-07-05 11:35:22.166837: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
+2025-07-05 11:44:58.462026: --- Uvicorn/FastAPI Startup --- 
+2025-07-05 11:44:58.464534: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\venv-trm\Scripts\python.exe
+2025-07-05 11:44:58.464534: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\venv-trm', 'E:\\tech\\trm-os-branches\\venv-trm\\Lib\\site-packages']
+2025-07-05 11:44:58.464534: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-07-05 11:44:58.465534: PYTHONPATH: None
+2025-07-05 11:44:58.465534: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
