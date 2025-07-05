@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
 
 from trm_api.models.knowledge_snippet import KnowledgeSnippet, KnowledgeSnippetCreate, KnowledgeSnippetUpdate
+from trm_api.models.pagination import PaginatedResponse
 from trm_api.services.knowledge_snippet_service import knowledge_snippet_service, KnowledgeSnippetService
 from trm_api.adapters.decorators import adapt_knowledge_snippet_response, adapt_ontology_response
 
@@ -37,7 +38,7 @@ async def get_knowledge_snippet(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Knowledge Snippet not found")
     return db_snippet
 
-@router.get("/", response_model=None)
+@router.get("/", response_model=PaginatedResponse[KnowledgeSnippet])
 @adapt_knowledge_snippet_response(response_item_key="items")
 async def list_knowledge_snippets(
     skip: int = 0,
@@ -49,7 +50,16 @@ async def list_knowledge_snippets(
     """
     logging.info(f"Listing knowledge snippets with skip={skip}, limit={limit}")
     snippets = service.list_snippets(skip=skip, limit=limit)
-    return {"items": snippets, "total": len(snippets), "skip": skip, "limit": limit}
+    # Calculate total count (this should ideally come from service)
+    total_count = len(snippets) + skip  # Simplified estimation
+    page = (skip // limit) + 1 if limit > 0 else 1
+    
+    return PaginatedResponse.create(
+        items=snippets,
+        total_count=total_count,
+        page=page,
+        page_size=limit
+    )
 
 @router.put("/{uid}", response_model=None)
 @adapt_knowledge_snippet_response()

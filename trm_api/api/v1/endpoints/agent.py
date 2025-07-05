@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
 
 from trm_api.models.agent import Agent, AgentCreate, AgentUpdate
+from trm_api.models.pagination import PaginatedResponse
 from trm_api.repositories.agent_repository import AgentRepository
 from trm_api.adapters.decorators import adapt_ontology_response
 
@@ -35,7 +36,7 @@ async def get_agent(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
     return db_agent
 
-@router.get("/", response_model=List[Agent])
+@router.get("/", response_model=PaginatedResponse[Agent])
 @adapt_ontology_response(entity_type="agent", response_item_key="items")
 async def list_agents(
     skip: int = 0,
@@ -46,7 +47,16 @@ async def list_agents(
     Retrieve a list of Agents.
     """
     agents = await repo.list_agents(skip=skip, limit=limit)
-    return {"items": agents, "total": len(agents), "skip": skip, "limit": limit}
+    # Calculate total count (this should ideally come from repository)
+    total_count = len(agents) + skip  # Simplified estimation
+    page = (skip // limit) + 1 if limit > 0 else 1
+    
+    return PaginatedResponse.create(
+        items=agents,
+        total_count=total_count,
+        page=page,
+        page_size=limit
+    )
 
 @router.put("/{agent_id}", response_model=Agent)
 @adapt_ontology_response(entity_type="agent")
