@@ -39,6 +39,18 @@ async def test_agents():
             "message": "Agents test failed"
         }
 
+@router.post("/", response_model=Agent, status_code=status.HTTP_201_CREATED)
+@adapt_ontology_response(entity_type="agent")
+async def create_agent(
+    agent_in: AgentCreate,
+    service: SimpleAgentService = Depends(get_agent_service)
+):
+    """
+    Create a new Agent.
+    """
+    # TODO: Implement create in SimpleAgentService
+    raise HTTPException(status_code=501, detail="Create not implemented yet")
+
 @router.get("/", response_model=AgentListResponse)
 @adapt_ontology_response(entity_type="agent", response_item_key="items")
 async def list_agents(
@@ -79,18 +91,6 @@ async def list_agents(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error: {str(e)}"
         )
-
-@router.post("/", response_model=Agent, status_code=status.HTTP_201_CREATED)
-@adapt_ontology_response(entity_type="agent")
-async def create_agent(
-    agent_in: AgentCreate,
-    service: SimpleAgentService = Depends(get_agent_service)
-):
-    """
-    Create a new Agent.
-    """
-    # TODO: Implement create in SimpleAgentService
-    raise HTTPException(status_code=501, detail="Create not implemented yet")
 
 @router.get("/{agent_id}", response_model=Agent)
 @adapt_ontology_response(entity_type="agent")
