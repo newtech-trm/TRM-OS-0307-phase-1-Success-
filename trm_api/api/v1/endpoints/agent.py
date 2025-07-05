@@ -1,131 +1,92 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List, Optional
-import logging
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from typing import List, Optional, Any
 
-from trm_api.models.agent import Agent, AgentCreate, AgentUpdate, AgentListResponse
-from trm_api.services.simple_agent_service import simple_agent_service, SimpleAgentService
+from trm_api.models.agent import Agent, AgentCreate, AgentUpdate
+from trm_api.models.pagination import PaginatedResponse
+from trm_api.repositories.agent_repository import AgentRepository
 from trm_api.adapters.decorators import adapt_ontology_response
 
-logger = logging.getLogger(__name__)
 router = APIRouter()
 
-def get_agent_service() -> SimpleAgentService:
-    return simple_agent_service
-
-@router.get("/test")
-async def test_agents():
-    """
-    Simple test endpoint for agents.
-    """
-    try:
-        # Test database connection
-        from trm_api.db.session import get_driver
-        driver = get_driver()
-        
-        with driver.session() as session:
-            result = session.run("MATCH (a:Agent) RETURN count(a) as count")
-            record = result.single()
-            count = record['count'] if record else 0
-        
-        return {
-            "status": "ok",
-            "agent_count": count,
-            "message": "Agents test successful"
-        }
-    except Exception as e:
-        return {
-            "status": "error",
-            "error": str(e),
-            "message": "Agents test failed"
-        }
+def get_agent_repository() -> AgentRepository:
+    return AgentRepository()
 
 @router.post("/", response_model=Agent, status_code=status.HTTP_201_CREATED)
 @adapt_ontology_response(entity_type="agent")
 async def create_agent(
     agent_in: AgentCreate,
-    service: SimpleAgentService = Depends(get_agent_service)
+    repo: AgentRepository = Depends(get_agent_repository)
 ):
     """
     Create a new Agent.
     """
-    # TODO: Implement create in SimpleAgentService
-    raise HTTPException(status_code=501, detail="Create not implemented yet")
-
-@router.get("/", response_model=AgentListResponse)
-@adapt_ontology_response(entity_type="agent", response_item_key="items")
-async def list_agents(
-    skip: int = 0,
-    limit: int = 100,
-    service: SimpleAgentService = Depends(get_agent_service)
-):
-    """
-    Retrieve a list of Agents.
-    """
-    try:
-        logger.info(f"Listing agents with skip={skip}, limit={limit}")
-        
-        # Test database connection first
-        from neomodel import db
-        try:
-            results, meta = db.cypher_query("RETURN 1 as test")
-            logger.info("Database connection test successful")
-        except Exception as db_error:
-            logger.error(f"Database connection failed: {db_error}")
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=f"Database connection failed: {str(db_error)}"
-            )
-        
-        # Get agents using simple service
-        agents = service.list_agents(skip=skip, limit=limit)
-        logger.info(f"Successfully retrieved {len(agents)} agents")
-        
-        return {"items": agents, "total": len(agents), "skip": skip, "limit": limit}
-        
-    except HTTPException:
-        # Re-raise HTTP exceptions
-        raise
-    except Exception as e:
-        logger.error(f"Error in list_agents: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error: {str(e)}"
-        )
+    return await repo.create_agent(agent_data=agent_in)
 
 @router.get("/{agent_id}", response_model=Agent)
 @adapt_ontology_response(entity_type="agent")
 async def get_agent(
     agent_id: str,
-    service: SimpleAgentService = Depends(get_agent_service)
+    repo: AgentRepository = Depends(get_agent_repository)
 ):
     """
     Get a specific Agent by its ID.
     """
-    db_agent = service.get_agent_by_uid(uid=agent_id)
+    db_agent = await repo.get_agent_by_uid(uid=agent_id)
     if db_agent is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
     return db_agent
+
+@router.get("/", response_model=PaginatedResponse[Agent])
+@adapt_ontology_response(entity_type="agent", response_item_key="items")
+async def list_agents(
+    page: int = Query(1, ge=1, description="Page number, 1-indexed"),
+    page_size: int = Query(10, ge=1, le=100, description="Number of items per page"),
+    repo: AgentRepository = Depends(get_agent_repository)
+) -> Any:
+    """
+    Retrieve a paginated list of Agents.
+    """
+    # Calculate skip based on page
+    skip = (page - 1) * page_size
+    
+    # Get agents for current page
+    agents = await repo.list_agents(skip=skip, limit=page_size)
+    
+    # Get total count (for now, we'll use a simple approach)
+    # In production, you might want to implement a count method in repository
+    total_count = len(agents) + skip if len(agents) == page_size else skip + len(agents)
+    
+    return PaginatedResponse.create(
+        items=agents,
+        total_count=total_count,
+        page=page,
+        page_size=page_size
+    )
 
 @router.put("/{agent_id}", response_model=Agent)
 @adapt_ontology_response(entity_type="agent")
 async def update_agent(
     agent_id: str,
     agent_in: AgentUpdate,
-    service: SimpleAgentService = Depends(get_agent_service)
+    repo: AgentRepository = Depends(get_agent_repository)
 ):
     """
     Update an existing Agent.
     """
-    # TODO: Implement update in SimpleAgentService
-    raise HTTPException(status_code=501, detail="Update not implemented yet")
+    updated_agent = await repo.update_agent(uid=agent_id, agent_data=agent_in)
+    if updated_agent is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
+    return updated_agent
 
 @router.delete("/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_agent(
     agent_id: str,
-    service: SimpleAgentService = Depends(get_agent_service)
+    repo: AgentRepository = Depends(get_agent_repository)
 ):
     """
     Delete an Agent.
     """
-    # TODO: Implement delete in SimpleAgentService
-    raise HTTPException(status_code=501, detail="Delete not implemented yet")
+    deleted = await repo.delete_agent(uid=agent_id)
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
+    return
