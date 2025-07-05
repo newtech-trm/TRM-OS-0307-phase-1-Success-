@@ -38,6 +38,9 @@ COPY migrations/ ./migrations/
 COPY pytest.ini .
 COPY docker-compose.yml .
 
+# Make startup script executable
+RUN chmod +x /app/scripts/start.sh
+
 # Create necessary directories
 RUN mkdir -p /app/logs /app/data
 
@@ -54,5 +57,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
 # Expose port
 EXPOSE 8000
 
-# Default command for production - use PORT environment variable
-CMD ["sh", "-c", "python -m uvicorn trm_api.main:app --host 0.0.0.0 --port ${PORT} --workers 4"] 
+# Use startup script for proper PORT handling
+CMD ["/app/scripts/start.sh"] 
