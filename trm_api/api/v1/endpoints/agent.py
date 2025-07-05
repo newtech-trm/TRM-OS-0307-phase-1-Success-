@@ -36,7 +36,7 @@ async def get_agent(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
     return db_agent
 
-@router.get("/", response_model=PaginatedResponse[Agent])
+@router.get("/", response_model=dict)
 async def list_agents(
     skip: int = 0,
     limit: int = 100,
@@ -45,17 +45,19 @@ async def list_agents(
     """
     Retrieve a list of Agents.
     """
-    agents = await repo.list_agents(skip=skip, limit=limit)
-    # Calculate total count (this should ideally come from repository)
-    total_count = len(agents) + skip  # Simplified estimation
-    page = (skip // limit) + 1 if limit > 0 else 1
-    
-    return PaginatedResponse.create(
-        items=agents,
-        total_count=total_count,
-        page=page,
-        page_size=limit
-    )
+    try:
+        agents = await repo.list_agents(skip=skip, limit=limit)
+        return {
+            "status": "success",
+            "count": len(agents),
+            "agents": [{"uid": agent.uid, "name": agent.name, "type": agent.type} for agent in agents[:5]]
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "type": type(e).__name__
+        }
 
 @router.put("/{agent_id}", response_model=Agent)
 @adapt_ontology_response(entity_type="agent")
