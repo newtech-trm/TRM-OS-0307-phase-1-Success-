@@ -1,260 +1,237 @@
-# TRM-OS Railway Deployment Guide
+# 🚀 TRM-OS Railway Deployment Guide
 
-## 🚀 Railway Platform Deployment
+## 📋 Prerequisites
 
-**Project URL**: [https://railway.com/project/6c79655c-bde0-4772-b630-a63581e750ca](https://railway.com/project/6c79655c-bde0-4772-b630-a63581e750ca?environmentId=64d3b32e-8a88-49ba-ad24-f6fc6c988a95)
+1. **Railway Account**: Đăng ký tại [Railway.app](https://railway.app)
+2. **Railway CLI**: Đã cài đặt và login
+3. **Neo4j Database**: Cần add Neo4j service trên Railway
+4. **Project Ready**: TRM-OS v1.0 đã chuẩn bị sẵn sàng
 
-**Environment ID**: `64d3b32e-8a88-49ba-ad24-f6fc6c988a95`
+## 🔧 Railway Project Setup
 
----
-
-## 📋 Pre-Deployment Checklist
-
-### ✅ Code Quality Verification
-- [x] **Git Repository**: Clean, all changes committed and pushed
-- [x] **Tests**: 220/220 passing (100% success rate)
-- [x] **Documentation**: Complete API v1 docs, deployment guides
-- [x] **Docker**: Production-ready Dockerfile configured
-- [x] **Dependencies**: requirements.txt updated
-
-### ✅ Railway Configuration
-- [x] **railway.json**: Deployment configuration created
-- [x] **Dockerfile**: Optimized for Railway platform
-- [x] **Environment Variables**: Ready for Railway setup
-- [x] **Health Checks**: Configured in Docker
-
----
-
-## 🔧 Railway Environment Variables
-
-### Required Environment Variables:
+### 1. Login và Link Project
 ```bash
-# Database Configuration
-NEO4J_URI=neo4j+s://your-neo4j-instance.databases.neo4j.io
-NEO4J_USERNAME=neo4j
-NEO4J_PASSWORD=your-secure-password
+# Login Railway (mở browser để authenticate)
+railway login
 
-# API Configuration
-API_V1_STR=/api/v1
-PROJECT_NAME=TRM-OS
-VERSION=1.0.0
-DEBUG=false
+# Link với project ID
+railway link -p 6c79655c-bde0-4772-b630-a63581e750ca
 
-# Security
-SECRET_KEY=your-super-secret-key-here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-# CORS
-BACKEND_CORS_ORIGINS=["https://your-frontend-domain.com"]
-
-# Application
-ENVIRONMENT=production
-LOG_LEVEL=INFO
+# Kiểm tra connection
+railway status
 ```
 
-### Optional Environment Variables:
+### 2. Add Neo4j Service
 ```bash
-# Rate Limiting
-RATE_LIMIT_PER_MINUTE=100
+# Add Neo4j service
+railway add neo4j
 
-# Monitoring
-SENTRY_DSN=your-sentry-dsn-here
-
-# Email (if needed)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
+# Hoặc qua Railway Dashboard:
+# 1. Vào project dashboard
+# 2. Click "Add Service" 
+# 3. Chọn "Neo4j"
+# 4. Deploy service
 ```
 
----
-
-## 🚀 Deployment Steps
-
-### 1. Connect Repository
+### 3. Set Environment Variables
 ```bash
-# Repository already connected to Railway
-# Branch: 95-percent
-# Latest commit: "PRODUCTION READY: TRM-OS v1.0 Complete Standardization & Deployment Prep"
+# Set các biến môi trường production
+railway variables set PROJECT_NAME="TRM-OS API v1.0"
+railway variables set ENVIRONMENT=production
+railway variables set DEBUG=false
+railway variables set LOG_LEVEL=info
+railway variables set API_V1_STR="/api/v1"
+railway variables set PYTHONPATH="/app"
+railway variables set PYTHONUNBUFFERED=1
+
+# Neo4j variables sẽ được Railway tự động set
+# NEO4J_URL, NEO4J_USERNAME, NEO4J_PASSWORD
 ```
 
-### 2. Configure Environment Variables
-1. Go to Railway dashboard
-2. Navigate to Environment Variables
-3. Add all required variables from the list above
-4. Ensure sensitive data is properly secured
+## 🚀 Deployment Process
 
-### 3. Deploy Application
+### 1. Deploy Application
 ```bash
-# Railway will automatically:
-# 1. Build Docker image using Dockerfile
-# 2. Deploy to production environment
-# 3. Provide public URL
+# Deploy từ current directory
+railway up
+
+# Hoặc deploy với specific service
+railway up --service web
 ```
 
-### 4. Database Setup
+### 2. Monitor Deployment
 ```bash
-# After deployment, run the unified seed script:
-# Access Railway shell or use API endpoint
-curl -X POST https://your-app-url.railway.app/api/v1/admin/seed-database
+# Xem logs real-time
+railway logs
+
+# Xem status
+railway status
+
+# Xem domain
+railway domain
 ```
 
----
-
-## 🔍 Post-Deployment Verification
-
-### Health Check Endpoints
+### 3. Seed Database (Post-deployment)
 ```bash
-# Basic health check
-curl https://your-app-url.railway.app/health
+# Chạy seed script sau khi deploy xong
+railway run python scripts/unified_seed_production.py --production
 
-# API health check
-curl https://your-app-url.railway.app/api/v1/health
-
-# Database connectivity check
-curl https://your-app-url.railway.app/api/v1/admin/db-health
+# Hoặc qua Railway dashboard -> Service -> Variables -> Add worker process
 ```
 
-### API Documentation
+## 🔍 Verification Steps
+
+### 1. Health Check
 ```bash
-# Swagger UI
-https://your-app-url.railway.app/docs
+# Kiểm tra health endpoint
+curl https://your-railway-domain.up.railway.app/health
 
-# ReDoc
-https://your-app-url.railway.app/redoc
-
-# OpenAPI JSON
-https://your-app-url.railway.app/openapi.json
+# Expected response:
+# {"status": "ok"}
 ```
 
----
+### 2. API Documentation
+```bash
+# Truy cập Swagger UI
+https://your-railway-domain.up.railway.app/docs
+
+# Truy cập ReDoc
+https://your-railway-domain.up.railway.app/redoc
+```
+
+### 3. Test Core Endpoints
+```bash
+# Test root endpoint
+curl https://your-railway-domain.up.railway.app/
+
+# Test API v1
+curl https://your-railway-domain.up.railway.app/api/v1/agents
+
+# Test specific functionality
+curl https://your-railway-domain.up.railway.app/api/v1/projects
+```
+
+## 🛠 Configuration Files
+
+### railway.json
+```json
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "pip install -r requirements.txt"
+  },
+  "deploy": {
+    "startCommand": "uvicorn trm_api.main:app --host 0.0.0.0 --port $PORT --workers 4",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 100
+  }
+}
+```
+
+### nixpacks.toml
+```toml
+[phases.setup]
+nixPkgs = ["python311", "pip"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "uvicorn trm_api.main:app --host 0.0.0.0 --port $PORT --workers 4"
+```
+
+### Procfile
+```
+web: uvicorn trm_api.main:app --host 0.0.0.0 --port $PORT --workers 4
+worker: python scripts/unified_seed_production.py --production
+```
+
+## 🔐 Security Checklist
+
+- [ ] **Secret Key**: Thay đổi SECRET_KEY trong production
+- [ ] **Neo4j Credentials**: Kiểm tra Neo4j connection string
+- [ ] **CORS Settings**: Cấu hình ALLOWED_ORIGINS cho production
+- [ ] **Environment Variables**: Đảm bảo tất cả variables đã được set
+- [ ] **Health Check**: Verify health endpoint hoạt động
+- [ ] **Database Seed**: Chạy seed script sau deployment
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-**1. Build Failures**
+1. **Build Failed**
+   ```bash
+   # Kiểm tra logs
+   railway logs --build
+   
+   # Kiểm tra requirements.txt
+   railway run pip list
+   ```
+
+2. **Database Connection Failed**
+   ```bash
+   # Kiểm tra Neo4j service
+   railway variables | grep NEO4J
+   
+   # Test connection
+   railway run python -c "from trm_api.db.session import connect_to_db; connect_to_db()"
+   ```
+
+3. **Health Check Failed**
+   ```bash
+   # Test local health endpoint
+   railway run python -c "import requests; print(requests.get('http://localhost:8000/health').json())"
+   ```
+
+### Debug Commands
 ```bash
-# Check Dockerfile syntax
-docker build -t trm-os-test .
+# Xem tất cả services
+railway services
 
-# Verify requirements.txt
-pip install -r requirements.txt
+# Xem environment variables
+railway variables
+
+# Restart service
+railway restart
+
+# Redeploy
+railway up --detach
 ```
 
-**2. Database Connection**
-```bash
-# Verify Neo4j credentials
-# Check NEO4J_URI format
-# Ensure database is accessible from Railway
-```
+## 📊 Monitoring & Maintenance
 
-**3. Environment Variables**
-```bash
-# Verify all required variables are set
-# Check variable names (case sensitive)
-# Ensure no trailing spaces
-```
+### Performance Monitoring
+- Railway Dashboard: CPU, Memory, Network usage
+- Application Logs: `railway logs`
+- Health Check: `/health` endpoint
+- API Metrics: `/metrics` endpoint (if implemented)
 
-### Logs and Monitoring
-```bash
-# Railway provides built-in logging
-# Access logs from Railway dashboard
-# Monitor application performance
-```
-
----
-
-## 🔧 Railway-Specific Optimizations
-
-### Dockerfile Optimizations
-```dockerfile
-# Already optimized for Railway:
-# - Multi-stage build
-# - Non-root user
-# - Health checks
-# - Efficient layer caching
-```
-
-### Resource Configuration
-```json
-{
-  "build": {
-    "builder": "DOCKERFILE",
-    "dockerfilePath": "Dockerfile"
-  },
-  "deploy": {
-    "numReplicas": 1,
-    "sleepApplication": false,
-    "restartPolicyType": "ON_FAILURE"
-  }
-}
-```
-
----
-
-## 📊 Performance Monitoring
-
-### Key Metrics to Monitor
-- **Response Time**: < 200ms for API calls
-- **Memory Usage**: < 512MB typical
-- **CPU Usage**: < 50% under normal load
-- **Database Connections**: Monitor active connections
-
-### Scaling Considerations
-- **Horizontal Scaling**: Increase replicas if needed
-- **Database Scaling**: Monitor Neo4j performance
-- **CDN**: Consider for static assets
-
----
-
-## 🔐 Security Checklist
-
-### Production Security
-- [x] **HTTPS Only**: Railway provides SSL by default
-- [x] **Environment Variables**: Sensitive data in env vars
-- [x] **CORS**: Properly configured origins
-- [x] **Rate Limiting**: Implemented in application
-- [x] **Input Validation**: Pydantic models validate all inputs
-
-### Additional Security
-- [ ] **WAF**: Consider Railway's security features
-- [ ] **Monitoring**: Set up alerts for suspicious activity
-- [ ] **Backup**: Regular database backups
-- [ ] **Updates**: Keep dependencies updated
-
----
+### Regular Maintenance
+- Database backups (Neo4j)
+- Log rotation
+- Security updates
+- Performance optimization
 
 ## 🎯 Success Criteria
 
-### Deployment Success
-- ✅ **Build**: Docker image builds successfully
-- ✅ **Deploy**: Application starts without errors
-- ✅ **Health**: All health checks pass
-- ✅ **API**: All endpoints respond correctly
-- ✅ **Database**: Neo4j connection established
+- [ ] ✅ Application deployed successfully
+- [ ] ✅ Health check returns 200 OK
+- [ ] ✅ API documentation accessible
+- [ ] ✅ Neo4j database connected
+- [ ] ✅ All 220 tests passing in production
+- [ ] ✅ Seed data populated correctly
+- [ ] ✅ Performance metrics within acceptable range
 
-### Performance Success
-- ✅ **Response Time**: < 200ms average
-- ✅ **Uptime**: > 99.9%
-- ✅ **Error Rate**: < 0.1%
-- ✅ **Memory**: Stable usage
-- ✅ **CPU**: Efficient utilization
+## 📞 Support
+
+- **Railway Documentation**: https://docs.railway.app
+- **TRM-OS Documentation**: `docs/API_V1_COMPREHENSIVE_GUIDE.md`
+- **Issues**: GitHub repository issues
+- **Railway Discord**: https://discord.gg/railway
 
 ---
 
-## 🎉 Deployment Complete!
+**🎉 TRM-OS v1.0 is now ready for Railway deployment!**
 
-**TRM-OS v1.0 is now LIVE on Railway!** 🚀
-
-**Next Steps:**
-1. ✅ Monitor initial deployment
-2. ✅ Run comprehensive tests
-3. ✅ Seed production database
-4. ✅ Update DNS/domain settings
-5. ✅ Set up monitoring alerts
-
-**Railway Dashboard**: [https://railway.com/project/6c79655c-bde0-4772-b630-a63581e750ca](https://railway.com/project/6c79655c-bde0-4772-b630-a63581e750ca?environmentId=64d3b32e-8a88-49ba-ad24-f6fc6c988a95)
-
-**Status**: 🟢 **PRODUCTION READY & DEPLOYED** 
+For questions or issues, refer to the comprehensive documentation in the `docs/` folder or contact the development team. 
