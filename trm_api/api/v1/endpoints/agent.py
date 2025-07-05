@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
+import logging
 
 from trm_api.models.agent import Agent, AgentCreate, AgentUpdate, AgentListResponse
 from trm_api.repositories.agent_repository import AgentRepository
 from trm_api.adapters.decorators import adapt_ontology_response
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 def get_agent_repository() -> AgentRepository:
@@ -45,8 +47,36 @@ async def list_agents(
     """
     Retrieve a list of Agents.
     """
-    agents = await repo.list_agents(skip=skip, limit=limit)
-    return {"items": agents, "total": len(agents), "skip": skip, "limit": limit}
+    try:
+        logger.info(f"Listing agents with skip={skip}, limit={limit}")
+        
+        # Test database connection first
+        from neomodel import db
+        try:
+            results, meta = db.cypher_query("RETURN 1 as test")
+            logger.info("Database connection test successful")
+        except Exception as db_error:
+            logger.error(f"Database connection failed: {db_error}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Database connection failed: {str(db_error)}"
+            )
+        
+        # Get agents
+        agents = await repo.list_agents(skip=skip, limit=limit)
+        logger.info(f"Successfully retrieved {len(agents)} agents")
+        
+        return {"items": agents, "total": len(agents), "skip": skip, "limit": limit}
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        logger.error(f"Error in list_agents: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}"
+        )
 
 @router.put("/{agent_id}", response_model=Agent)
 @adapt_ontology_response(entity_type="agent")
