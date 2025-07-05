@@ -1,5 +1,6 @@
 import os
 import secrets
+from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
 
@@ -28,8 +29,8 @@ class Settings(BaseSettings):
     # RabbitMQ Connection
     RABBITMQ_CLOUD_URL: str
 
-    # Redis Connection
-    REDIS_URL: str
+    # Redis Connection - Made optional for deployment flexibility
+    REDIS_URL: Optional[str] = "redis://localhost:6379"
     
     # Security Settings
     # Generate a random secret key if not provided
