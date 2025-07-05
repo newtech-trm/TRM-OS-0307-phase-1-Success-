@@ -63,6 +63,37 @@ def health_check():
     """
     return {"status": "ok"}
 
+@app.get("/health/db", tags=["Health Check"])
+def health_check_db():
+    """
+    Database health check endpoint.
+    """
+    try:
+        from neomodel import db
+        from trm_api.core.config import settings
+        
+        # Test basic connection
+        results, meta = db.cypher_query("RETURN 1 as test")
+        
+        # Test agent count
+        agent_results, agent_meta = db.cypher_query("MATCH (a:Agent) RETURN count(a) as count")
+        agent_count = agent_results[0][0] if agent_results else 0
+        
+        return {
+            "status": "ok",
+            "database": "connected",
+            "neo4j_uri": settings.NEO4J_URI.split('@')[-1] if '@' in settings.NEO4J_URI else settings.NEO4J_URI,
+            "agent_count": agent_count,
+            "test_query": "successful"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "database": "failed",
+            "error": str(e),
+            "neo4j_uri": getattr(settings, 'NEO4J_URI', 'NOT_SET')
+        }
+
 @app.get("/debug", tags=["Debug"])
 def debug_info():
     """
