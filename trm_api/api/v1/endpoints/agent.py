@@ -12,31 +12,32 @@ router = APIRouter()
 def get_agent_service() -> SimpleAgentService:
     return simple_agent_service
 
-@router.post("/", response_model=Agent, status_code=status.HTTP_201_CREATED)
-@adapt_ontology_response(entity_type="agent")
-async def create_agent(
-    agent_in: AgentCreate,
-    service: SimpleAgentService = Depends(get_agent_service)
-):
+@router.get("/test")
+async def test_agents():
     """
-    Create a new Agent.
+    Simple test endpoint for agents.
     """
-    # TODO: Implement create in SimpleAgentService
-    raise HTTPException(status_code=501, detail="Create not implemented yet")
-
-@router.get("/{agent_id}", response_model=Agent)
-@adapt_ontology_response(entity_type="agent")
-async def get_agent(
-    agent_id: str,
-    service: SimpleAgentService = Depends(get_agent_service)
-):
-    """
-    Get a specific Agent by its ID.
-    """
-    db_agent = service.get_agent_by_uid(uid=agent_id)
-    if db_agent is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
-    return db_agent
+    try:
+        # Test database connection
+        from trm_api.db.session import get_driver
+        driver = get_driver()
+        
+        with driver.session() as session:
+            result = session.run("MATCH (a:Agent) RETURN count(a) as count")
+            record = result.single()
+            count = record['count'] if record else 0
+        
+        return {
+            "status": "ok",
+            "agent_count": count,
+            "message": "Agents test successful"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "message": "Agents test failed"
+        }
 
 @router.get("/", response_model=AgentListResponse)
 @adapt_ontology_response(entity_type="agent", response_item_key="items")
@@ -78,6 +79,32 @@ async def list_agents(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error: {str(e)}"
         )
+
+@router.post("/", response_model=Agent, status_code=status.HTTP_201_CREATED)
+@adapt_ontology_response(entity_type="agent")
+async def create_agent(
+    agent_in: AgentCreate,
+    service: SimpleAgentService = Depends(get_agent_service)
+):
+    """
+    Create a new Agent.
+    """
+    # TODO: Implement create in SimpleAgentService
+    raise HTTPException(status_code=501, detail="Create not implemented yet")
+
+@router.get("/{agent_id}", response_model=Agent)
+@adapt_ontology_response(entity_type="agent")
+async def get_agent(
+    agent_id: str,
+    service: SimpleAgentService = Depends(get_agent_service)
+):
+    """
+    Get a specific Agent by its ID.
+    """
+    db_agent = service.get_agent_by_uid(uid=agent_id)
+    if db_agent is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
+    return db_agent
 
 @router.put("/{agent_id}", response_model=Agent)
 @adapt_ontology_response(entity_type="agent")
