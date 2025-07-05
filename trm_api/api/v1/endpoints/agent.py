@@ -37,7 +37,6 @@ async def get_agent(
     return db_agent
 
 @router.get("/", response_model=PaginatedResponse[Agent])
-@adapt_ontology_response(entity_type="agent", response_item_key="items")
 async def list_agents(
     skip: int = 0,
     limit: int = 100,
