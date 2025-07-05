@@ -615,3 +615,12 @@ asyncio.exceptions.CancelledError
 2025-07-06 04:15:36,448 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
 2025-07-06 04:15:36,448 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
 2025-07-06 04:15:36,448 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 04:20:35,677 - uvicorn.error - INFO - Shutting down
+2025-07-06 04:20:35,787 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 04:20:35,788 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 04:20:35,788 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 04:20:35,789 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 04:20:35,789 - uvicorn.error - INFO - Finished server process [28068]
+2025-07-06 04:20:36,643 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 04:20:36,643 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 04:20:36,644 - uvicorn.error - INFO - Application startup complete.
