@@ -47,12 +47,12 @@ RUN chown -R trm:trm /app
 # Switch to non-root user
 USER trm
 
-# Health check - use PORT environment variable
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${PORT}/health || exit 1
+# Health check - simplified for Railway deployment
+HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Expose port - use PORT environment variable
-EXPOSE ${PORT}
+# Expose port
+EXPOSE 8000
 
 # Default command for production - use PORT environment variable
 CMD ["sh", "-c", "python -m uvicorn trm_api.main:app --host 0.0.0.0 --port ${PORT} --workers 4"] 
