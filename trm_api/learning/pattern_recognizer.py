@@ -483,4 +483,17 @@ class PatternRecognizer:
             "avg_pattern_confidence": 0.0,
             "avg_pattern_strength": 0.0
         }
-        self.logger.info("Cleared all discovered patterns") 
+        self.logger.info("Cleared all discovered patterns")
+
+    @property
+    def patterns(self) -> Dict[str, LearningPattern]:
+        """Alias for discovered_patterns for backward compatibility"""
+        return self.discovered_patterns
+    
+    async def discover_patterns(
+        self, 
+        experiences: List[LearningExperience],
+        focus_types: List[ExperienceType] = None
+    ) -> List[LearningPattern]:
+        """Alias for analyze_experiences method for backward compatibility"""
+        return await self.analyze_experiences(experiences, focus_types) 

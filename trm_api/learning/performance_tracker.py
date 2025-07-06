@@ -545,4 +545,22 @@ class PerformanceTracker:
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get performance tracking statistics"""
-        return self.tracking_stats.copy() 
+        return self.tracking_stats.copy()
+    
+    async def record_metric(
+        self,
+        metric_type: MetricType,
+        value: float,
+        context: Dict[str, Any] = None,
+        measurement_period: Tuple[datetime, datetime] = None
+    ) -> str:
+        """Alias for record_performance_metric for backward compatibility"""
+        return await self.record_performance_metric(metric_type, value, context, measurement_period)
+    
+    async def get_performance_trends(
+        self,
+        metric_types: List[MetricType] = None,
+        time_window_days: int = 30
+    ) -> Dict[MetricType, Dict[str, Any]]:
+        """Alias for analyze_performance_trends for backward compatibility"""
+        return await self.analyze_performance_trends(metric_types, time_window_days) 

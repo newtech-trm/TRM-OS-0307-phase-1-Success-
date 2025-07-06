@@ -20,7 +20,7 @@ async def test_adaptive_learning():
     
     # Test learning from experience
     experience_id = await system.learn_from_experience(
-        experience_type=ExperienceType.TASK_EXECUTION,
+        experience_type=ExperienceType.AGENT_CREATION,
         context={'task_id': 'test_task', 'project_type': 'analysis'},
         action_taken={'approach': 'systematic'},
         outcome={'result': 'success'},

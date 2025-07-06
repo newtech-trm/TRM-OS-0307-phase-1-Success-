@@ -453,18 +453,34 @@ class AdaptiveLearningSystem:
     async def _learning_cycle_loop(self) -> None:
         """Background loop for periodic learning cycles"""
         
-        while self.learning_enabled:
-            try:
-                # Wait for the specified interval
-                await asyncio.sleep(self.learning_frequency_hours * 3600)
-                
-                # Run learning cycle if we have enough experiences
-                if len(self.experience_collector.experiences) >= self.min_experiences_for_learning:
-                    await self.run_learning_cycle()
-                
-            except Exception as e:
-                self.logger.error(f"Error in learning cycle loop: {str(e)}")
-                await asyncio.sleep(3600)  # Wait 1 hour before retrying
+        try:
+            while self.learning_enabled:
+                try:
+                    # Wait for the specified interval
+                    await asyncio.sleep(self.learning_frequency_hours * 3600)
+                    
+                    # Run learning cycle if we have enough experiences
+                    if len(self.experience_collector.experiences) >= self.min_experiences_for_learning:
+                        await self.run_learning_cycle()
+                    
+                except asyncio.CancelledError:
+                    # Task was cancelled, break the loop
+                    self.logger.info("Learning cycle loop cancelled")
+                    break
+                except Exception as e:
+                    self.logger.error(f"Error in learning cycle loop: {str(e)}")
+                    # Wait 1 hour before retrying, but allow cancellation
+                    try:
+                        await asyncio.sleep(3600)
+                    except asyncio.CancelledError:
+                        self.logger.info("Learning cycle loop cancelled during retry wait")
+                        break
+        except asyncio.CancelledError:
+            # Handle cancellation at the top level
+            self.logger.info("Learning cycle loop task cancelled")
+        finally:
+            # Cleanup when loop ends
+            self.logger.info("Learning cycle loop ended")
     
     async def add_learning_goal(self, goal: LearningGoal) -> str:
         """Add a new learning goal"""

@@ -19,14 +19,24 @@ def safe_enum_value(enum_obj):
 
 
 class ExperienceType(Enum):
-    """Types of learning experiences"""
-    TASK_EXECUTION = "task_execution"           # Task completion experiences
-    PROBLEM_SOLVING = "problem_solving"        # Problem resolution experiences  
-    DECISION_MAKING = "decision_making"        # Decision outcome experiences
-    INTERACTION = "interaction"                # Agent-agent interaction experiences
-    ERROR_RECOVERY = "error_recovery"          # Error handling experiences
-    OPTIMIZATION = "optimization"              # Performance optimization experiences
-    PATTERN_RECOGNITION = "pattern_recognition" # Pattern detection experiences
+    """Các loại experience mà hệ thống có thể học"""
+    AGENT_CREATION = "agent_creation"
+    PROJECT_MANAGEMENT = "project_management"
+    TENSION_RESOLUTION = "tension_resolution"
+    PERFORMANCE_OPTIMIZATION = "performance_optimization"
+    PATTERN_RECOGNITION = "pattern_recognition"
+    BEHAVIORAL_ADAPTATION = "behavioral_adaptation"
+    GOAL_ACHIEVEMENT = "goal_achievement"
+    FEEDBACK_PROCESSING = "feedback_processing"
+    # NEW: Conversational Interface Experience Types
+    NLP_PARSING = "nlp_parsing"
+    ENTITY_EXTRACTION = "entity_extraction"
+    ACTION_MAPPING = "action_mapping"
+    RESPONSE_GENERATION = "response_generation"
+    CONVERSATION_PATTERN = "conversation_pattern"
+    FEEDBACK_ADAPTATION = "feedback_adaptation"
+    INTENT_RECOGNITION = "intent_recognition"
+    CONTEXT_UNDERSTANDING = "context_understanding"
 
 
 class MetricType(Enum):

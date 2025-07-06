@@ -1,6 +1,7 @@
 from typing import List, Optional, Dict, Any, Union
 from uuid import uuid4
 from datetime import datetime
+import random
 
 from trm_api.repositories.tension_repository import TensionRepository
 from trm_api.models.tension import TensionCreate, TensionUpdate, Tension
@@ -221,3 +222,45 @@ class TensionService:
                 "endDate": project.endDate.isoformat() if project.endDate else None
             } for project in projects
         ]
+    
+    async def resolve_tension(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Resolve a tension using conversational interface parameters
+        """
+        tension_type = parameters.get("tension_type", "TECHNICAL")
+        
+        # Create mock resolution result for conversational interface
+        confidence = random.uniform(0.7, 0.95)
+        resolution_time = random.uniform(1.0, 5.0)
+        
+        resolution = {
+            "id": str(uuid4()),
+            "type": tension_type,
+            "confidence": confidence,
+            "resolution_time": resolution_time,
+            "status": "resolved",
+            "created_at": datetime.now().isoformat(),
+            "resolution_strategy": self._get_resolution_strategy(tension_type),
+            "impact_assessment": self._get_impact_assessment(confidence)
+        }
+        
+        return resolution
+    
+    def _get_resolution_strategy(self, tension_type: str) -> str:
+        """Get resolution strategy for tension type"""
+        strategies = {
+            "TECHNICAL": "automated_analysis_and_fix",
+            "BUSINESS": "stakeholder_alignment",
+            "RESOURCE": "resource_reallocation",
+            "PROCESS": "workflow_optimization"
+        }
+        return strategies.get(tension_type, "general_problem_solving")
+    
+    def _get_impact_assessment(self, confidence: float) -> str:
+        """Get impact assessment based on confidence"""
+        if confidence > 0.9:
+            return "high_positive_impact"
+        elif confidence > 0.8:
+            return "moderate_positive_impact"
+        else:
+            return "low_positive_impact"

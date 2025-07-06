@@ -91,7 +91,7 @@ class ExperienceCollector:
         """Collect experience from task execution"""
         
         experience = LearningExperience(
-            experience_type=ExperienceType.TASK_EXECUTION,
+            experience_type=ExperienceType.PERFORMANCE_OPTIMIZATION,
             agent_id=self.agent_id,
             task_id=task_id,
             action_taken=action_taken,
@@ -123,7 +123,7 @@ class ExperienceCollector:
         """Collect experience from problem solving"""
         
         experience = LearningExperience(
-            experience_type=ExperienceType.PROBLEM_SOLVING,
+            experience_type=ExperienceType.TENSION_RESOLUTION,
             agent_id=self.agent_id,
             action_taken={
                 "problem": problem_description,
@@ -150,7 +150,7 @@ class ExperienceCollector:
         """Collect experience from decision making"""
         
         experience = LearningExperience(
-            experience_type=ExperienceType.DECISION_MAKING,
+            experience_type=ExperienceType.BEHAVIORAL_ADAPTATION,
             agent_id=self.agent_id,
             action_taken={
                 "options_considered": options_considered,
@@ -177,7 +177,7 @@ class ExperienceCollector:
         """Collect experience from agent interactions"""
         
         experience = LearningExperience(
-            experience_type=ExperienceType.INTERACTION,
+            experience_type=ExperienceType.FEEDBACK_PROCESSING,
             agent_id=self.agent_id,
             action_taken={
                 "interaction_type": interaction_type,
@@ -203,7 +203,7 @@ class ExperienceCollector:
         """Collect experience from error recovery"""
         
         experience = LearningExperience(
-            experience_type=ExperienceType.ERROR_RECOVERY,
+            experience_type=ExperienceType.PATTERN_RECOGNITION,
             agent_id=self.agent_id,
             action_taken={
                 "error_type": error_type,

@@ -760,4 +760,15 @@ class AdaptationEngine:
             "avg_effectiveness": 0.0
         }
         
-        self.logger.info("Cleared all adaptations and rules") 
+        self.logger.info("Cleared all adaptations and rules")
+    
+    async def apply_adaptation(
+        self, 
+        adaptation_rule: AdaptationRule,
+        context: Dict[str, Any] = None
+    ) -> List[Dict[str, Any]]:
+        """Apply a single adaptation rule - alias for apply_adaptations"""
+        return await self.apply_adaptations(
+            context or {},
+            available_rules=[adaptation_rule]
+        ) 
