@@ -84,3 +84,20 @@ class AgentInDB(AgentBase):
 
 class Agent(AgentInDB):
     tool_ids: List[str] = Field(default_factory=list, alias="toolIds", description="List of tool IDs this agent is equipped to use.")
+
+class PaginatedAgentResponse(BaseModel):
+    items: List[Agent] = Field(..., description="List of agents")
+    total: int = Field(..., description="Total number of agents")
+    skip: int = Field(0, description="Number of items skipped")
+    limit: int = Field(100, description="Maximum number of items returned")
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "items": [],
+                "total": 0,
+                "skip": 0,
+                "limit": 100
+            }
+        }
+    )

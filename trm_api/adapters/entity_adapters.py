@@ -144,6 +144,25 @@ class EventAdapter(BaseEntityAdapter):
         return result
 
 
+class AgentAdapter(BaseEntityAdapter):
+    """Adapter chuyên biệt cho entity Agent"""
+    
+    def _apply_enum_adapters(self, entity: Dict[str, Any]) -> Dict[str, Any]:
+        """Áp dụng các enum adapter cho entity Agent.
+        
+        Args:
+            entity: Agent entity cần chuẩn hóa
+            
+        Returns:
+            Agent entity đã được chuẩn hóa enum
+        """
+        result = entity.copy()
+        
+        # Agent không có enum fields đặc biệt hiện tại
+        # Chỉ cần chuẩn hóa field names
+        return result
+
+
 # Factory cho các entity adapter
 def get_entity_adapter(entity_type: str, adapt_datetime: bool = True, adapt_enums: bool = True) -> BaseEntityAdapter:
     """Factory method để lấy adapter phù hợp với entity type.
@@ -170,6 +189,8 @@ def get_entity_adapter(entity_type: str, adapt_datetime: bool = True, adapt_enum
         return ProjectAdapter(adapt_datetime, adapt_enums)
     elif entity_type == 'event':
         return EventAdapter(adapt_datetime, adapt_enums)
+    elif entity_type == 'agent':
+        return AgentAdapter(adapt_datetime, adapt_enums)
     else:
         # Trả về adapter cơ bản nếu không tìm thấy adapter chuyên biệt
         logging.warning(f"No specialized adapter found for entity type: {entity_type}. Using base adapter.")

@@ -7,8 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PORT=8000
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Set working directory
 WORKDIR /app
@@ -38,9 +37,6 @@ COPY migrations/ ./migrations/
 COPY pytest.ini .
 COPY docker-compose.yml .
 
-# Make startup scripts executable
-RUN chmod +x /app/scripts/start.sh /app/scripts/start.py
-
 # Create necessary directories
 RUN mkdir -p /app/logs /app/data
 
@@ -50,12 +46,12 @@ RUN chown -R trm:trm /app
 # Switch to non-root user
 USER trm
 
-# Health check - simplified for Railway deployment
-HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Expose port
 EXPOSE 8000
 
-# Use ENTRYPOINT to ensure our script runs and cannot be overridden
-ENTRYPOINT ["python", "/app/scripts/start.py"] 
+# Default command for production
+CMD ["python", "-m", "uvicorn", "trm_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"] 

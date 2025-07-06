@@ -42,9 +42,8 @@ api_router.include_router(relationship.router, prefix="/relationships", tags=["R
 from trm_api.api.v1.endpoints import knowledge_snippet
 api_router.include_router(knowledge_snippet.router, prefix="/knowledge-snippets", tags=["Knowledge Snippets"])
 
-# TEMPORARILY DISABLED - Fix in Phase 2
-# from trm_api.api.v1.endpoints import agent
-# api_router.include_router(agent.router, prefix="/agents", tags=["Agents"])
+from trm_api.api.v1.endpoints import agent
+api_router.include_router(agent.router, prefix="/agents", tags=["Agents"])
 
 from trm_api.api.v1.endpoints import event
 api_router.include_router(event.router, prefix="/events", tags=["Events"])
