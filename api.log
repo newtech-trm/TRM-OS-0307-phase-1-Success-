@@ -5266,3 +5266,1161 @@ asyncio.exceptions.CancelledError
 2025-07-06 23:21:03,348 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
 2025-07-06 23:21:03,348 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
 2025-07-06 23:21:03,349 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:44:59,769 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:44:59,862 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:44:59,878 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:44:59,878 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:44:59,878 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:44:59,879 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:44:59,879 - uvicorn.error - INFO - Finished server process [20936]
+2025-07-06 23:44:59,973 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:44:59,974 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:44:59,974 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:44:59,975 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:44:59,975 - uvicorn.error - INFO - Finished server process [26336]
+2025-07-06 23:45:02,001 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:45:02,001 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:45:02,002 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:45:02,004 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:45:02,075 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:45:02,075 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:45:02,075 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:45:02,077 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:45:03,842 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:45:03,842 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:45:03,842 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:45:03,916 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:45:03,916 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:45:03,917 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:50:02,135 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:50:02,244 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:50:02,245 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:50:02,245 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:50:02,245 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:50:02,245 - uvicorn.error - INFO - Finished server process [10616]
+2025-07-06 23:50:02,292 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:50:02,403 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:50:02,404 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:50:02,404 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:50:02,404 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:50:02,404 - uvicorn.error - INFO - Finished server process [30860]
+2025-07-06 23:50:04,597 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:50:04,597 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:50:04,598 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:50:04,614 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:50:04,669 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:50:04,669 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:50:04,671 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:50:04,673 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:50:06,510 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:50:06,510 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:50:06,511 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:50:06,562 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:50:06,562 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:50:06,562 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:52:02,468 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:52:02,514 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:52:02,576 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:52:02,576 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:52:02,576 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:52:02,577 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:52:02,577 - uvicorn.error - INFO - Finished server process [24580]
+2025-07-06 23:52:02,624 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:52:02,625 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:52:02,625 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:52:02,625 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:52:02,625 - uvicorn.error - INFO - Finished server process [31016]
+2025-07-06 23:52:04,563 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:52:04,563 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:52:04,563 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:52:04,563 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:52:04,563 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:52:04,563 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:52:04,565 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:52:04,565 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:52:06,636 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:52:06,636 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:52:06,637 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:52:06,796 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:52:06,796 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:52:06,797 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:57:04,926 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:57:04,988 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:57:05,035 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:57:05,035 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:57:05,035 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:57:05,036 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:57:05,036 - uvicorn.error - INFO - Finished server process [30996]
+2025-07-06 23:57:05,098 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:57:05,098 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:57:05,098 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:57:05,099 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:57:05,099 - uvicorn.error - INFO - Finished server process [30672]
+2025-07-06 23:57:08,131 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:08,131 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:08,131 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:08,131 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:08,132 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:57:08,132 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:57:08,134 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:57:09,906 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:09,906 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:09,907 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:57:10,098 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:10,098 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:10,098 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:57:38,777 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:57:38,810 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:57:38,889 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:57:38,889 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:57:38,889 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:57:38,890 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:57:38,890 - uvicorn.error - INFO - Finished server process [21732]
+2025-07-06 23:57:38,919 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:57:38,920 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:57:38,920 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:57:38,921 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:57:38,921 - uvicorn.error - INFO - Finished server process [3480]
+2025-07-06 23:57:41,290 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:41,290 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:41,291 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:57:41,293 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:57:41,340 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:41,340 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:41,340 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:57:41,343 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:57:43,302 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:43,302 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:43,303 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:57:43,329 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:43,329 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:57:43,330 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:58:11,982 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:58:12,092 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:58:12,093 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:58:12,093 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:58:12,093 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:58:12,093 - uvicorn.error - INFO - Finished server process [27128]
+2025-07-06 23:58:12,108 - uvicorn.error - INFO - Shutting down
+2025-07-06 23:58:12,218 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-06 23:58:12,219 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:58:12,219 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-06 23:58:12,219 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-06 23:58:12,220 - uvicorn.error - INFO - Finished server process [30708]
+2025-07-06 23:58:14,232 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:58:14,232 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:58:14,233 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:58:14,235 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:58:14,248 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:58:14,248 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:58:14,249 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:58:14,252 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-06 23:58:16,025 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:58:16,025 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:58:16,025 - uvicorn.error - INFO - Application startup complete.
+2025-07-06 23:58:16,165 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:58:16,165 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-06 23:58:16,166 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:03:14,436 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:03:14,468 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:03:14,545 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:03:14,546 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:03:14,546 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:03:14,547 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:03:14,548 - uvicorn.error - INFO - Finished server process [19796]
+2025-07-07 00:03:14,576 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:03:14,576 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:03:14,576 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:03:14,577 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:03:14,577 - uvicorn.error - INFO - Finished server process [17376]
+2025-07-07 00:03:16,482 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:03:16,482 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:03:16,483 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:03:16,485 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:03:16,538 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:03:16,538 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:03:16,539 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:03:16,540 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:03:18,504 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:03:18,504 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:03:18,505 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:03:18,530 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:03:18,530 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:03:18,530 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:08:16,594 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:08:16,673 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:08:16,704 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:08:16,705 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:08:16,705 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:08:16,705 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:08:16,705 - uvicorn.error - INFO - Finished server process [30388]
+2025-07-07 00:08:16,782 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:08:16,782 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:08:16,782 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:08:16,783 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:08:16,783 - uvicorn.error - INFO - Finished server process [25712]
+2025-07-07 00:08:18,763 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:18,763 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:18,764 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:08:18,766 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:08:18,830 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:18,830 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:18,831 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:08:18,833 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:08:20,752 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:20,752 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:20,753 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:08:20,866 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:20,866 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:20,866 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:08:49,369 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:08:49,480 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:08:49,480 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:08:49,480 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:08:49,480 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:08:49,481 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:08:49,481 - uvicorn.error - INFO - Finished server process [16388]
+2025-07-07 00:08:49,591 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:08:49,591 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:08:49,591 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:08:49,592 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:08:49,592 - uvicorn.error - INFO - Finished server process [27296]
+2025-07-07 00:08:51,589 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:51,589 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:51,589 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:08:51,592 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:08:51,689 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:51,689 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:51,691 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:08:51,693 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:08:53,647 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:53,647 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:53,648 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:08:53,773 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:53,773 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:08:53,774 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:09:22,367 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:09:22,475 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:09:22,476 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:09:22,476 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:09:22,476 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:09:22,476 - uvicorn.error - INFO - Finished server process [21532]
+2025-07-07 00:09:25,624 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:09:25,624 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:09:25,625 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:09:53,155 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:09:53,263 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:09:53,263 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:09:53,263 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:09:53,264 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:09:53,264 - uvicorn.error - INFO - Finished server process [31488]
+2025-07-07 00:09:55,355 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:09:55,355 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:09:55,355 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:09:55,357 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:09:57,296 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:09:57,296 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:09:57,296 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:10:26,015 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:10:26,125 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:10:26,126 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:10:26,126 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:10:26,126 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:10:26,126 - uvicorn.error - INFO - Finished server process [564]
+2025-07-07 00:10:28,164 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:10:28,164 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:10:28,165 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:10:28,167 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:10:30,178 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:10:30,178 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:10:30,179 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:13:51,774 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:13:51,884 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:13:51,885 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:13:51,885 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:13:51,885 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:13:51,885 - uvicorn.error - INFO - Finished server process [31032]
+2025-07-07 00:13:54,043 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:13:54,043 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:13:54,044 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:13:54,046 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:13:56,122 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:13:56,122 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:13:56,123 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:15:28,370 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:15:28,481 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:15:28,482 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:15:28,482 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:15:28,483 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:15:28,483 - uvicorn.error - INFO - Finished server process [31260]
+2025-07-07 00:15:30,638 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:15:30,638 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:15:30,638 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:15:30,640 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:15:32,481 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:15:32,481 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:15:32,482 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:16:01,278 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:16:01,388 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:16:01,388 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:16:01,388 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:16:01,389 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:16:01,389 - uvicorn.error - INFO - Finished server process [14740]
+2025-07-07 00:16:03,363 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:16:03,363 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:16:03,363 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:16:03,365 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:16:05,364 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:16:05,364 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:16:05,365 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:18:54,241 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:18:54,350 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:18:54,350 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:18:54,350 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:18:54,351 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:18:54,351 - uvicorn.error - INFO - Finished server process [2484]
+2025-07-07 00:18:56,292 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:18:56,292 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:18:56,293 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:18:56,295 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:18:58,170 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:18:58,170 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:18:58,171 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:21:03,490 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:21:03,601 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:21:03,601 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:21:03,601 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:21:03,602 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:21:03,602 - uvicorn.error - INFO - Finished server process [24460]
+2025-07-07 00:21:05,874 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:21:05,874 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:21:05,874 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:21:05,876 - uvicorn.error - ERROR - Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\base_events.py", line 650, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\Python311\Lib\contextlib.py", line 222, in __aexit__
+    await self.gen.athrow(typ, value, traceback)
+  File "E:\tech\trm-os-branches\trm_api\main.py", line 31, in lifespan
+    yield
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\starlette\routing.py", line 743, in lifespan
+    await receive()
+  File "E:\tech\trm-os-branches\venv-trm\Lib\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\asyncio\queues.py", line 158, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+2025-07-07 00:21:07,998 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:21:07,998 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:21:07,999 - uvicorn.error - INFO - Application startup complete.
+2025-07-07 00:21:36,599 - uvicorn.error - INFO - Shutting down
+2025-07-07 00:21:36,708 - uvicorn.error - INFO - Waiting for application shutdown.
+2025-07-07 00:21:36,708 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:21:36,708 - trm_api.db.session - DEBUG - Database connection managed by neomodel's thread-local driver. No explicit close action needed.
+2025-07-07 00:21:36,709 - uvicorn.error - INFO - Application shutdown complete.
+2025-07-07 00:21:36,709 - uvicorn.error - INFO - Finished server process [30492]
+2025-07-07 00:21:38,574 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:21:38,574 - trm_api.db.session - DEBUG - Neomodel configured to connect to Neo4j on: {host}
+2025-07-07 00:21:38,574 - uvicorn.error - INFO - Application startup complete.

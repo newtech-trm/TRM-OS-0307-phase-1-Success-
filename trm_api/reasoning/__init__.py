@@ -1,20 +1,40 @@
 """
-TRM-OS Basic Reasoning Engine MVP
+Advanced Reasoning Engine for TRM-OS AI Agents
 
-Core AI components for tension analysis, solution generation, and intelligent decision making.
-This is the foundation for TRM-OS v2.0 transformation into Quantum Organizational Intelligence.
+This module provides sophisticated reasoning capabilities for AI agents including:
+- Multi-step logical reasoning
+- Causal analysis and dependency tracking  
+- Uncertainty handling with probabilistic reasoning
+- Context-aware decision making
+- Cross-agent knowledge synthesis
+
+Core Principles:
+1. Recognition → Event → WIN philosophy integration
+2. Ontology-first reasoning based on graph relationships
+3. Event-driven architecture compatibility
+4. Transparent reasoning audit trails
 """
 
-from .tension_analyzer import TensionAnalyzer, TensionType, ImpactLevel, UrgencyLevel, TensionAnalysis
-from .rule_engine import RuleEngine, RuleType, BusinessRule, RuleCondition, RuleAction
-from .solution_generator import SolutionGenerator, GeneratedSolution, SolutionType
-from .priority_calculator import PriorityCalculator, PriorityCalculationResult
-from .reasoning_coordinator import ReasoningCoordinator, ReasoningRequest, ReasoningResult
+from .advanced_reasoning_engine import AdvancedReasoningEngine
+from .causal_analyzer import CausalAnalyzer  
+from .uncertainty_handler import UncertaintyHandler
+from .context_manager import ContextManager
+from .reasoning_types import (
+    ReasoningContext,
+    ReasoningStep, 
+    CausalChain,
+    UncertaintyLevel,
+    ReasoningResult
+)
 
 __all__ = [
-    'TensionAnalyzer', 'TensionType', 'ImpactLevel', 'UrgencyLevel', 'TensionAnalysis',
-    'RuleEngine', 'RuleType', 'BusinessRule', 'RuleCondition', 'RuleAction',
-    'SolutionGenerator', 'GeneratedSolution', 'SolutionType',
-    'PriorityCalculator', 'PriorityCalculationResult',
-    'ReasoningCoordinator', 'ReasoningRequest', 'ReasoningResult'
+    "AdvancedReasoningEngine",
+    "CausalAnalyzer", 
+    "UncertaintyHandler",
+    "ContextManager",
+    "ReasoningContext",
+    "ReasoningStep",
+    "CausalChain", 
+    "UncertaintyLevel",
+    "ReasoningResult"
 ] 
