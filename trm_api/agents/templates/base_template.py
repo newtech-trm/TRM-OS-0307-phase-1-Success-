@@ -26,6 +26,11 @@ class AgentCapability(BaseModel):
     required_skills: List[str] = []
     complexity_level: int = 1  # 1-5, 5 là phức tạp nhất
     estimated_time: Optional[int] = None  # Thời gian ước tính (phút)
+    
+    @property
+    def estimated_time_per_task(self) -> Optional[int]:
+        """Compatibility property for estimated_time"""
+        return self.estimated_time
 
 
 class AgentTemplateMetadata(BaseModel):
@@ -38,6 +43,11 @@ class AgentTemplateMetadata(BaseModel):
     recommended_tensions: List[str] = []  # Các loại tension phù hợp
     dependencies: List[str] = []  # Dependencies với templates khác
     performance_metrics: List[str] = []  # Metrics để đánh giá performance
+    
+    @property
+    def name(self) -> str:
+        """Compatibility property for template_name"""
+        return self.template_name
 
 
 class BaseAgentTemplate(BaseAgent, ABC):

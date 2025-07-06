@@ -383,7 +383,7 @@ class TensionRepository:
             relationship_props['notes'] = notes
             
         # Connect with relationship properties
-        project.resolves_tension.connect(tension, relationship_props)
+        project.resolves_tensions.connect(tension, relationship_props)
         
         return (tension, project)
         

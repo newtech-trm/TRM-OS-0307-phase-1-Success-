@@ -199,7 +199,7 @@ class ResearchAgent(BaseAgentTemplate):
             
             # Kiểm tra tension type
             suitable_types = ["Problem", "Opportunity", "Idea"]
-            type_match = tension.tension_type in suitable_types
+            type_match = tension.tensionType in suitable_types
             
             # Agent có thể handle nếu có research indicators
             can_handle = (has_research_keywords or pattern_match or has_methodology_keywords) and type_match

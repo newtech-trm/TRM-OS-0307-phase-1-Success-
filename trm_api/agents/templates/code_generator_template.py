@@ -14,6 +14,7 @@ from .base_template import BaseAgentTemplate, AgentTemplateMetadata, AgentCapabi
 from ..base_agent import AgentMetadata
 from ...eventbus.system_event_bus import EventType, SystemEvent
 from ...models.tension import Tension
+from ...models.enums import TensionType
 
 
 class CodeGeneratorAgent(BaseAgentTemplate):
@@ -191,8 +192,8 @@ class CodeGeneratorAgent(BaseAgentTemplate):
                     break
             
             # Kiểm tra tension type
-            suitable_types = ["Problem", "Opportunity", "Idea"]
-            type_match = tension.tension_type in suitable_types
+            suitable_types = [TensionType.PROBLEM, TensionType.OPPORTUNITY, TensionType.IDEA, TensionType.PROCESS_IMPROVEMENT]
+            type_match = tension.tensionType in suitable_types
             
             # Agent có thể handle nếu có code indicators
             can_handle = (has_code_keywords or has_language_keywords or pattern_match) and type_match

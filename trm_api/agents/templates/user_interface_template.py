@@ -192,7 +192,7 @@ class UserInterfaceAgent(BaseAgentTemplate):
             
             # Kiểm tra tension type
             suitable_types = ["Problem", "Opportunity", "Idea"]
-            type_match = tension.tension_type in suitable_types
+            type_match = tension.tensionType in suitable_types
             
             # Agent có thể handle nếu có UI/UX indicators
             can_handle = (has_ui_keywords or pattern_match or has_tool_keywords) and type_match

@@ -75,3 +75,34 @@ class EntityType(str, Enum):
     PROJECT = "PROJECT"
     AGENT = "AGENT"
     USER = "USER"
+
+# Enum cho Tension Priority
+class Priority(str, Enum):
+    """Priority levels cho tensions."""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+# Enum cho Tension Types
+class TensionType(str, Enum):
+    """Types of tensions trong TRM-OS."""
+    PROBLEM = "Problem"
+    OPPORTUNITY = "Opportunity"
+    RISK = "Risk"
+    CONFLICT = "Conflict"
+    IDEA = "Idea"
+    RESOURCE_CONSTRAINT = "Resource_Constraint"
+    PROCESS_IMPROVEMENT = "Process_Improvement"
+    COMMUNICATION_BREAKDOWN = "Communication_Breakdown"
+    STRATEGIC_MISALIGNMENT = "Strategic_Misalignment"
+    UNKNOWN = "Unknown"
+
+# Enum cho Agent Types
+class AgentType(str, Enum):
+    """Types of agents trong TRM-OS."""
+    AI_AGENT = "AIAgent"
+    HUMAN_AGENT = "HumanAgent"
+    COMPOSITE_AGENT = "CompositeAgent"
+    CUSTOM_AGENT = "CustomAgent"
+    TEMPLATE_AGENT = "TemplateAgent"

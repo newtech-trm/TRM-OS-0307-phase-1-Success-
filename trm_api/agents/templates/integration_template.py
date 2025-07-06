@@ -192,7 +192,7 @@ class IntegrationAgent(BaseAgentTemplate):
             
             # Kiểm tra tension type
             suitable_types = ["Problem", "Opportunity", "Idea"]
-            type_match = tension.tension_type in suitable_types
+            type_match = tension.tensionType in suitable_types
             
             # Agent có thể handle nếu có integration indicators
             can_handle = (has_integration_keywords or pattern_match or has_tech_keywords) and type_match

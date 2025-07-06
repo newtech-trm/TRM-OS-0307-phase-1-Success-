@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Any, Dict
 from datetime import datetime
 import uuid
+from .enums import Priority, TensionType as TensionTypeEnum
 
 class TensionBase(BaseModel):
     """Base model for Tension, following Ontology V3.2 specification"""
@@ -9,12 +10,12 @@ class TensionBase(BaseModel):
     title: str = Field(..., min_length=10, max_length=200, description="A concise summary of the tension.")
     description: str = Field(..., description="Detailed explanation of the tension, its context, and impact in markdown format")
     status: str = Field("Open", description="Current state: Open, InProgress, Resolved, Closed")
-    priority: int = Field(0, description="The urgency level: 0-normal, 1-high, 2-critical")
+    priority: Priority = Field(Priority.MEDIUM, description="The urgency level: low, medium, high, critical")
     source: str = Field("FounderInput", description="Where the tension was identified: FounderInput, CustomerFeedback, DataSensingAgent")
     sourceRef: Optional[str] = Field(None, description="A reference to the original source, like an email ID or URL")
     
     # Extended properties
-    tensionType: Optional[str] = Field(None, description="Type of tension: Problem, Opportunity, Risk, Conflict, Idea")
+    tensionType: Optional[TensionTypeEnum] = Field(None, description="Type of tension: Problem, Opportunity, Risk, Conflict, Idea")
     currentState: Optional[str] = Field(None, description="Description of the current state or situation")
     desiredState: Optional[str] = Field(None, description="Description of the desired future state")
     impactAssessment: Optional[str] = Field(None, description="Assessment of the impact if the tension is not resolved")
@@ -27,7 +28,7 @@ class TensionBase(BaseModel):
                 "title": "Ontology missing details for AI Agent implementation",
                 "description": "The current ontology (v3.1) lacks detailed properties, relationships and constraints for core entities. This makes it difficult for AI Agents to accurately understand and automate business processes.",
                 "status": "Open",
-                "priority": 2,
+                "priority": "critical",
                 "source": "FounderReviewSession",
                 "tensionType": "Problem",
                 "currentState": "Ontology v3.1 has basic definitions but lacks metadata and concrete examples.",
@@ -49,10 +50,10 @@ class TensionUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=10, max_length=200)
     description: Optional[str] = Field(None)
     status: Optional[str] = Field(None)
-    priority: Optional[int] = Field(None)
+    priority: Optional[Priority] = Field(None)
     source: Optional[str] = Field(None)
     sourceRef: Optional[str] = Field(None)
-    tensionType: Optional[str] = Field(None)
+    tensionType: Optional[TensionTypeEnum] = Field(None)
     currentState: Optional[str] = Field(None)
     desiredState: Optional[str] = Field(None)
     impactAssessment: Optional[str] = Field(None)
@@ -80,4 +81,7 @@ class TensionInDB(TensionBase):
 
 class Tension(TensionInDB):
     """Complete Tension model with all properties and relationships"""
-    pass
+    # Add uid property for compatibility
+    @property
+    def uid(self) -> str:
+        return self.tensionId
