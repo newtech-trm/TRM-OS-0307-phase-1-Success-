@@ -20,460 +20,286 @@ from ...models.enums import AgentType, TensionType, Priority
 
 
 class CustomRequirements:
-    """Requirements cho custom agent creation"""
+    """Requirements for custom agent creation"""
     
-    def __init__(self, 
-                 name: str,
-                 description: str,
-                 required_capabilities: List[str],
-                 domain_expertise: List[str],
-                 complexity_level: str = "medium",
-                 performance_requirements: Optional[Dict[str, Any]] = None,
-                 constraints: Optional[Dict[str, Any]] = None):
+    def __init__(self, name: str, description: str, required_capabilities: List[str], 
+                 domain_expertise: List[str], complexity_level: str = "medium"):
         self.name = name
         self.description = description
         self.required_capabilities = required_capabilities
         self.domain_expertise = domain_expertise
         self.complexity_level = complexity_level
-        self.performance_requirements = performance_requirements or {}
-        self.constraints = constraints or {}
-        self.created_at = datetime.utcnow()
 
 
 class CompositeAgent(BaseAgentTemplate):
-    """Agent được tạo từ composition của multiple templates"""
+    """Agent created by composing multiple templates"""
     
-    def __init__(self, 
-                 base_templates: List[BaseAgentTemplate],
-                 composition_metadata: Dict[str, Any],
-                 agent_id: Optional[str] = None):
-        
-        # Set attributes before calling super()
+    def __init__(self, base_templates: List[BaseAgentTemplate], composition_metadata: Dict[str, Any], agent_id: Optional[str] = None):
+        # Set attributes before calling super().__init__()
         self.base_templates = base_templates
         self.composition_metadata = composition_metadata
         
-        # Initialize base
-        super().__init__(agent_id or f"composite_{uuid.uuid4().hex[:8]}")
+        # Combine capabilities from all base templates
+        combined_capabilities = self._combine_template_capabilities(base_templates)
         
-        # Combine capabilities từ all templates
-        self._combine_template_capabilities()
-        
-        # Setup composite metadata
-        self._setup_composite_metadata()
-    
-    def _combine_template_capabilities(self) -> None:
-        """Combine capabilities từ tất cả base templates"""
-        combined_capabilities = []
-        
-        for template in self.base_templates:
-            # Check if template has capabilities attribute
-            if hasattr(template, 'capabilities') and template.capabilities:
-                for capability in template.capabilities:
-                    if capability not in combined_capabilities:
-                        combined_capabilities.append(capability)
-            elif hasattr(template, 'template_metadata') and template.template_metadata:
-                # Fallback to template metadata capabilities
-                if hasattr(template.template_metadata, 'capabilities'):
-                    for capability in template.template_metadata.capabilities:
-                        if capability not in combined_capabilities:
-                            combined_capabilities.append(capability)
-        
-        self.capabilities = combined_capabilities
-    
-    def _setup_composite_metadata(self) -> None:
-        """Setup metadata cho composite agent"""
-        template_names = [t.__class__.__name__ for t in self.base_templates]
-        
-        self.template_metadata = AgentTemplateMetadata(
-            template_name=f"CompositeAgent_{self.agent_id}",
-            template_version="1.0.0",
-            description=f"Composite agent from templates: {', '.join(template_names)}",
-            primary_domain="multi_domain",
-            capabilities=self.capabilities,
-            recommended_tensions=["complex", "multi_domain"],
-            dependencies=template_names,
-            performance_metrics=["efficiency", "quality", "coverage"]
+        # Create composite metadata
+        template_metadata = AgentTemplateMetadata(
+            template_name=f"Composite_{len(base_templates)}_Templates",
+            primary_domain="composite",
+            capabilities=combined_capabilities,
+            domain_expertise=self._combine_domain_expertise(base_templates),
+            supported_tension_types=self._combine_supported_tensions(base_templates),
+            performance_metrics={"composite_efficiency": 0.85, "synergy_score": 0.8, "flexibility": 0.9},
+            version="1.0.0"
         )
+        
+        super().__init__(agent_id=agent_id or f"composite_{uuid.uuid4().hex[:8]}", template_metadata=template_metadata)
+        
+        # Store capabilities for test access
+        self.capabilities = combined_capabilities
+        
+        self.logger = logging.getLogger(self.__class__.__name__)
     
-    def _combine_domain_expertise(self) -> List[str]:
-        """Combine domain expertise từ all templates"""
-        combined_domains = []
-        for template in self.base_templates:
+    def _combine_template_capabilities(self, templates: List[BaseAgentTemplate]) -> List[AgentCapability]:
+        """Combine capabilities from multiple templates"""
+        combined_capabilities = []
+        seen_capabilities = set()
+        
+        for template in templates:
             if hasattr(template, 'template_metadata') and template.template_metadata:
-                # Check if domain_expertise exists
+                if hasattr(template.template_metadata, 'capabilities') and template.template_metadata.capabilities:
+                    for capability in template.template_metadata.capabilities:
+                        if capability.name not in seen_capabilities:
+                            combined_capabilities.append(capability)
+                            seen_capabilities.add(capability.name)
+        
+        # If no capabilities found, create default ones
+        if not combined_capabilities:
+            combined_capabilities = [
+                AgentCapability(
+                    name="composite_processing",
+                    description="Combined processing from multiple templates",
+                    proficiency_level=0.8,
+                    estimated_time_per_task=60.0
+                )
+            ]
+        
+        return combined_capabilities
+    
+    def _combine_domain_expertise(self, templates: List[BaseAgentTemplate]) -> List[str]:
+        """Combine domain expertise from multiple templates"""
+        combined_expertise = set()
+        
+        for template in templates:
+            if hasattr(template, 'template_metadata') and template.template_metadata:
                 if hasattr(template.template_metadata, 'domain_expertise'):
-                    for domain in template.template_metadata.domain_expertise:
-                        if domain not in combined_domains:
-                            combined_domains.append(domain)
-                elif hasattr(template.template_metadata, 'primary_domain'):
-                    # Fallback to primary_domain if domain_expertise doesn't exist
-                    if template.template_metadata.primary_domain not in combined_domains:
-                        combined_domains.append(template.template_metadata.primary_domain)
-        return combined_domains
+                    combined_expertise.update(template.template_metadata.domain_expertise)
+        
+        return list(combined_expertise) if combined_expertise else ["general"]
     
-    def _combine_tension_types(self) -> List[TensionType]:
-        """Combine supported tension types"""
-        combined_types = []
-        for template in self.base_templates:
+    def _combine_supported_tensions(self, templates: List[BaseAgentTemplate]) -> List[TensionType]:
+        """Combine supported tension types from multiple templates"""
+        combined_tensions = set()
+        
+        for template in templates:
             if hasattr(template, 'template_metadata') and template.template_metadata:
-                # Check if supported_tension_types exists
                 if hasattr(template.template_metadata, 'supported_tension_types'):
-                    for tension_type in template.template_metadata.supported_tension_types:
-                        if tension_type not in combined_types:
-                            combined_types.append(tension_type)
-                # Default tension types if not specified
-                elif not combined_types:
-                    combined_types.append(TensionType.PROCESS_IMPROVEMENT)
+                    combined_tensions.update(template.template_metadata.supported_tension_types)
         
-        # Ensure we have at least one tension type
-        if not combined_types:
-            combined_types.append(TensionType.PROCESS_IMPROVEMENT)
-            
-        return combined_types
-    
-    def _estimate_composite_resolution_time(self) -> int:
-        """Estimate resolution time cho composite agent"""
-        total_time = 0
-        template_count = 0
-        
-        for template in self.base_templates:
-            if hasattr(template, 'template_metadata') and template.template_metadata:
-                # Check if estimated_resolution_time exists
-                if hasattr(template.template_metadata, 'estimated_resolution_time'):
-                    total_time += template.template_metadata.estimated_resolution_time
-                    template_count += 1
-                else:
-                    # Default resolution time
-                    total_time += 120  # 2 hours default
-                    template_count += 1
-        
-        if template_count == 0:
-            return 120  # Default 2 hours
-        
-        # Average resolution time với efficiency gain
-        avg_time = total_time / template_count
-        return int(avg_time * 0.8)  # 20% efficiency gain from composition
-    
-    async def can_handle_tension(self, tension: Tension) -> bool:
-        """Check if composite agent có thể handle tension"""
-        # Composite agent có thể handle nếu ít nhất 1 template có thể handle
-        for template in self.base_templates:
-            if await template.can_handle_tension(tension):
-                return True
-        return False
-    
-    async def analyze_tension_requirements(self, tension: Tension) -> Dict[str, Any]:
-        """Analyze tension requirements using all templates"""
-        all_requirements = {}
-        
-        for template in self.base_templates:
-            if await template.can_handle_tension(tension):
-                template_reqs = await template.analyze_tension_requirements(tension)
-                # Merge requirements
-                for key, value in template_reqs.items():
-                    if key not in all_requirements:
-                        all_requirements[key] = value
-                    elif isinstance(value, list):
-                        all_requirements[key].extend(value)
-        
-        return all_requirements
-    
-    async def generate_specialized_solutions(self, tension: Tension) -> List[Dict[str, Any]]:
-        """Generate solutions using all capable templates"""
-        all_solutions = []
-        
-        for template in self.base_templates:
-            if await template.can_handle_tension(tension):
-                # Analyze requirements for this template
-                requirements = await template.analyze_tension_requirements(tension)
-                template_solutions = await template.generate_specialized_solutions(tension, requirements)
-                all_solutions.extend(template_solutions)
-        
-        return all_solutions
-    
-    async def execute_solution(self, solution: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute solution using most appropriate template"""
-        # Find best template for this solution
-        best_template = None
-        best_score = 0
-        
-        for template in self.base_templates:
-            # Simple scoring based on capability match
-            template_capabilities = []
-            if hasattr(template, 'capabilities') and template.capabilities:
-                template_capabilities = [cap.name for cap in template.capabilities]
-            elif hasattr(template, 'template_metadata') and template.template_metadata:
-                if hasattr(template.template_metadata, 'capabilities'):
-                    template_capabilities = [cap.name for cap in template.template_metadata.capabilities]
-            
-            score = len([cap for cap in template_capabilities 
-                       if cap in solution.get("required_capabilities", [])])
-            if score > best_score:
-                best_score = score
-                best_template = template
-        
-        if best_template:
-            return await best_template.execute_solution(solution, context)
-        else:
-            return {"status": "error", "message": "No suitable template found for execution"}
+        return list(combined_tensions) if combined_tensions else [TensionType.UNKNOWN]
     
     def _get_default_template_metadata(self) -> AgentTemplateMetadata:
         """Get default template metadata for composite agent"""
-        template_names = [t.__class__.__name__ for t in self.base_templates]
-        
-        # Get capabilities from base templates if not yet combined
-        capabilities = []
-        if hasattr(self, 'capabilities') and self.capabilities:
-            capabilities = self.capabilities
-        else:
-            # Combine capabilities from base templates
-            for template in self.base_templates:
-                if hasattr(template, 'capabilities') and template.capabilities:
-                    for capability in template.capabilities:
-                        if capability not in capabilities:
-                            capabilities.append(capability)
-                elif hasattr(template, 'template_metadata') and template.template_metadata:
-                    # Fallback to template metadata capabilities
-                    if hasattr(template.template_metadata, 'capabilities'):
-                        for capability in template.template_metadata.capabilities:
-                            if capability not in capabilities:
-                                capabilities.append(capability)
-        
         return AgentTemplateMetadata(
-            template_name=f"CompositeAgent_{self.agent_id}",
-            template_version="1.0.0",
-            description=f"Composite agent from templates: {', '.join(template_names)}",
-            primary_domain="multi_domain",
-            capabilities=capabilities,
-            recommended_tensions=["complex", "multi_domain"],
-            dependencies=template_names,
-            performance_metrics=["efficiency", "quality", "coverage"]
+            template_name="CompositeAgent",
+            primary_domain="composite",
+            capabilities=[
+                AgentCapability(
+                    name="multi_template_processing",
+                    description="Processing using multiple template capabilities",
+                    proficiency_level=0.8,
+                    estimated_time_per_task=60.0
+                )
+            ],
+            domain_expertise=["general"],
+            supported_tension_types=[TensionType.UNKNOWN],
+            performance_metrics={"efficiency": 0.8, "flexibility": 0.9},
+            version="1.0.0"
         )
     
     async def _register_specialized_handlers(self) -> None:
-        """Register specialized event handlers for composite agent"""
-        # Composite agents handle composition events
+        """Register specialized event handlers"""
         pass
     
     async def _initialize_specialized_components(self) -> None:
-        """Initialize specialized components for composite agent"""
-        # Initialize coordination between templates
+        """Initialize specialized components"""
         pass
     
     async def _handle_specialized_event(self, event) -> None:
-        """Handle specialized events for composite agent"""
-        # Handle composition-specific events
+        """Handle specialized events"""
         pass
+
+    async def generate_specialized_solutions(self, tension: Tension, requirements: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """
+        Generate solutions by leveraging all base templates.
+        """
+        try:
+            all_solutions = []
+            
+            # Get solutions from each base template that can handle the tension
+            for template in self.base_templates:
+                if await template.can_handle_tension(tension):
+                    template_solutions = await template.generate_specialized_solutions(tension, requirements)
+                    if template_solutions:
+                        all_solutions.extend(template_solutions)
+            
+            # If no base template can handle it, use base implementation
+            if not all_solutions:
+                all_solutions = await super().generate_specialized_solutions(tension, requirements)
+            
+            self.logger.info(f"CompositeAgent generated {len(all_solutions)} solutions for tension {tension.tensionId}")
+            return all_solutions
+            
+        except Exception as e:
+            self.logger.error(f"Error generating solutions: {e}")
+            return []
 
 
 class CustomAgent(BaseAgentTemplate):
-    """Custom agent được tạo từ scratch theo requirements"""
+    """Agent created from scratch based on custom requirements"""
     
     def __init__(self, requirements: CustomRequirements, agent_id: Optional[str] = None):
-        # Set requirements before calling super()
+        # Set requirements before calling super().__init__()
         self.requirements = requirements
         
-        super().__init__(agent_id or f"custom_{uuid.uuid4().hex[:8]}")
-        
-        self._setup_custom_capabilities()
-        self._setup_custom_metadata()
-    
-    def _setup_custom_capabilities(self) -> None:
-        """Setup capabilities based on requirements"""
-        self.capabilities = []
-        
-        for cap_name in self.requirements.required_capabilities:
-            capability = AgentCapability(
+        # Create capabilities from requirements
+        capabilities = []
+        for cap_name in requirements.required_capabilities:
+            capabilities.append(AgentCapability(
                 name=cap_name,
                 description=f"Custom capability: {cap_name}",
-                proficiency_level=85,  # Default proficiency
-                tools_required=[],
-                estimated_time_per_task=60
-            )
-            self.capabilities.append(capability)
-    
-    def _setup_custom_metadata(self) -> None:
-        """Setup metadata cho custom agent"""
-        self.template_metadata = AgentTemplateMetadata(
-            template_name=self.requirements.name,
-            template_version="1.0.0",
-            description=self.requirements.description,
-            primary_domain=self.requirements.domain_expertise[0] if self.requirements.domain_expertise else "general",
-            capabilities=self.capabilities,
-            recommended_tensions=["custom", "specialized"],
-            dependencies=[],
-            performance_metrics=["efficiency", "quality", "satisfaction"]
+                proficiency_level=0.7,
+                estimated_time_per_task=60.0
+            ))
+        
+        # Create template metadata
+        template_metadata = AgentTemplateMetadata(
+            template_name=requirements.name,
+            primary_domain=requirements.domain_expertise[0] if requirements.domain_expertise else "general",
+            capabilities=capabilities,
+            domain_expertise=requirements.domain_expertise,
+            supported_tension_types=[TensionType.UNKNOWN],
+            performance_metrics={"efficiency": 0.7, "quality": 0.8, "satisfaction": 0.75},
+            version="1.0.0"
         )
-    
-    def _estimate_resolution_time(self) -> int:
-        """Estimate resolution time based on complexity"""
-        base_time = 120  # 2 hours base
-        complexity_multiplier = {
-            "low": 0.5,
-            "medium": 1.0,
-            "high": 1.5,
-            "very_high": 2.0
-        }
         
-        multiplier = complexity_multiplier.get(self.requirements.complexity_level, 1.0)
-        return int(base_time * multiplier)
-    
-    async def can_handle_tension(self, tension: Tension) -> bool:
-        """Check if custom agent có thể handle tension"""
-        # Simple check based on domain expertise và capabilities
-        description_lower = tension.description.lower()
-        title_lower = tension.title.lower()
+        super().__init__(agent_id=agent_id or f"custom_{uuid.uuid4().hex[:8]}", template_metadata=template_metadata)
         
-        # Check domain expertise match
-        for domain in self.requirements.domain_expertise:
-            if domain.lower() in description_lower or domain.lower() in title_lower:
-                return True
-        
-        # Check capability match
-        for cap in self.requirements.required_capabilities:
-            if cap.lower() in description_lower or cap.lower() in title_lower:
-                return True
-        
-        return False
-    
-    async def analyze_tension_requirements(self, tension: Tension) -> Dict[str, Any]:
-        """Analyze tension requirements"""
-        return {
-            "domain_match": self.requirements.domain_expertise,
-            "capability_match": self.requirements.required_capabilities,
-            "complexity": self.requirements.complexity_level,
-            "estimated_effort": self.template_metadata.estimated_resolution_time,
-            "custom_constraints": self.requirements.constraints
-        }
-    
-    async def generate_specialized_solutions(self, tension: Tension) -> List[Dict[str, Any]]:
-        """Generate custom solutions"""
-        solutions = []
-        
-        # Generate solution based on capabilities
-        for capability in self.capabilities:
-            solution = {
-                "title": f"Custom Solution using {capability.name}",
-                "description": f"Apply {capability.name} to address {tension.title}",
-                "approach": "custom_implementation",
-                "required_capabilities": [capability.name],
-                "estimated_effort": capability.estimated_time_per_task,
-                "confidence_score": 75,  # Default confidence
-                "implementation_steps": [
-                    f"Analyze {tension.title} using {capability.name}",
-                    f"Design solution approach",
-                    f"Implement solution",
-                    f"Validate results"
-                ]
-            }
-            solutions.append(solution)
-        
-        return solutions
-    
-    async def execute_solution(self, solution: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute custom solution"""
-        return {
-            "status": "completed",
-            "agent_id": self.agent_id,
-            "solution_type": "custom_implementation",
-            "execution_time": solution.get("estimated_effort", 60),
-            "results": {
-                "approach_used": solution.get("approach", "custom"),
-                "capabilities_applied": solution.get("required_capabilities", []),
-                "implementation_notes": f"Custom solution executed"
-            },
-            "performance_metrics": {
-                "efficiency": 85,
-                "quality": 80,
-                "innovation": 90
-            }
-        }
+        self.capabilities = capabilities
+        self.logger = logging.getLogger(self.__class__.__name__)
     
     def _get_default_template_metadata(self) -> AgentTemplateMetadata:
         """Get default template metadata for custom agent"""
-        # Get capabilities if available, otherwise use empty list
-        capabilities = []
-        if hasattr(self, 'capabilities') and self.capabilities:
-            capabilities = self.capabilities
-        
         return AgentTemplateMetadata(
             template_name=self.requirements.name,
-            template_version="1.0.0",
-            description=self.requirements.description,
             primary_domain=self.requirements.domain_expertise[0] if self.requirements.domain_expertise else "general",
-            capabilities=capabilities,
-            recommended_tensions=["custom", "specialized"],
-            dependencies=[],
-            performance_metrics=["efficiency", "quality", "satisfaction"]
+            capabilities=[],
+            domain_expertise=self.requirements.domain_expertise,
+            supported_tension_types=[TensionType.UNKNOWN],
+            performance_metrics={"efficiency": 0.7, "quality": 0.8, "satisfaction": 0.75},
+            version="1.0.0"
         )
     
     async def _register_specialized_handlers(self) -> None:
-        """Register specialized event handlers for custom agent"""
-        # Custom agents handle domain-specific events
+        """Register specialized event handlers"""
         pass
     
     async def _initialize_specialized_components(self) -> None:
-        """Initialize specialized components for custom agent"""
-        # Initialize custom components based on requirements
+        """Initialize specialized components"""
         pass
     
     async def _handle_specialized_event(self, event) -> None:
-        """Handle specialized events for custom agent"""
-        # Handle custom domain events
+        """Handle specialized events"""
         pass
+
+    async def generate_specialized_solutions(self, tension: Tension, requirements: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """
+        Generate solutions based on custom capabilities.
+        """
+        try:
+            solutions = []
+            
+            # Generate one solution per capability
+            for capability in self.capabilities:
+                solution = {
+                    "id": f"custom_solution_{tension.tensionId}_{capability.name}",
+                    "type": f"custom_{capability.name}_solution",
+                    "description": f"Solution using {capability.name} capability: {capability.description}",
+                    "approach": "custom_capability_based",
+                    "expected_win_score": 70.0,
+                    "confidence": capability.proficiency_level,
+                    "estimated_time": capability.estimated_time_per_task,
+                    "required_resources": [capability.name],
+                    "success_probability": capability.proficiency_level * 100
+                }
+                solutions.append(solution)
+            
+            self.logger.info(f"CustomAgent generated {len(solutions)} solutions for tension {tension.tensionId}")
+            return solutions
+            
+        except Exception as e:
+            self.logger.error(f"Error generating solutions: {e}")
+            return []
 
 
 class AdvancedAgentCreator:
     """
-    Advanced Agent Creator cho TRM-OS Genesis Engine.
+    Advanced agent creation system for TRM-OS.
     
     Capabilities:
-    - Compose multiple templates thành composite agents
-    - Create custom agents từ scratch
+    - Compose multiple templates into composite agents
+    - Create custom agents from scratch
     - Optimize agent configurations
-    - Validate agent effectiveness
+    - Track creation performance
     """
     
     def __init__(self, template_registry: AgentTemplateRegistry):
-        self.logger = logging.getLogger("AdvancedAgentCreator")
         self.template_registry = template_registry
-        self.created_agents: Dict[str, Union[CompositeAgent, CustomAgent]] = {}
+        self.created_agents: Dict[str, BaseAgentTemplate] = {}
         self.creation_stats = {
             "composite_agents_created": 0,
             "custom_agents_created": 0,
-            "total_agents_created": 0,
-            "success_rate": 0.0
+            "total_creation_time": 0.0,
+            "average_creation_time": 0.0
         }
+        self.logger = logging.getLogger(self.__class__.__name__)
     
-    async def compose_multi_template_agent(self, 
-                                         template_names: List[str],
-                                         requirements: Dict[str, Any],
-                                         agent_id: Optional[str] = None) -> Optional[CompositeAgent]:
+    async def compose_multi_template_agent(self, template_names: List[str], requirements: Dict[str, Any]) -> Optional[CompositeAgent]:
         """
-        Compose multiple templates thành một composite agent.
+        Compose multiple templates into a single composite agent.
         
         Args:
-            template_names: Danh sách tên templates để compose
-            requirements: Requirements và constraints cho composite agent
-            agent_id: Optional agent ID
+            template_names: List of template names to compose
+            requirements: Requirements for the composite agent
             
         Returns:
-            CompositeAgent instance hoặc None nếu failed
+            CompositeAgent if successful, None otherwise
         """
         try:
-            self.logger.info(f"Composing agent from templates: {template_names}")
-            
-            # Validate template names
-            available_templates = self.template_registry.get_available_templates()
-            invalid_templates = [name for name in template_names if name not in available_templates]
-            
-            if invalid_templates:
-                self.logger.error(f"Invalid template names: {invalid_templates}")
+            # Validate input
+            if not template_names:
+                self.logger.error("No template names provided for composition")
                 return None
             
-            # Create template instances
+            # Get template instances
             base_templates = []
             for template_name in template_names:
+                # Check if template exists in registry using proper method
+                available_templates = self.template_registry.get_available_templates()
+                if template_name not in available_templates:
+                    self.logger.error(f"Template '{template_name}' not found in registry")
+                    return None
+                
                 template_instance = await self.template_registry.create_agent_from_template(template_name)
                 if template_instance:
                     base_templates.append(template_instance)
@@ -482,235 +308,132 @@ class AdvancedAgentCreator:
                     return None
             
             if not base_templates:
-                self.logger.error("No template instances created")
+                self.logger.error("No valid templates found for composition")
                 return None
             
             # Create composition metadata
             composition_metadata = {
-                "template_names": template_names,
+                "base_template_names": template_names,
                 "requirements": requirements,
-                "created_at": datetime.utcnow(),
-                "composition_strategy": "multi_template_merge"
+                "composition_strategy": "additive",
+                "created_at": datetime.now()
             }
             
             # Create composite agent
             composite_agent = CompositeAgent(
                 base_templates=base_templates,
-                composition_metadata=composition_metadata,
-                agent_id=agent_id
+                composition_metadata=composition_metadata
             )
             
-            # Store created agent
+            # Track the created agent
             self.created_agents[composite_agent.agent_id] = composite_agent
             self.creation_stats["composite_agents_created"] += 1
-            self.creation_stats["total_agents_created"] += 1
             
             self.logger.info(f"Successfully created composite agent: {composite_agent.agent_id}")
             return composite_agent
             
         except Exception as e:
-            self.logger.error(f"Error composing multi-template agent: {str(e)}")
+            self.logger.error(f"Error creating composite agent: {e}")
             return None
     
-    async def create_custom_agent_from_scratch(self, 
-                                             requirements: CustomRequirements,
-                                             agent_id: Optional[str] = None) -> Optional[CustomAgent]:
+    async def create_custom_agent_from_scratch(self, requirements: CustomRequirements) -> Optional[CustomAgent]:
         """
-        Tạo custom agent từ scratch theo requirements.
+        Create a custom agent from scratch based on requirements.
         
         Args:
-            requirements: CustomRequirements object
-            agent_id: Optional agent ID
+            requirements: Custom requirements for the agent
             
         Returns:
-            CustomAgent instance hoặc None nếu failed
+            CustomAgent if successful, None otherwise
         """
         try:
-            self.logger.info(f"Creating custom agent: {requirements.name}")
-            
             # Validate requirements
             if not requirements.required_capabilities:
-                self.logger.error("No required capabilities specified")
-                return None
-            
-            if not requirements.domain_expertise:
-                self.logger.error("No domain expertise specified")
+                self.logger.error("Custom agent requires at least one capability")
                 return None
             
             # Create custom agent
-            custom_agent = CustomAgent(requirements=requirements, agent_id=agent_id)
+            custom_agent = CustomAgent(requirements)
             
-            # Store created agent
+            # Track the created agent
             self.created_agents[custom_agent.agent_id] = custom_agent
             self.creation_stats["custom_agents_created"] += 1
-            self.creation_stats["total_agents_created"] += 1
             
             self.logger.info(f"Successfully created custom agent: {custom_agent.agent_id}")
             return custom_agent
             
         except Exception as e:
-            self.logger.error(f"Error creating custom agent: {str(e)}")
+            self.logger.error(f"Error creating custom agent: {e}")
             return None
     
-    async def optimize_agent_configuration(self, 
-                                         agent: Union[CompositeAgent, CustomAgent],
-                                         performance_data: Dict[str, Any]) -> Union[CompositeAgent, CustomAgent]:
+    async def optimize_agent_configuration(self, agent: BaseAgentTemplate, performance_data: Dict[str, Any]) -> Optional[BaseAgentTemplate]:
         """
-        Optimize agent configuration dựa trên performance data.
+        Optimize agent configuration based on performance data.
         
         Args:
-            agent: Agent cần optimize
-            performance_data: Performance metrics và feedback
+            agent: Agent to optimize
+            performance_data: Performance metrics
             
         Returns:
-            Optimized agent instance
+            Optimized agent if successful, None otherwise
         """
         try:
-            self.logger.info(f"Optimizing agent configuration: {agent.agent_id}")
-            
-            # Analyze performance data
-            efficiency = performance_data.get("efficiency", 50)
-            quality = performance_data.get("quality", 50)
-            user_satisfaction = performance_data.get("user_satisfaction", 50)
-            
-            # Optimization strategies
-            if isinstance(agent, CompositeAgent):
-                # Optimize composite agent
-                if efficiency < 70:
-                    # Remove underperforming templates
-                    self._optimize_composite_templates(agent, performance_data)
+            # For CustomAgent, we can modify the requirements
+            if isinstance(agent, CustomAgent):
+                # Create optimized requirements
+                optimized_requirements = CustomRequirements(
+                    name=agent.requirements.name,
+                    description=agent.requirements.description,
+                    required_capabilities=agent.requirements.required_capabilities.copy(),
+                    domain_expertise=agent.requirements.domain_expertise.copy(),
+                    complexity_level=agent.requirements.complexity_level
+                )
                 
-                if quality < 70:
-                    # Adjust capability priorities
-                    self._optimize_composite_capabilities(agent, performance_data)
-            
-            elif isinstance(agent, CustomAgent):
-                # Optimize custom agent
-                if efficiency < 70:
-                    # Adjust complexity level
-                    agent.requirements.complexity_level = self._adjust_complexity_level(
-                        agent.requirements.complexity_level, performance_data
-                    )
+                # Apply optimizations based on performance data
+                efficiency = performance_data.get("efficiency", 100)
+                quality = performance_data.get("quality", 100)
                 
-                if quality < 70:
-                    # Add missing capabilities
-                    self._optimize_custom_capabilities(agent, performance_data)
+                # Reduce complexity if performance is poor
+                if efficiency < 50:
+                    if optimized_requirements.complexity_level == "high":
+                        optimized_requirements.complexity_level = "medium"
+                    elif optimized_requirements.complexity_level == "medium":
+                        optimized_requirements.complexity_level = "low"
+                
+                # Add capabilities if quality is low
+                if quality < 60 and "quality_assurance" not in optimized_requirements.required_capabilities:
+                    optimized_requirements.required_capabilities.append("quality_assurance")
+                
+                # Create optimized agent with same agent_id
+                optimized_agent = CustomAgent(optimized_requirements, agent_id=agent.agent_id)
+                
+                # Update in created_agents
+                self.created_agents[agent.agent_id] = optimized_agent
+                
+                self.logger.info(f"Optimized agent {agent.agent_id} configuration")
+                return optimized_agent
             
-            self.logger.info(f"Agent optimization completed: {agent.agent_id}")
-            return agent
+            else:
+                # For other agent types, return the original agent
+                self.logger.info(f"Agent {agent.agent_id} optimization not supported for this type")
+                return agent
             
         except Exception as e:
-            self.logger.error(f"Error optimizing agent configuration: {str(e)}")
-            return agent
+            self.logger.error(f"Error optimizing agent configuration: {e}")
+            return None
     
-    def _optimize_composite_templates(self, agent: CompositeAgent, performance_data: Dict[str, Any]) -> None:
-        """Optimize composite agent templates"""
-        # Implementation for template optimization
-        pass
-    
-    def _optimize_composite_capabilities(self, agent: CompositeAgent, performance_data: Dict[str, Any]) -> None:
-        """Optimize composite agent capabilities"""
-        # Implementation for capability optimization
-        pass
-    
-    def _adjust_complexity_level(self, current_level: str, performance_data: Dict[str, Any]) -> str:
-        """Adjust complexity level based on performance"""
-        efficiency = performance_data.get("efficiency", 50)
-        
-        if efficiency < 50:
-            # Reduce complexity
-            complexity_map = {
-                "very_high": "high",
-                "high": "medium", 
-                "medium": "low",
-                "low": "low"
-            }
-            return complexity_map.get(current_level, current_level)
-        elif efficiency > 80:
-            # Increase complexity
-            complexity_map = {
-                "low": "medium",
-                "medium": "high",
-                "high": "very_high",
-                "very_high": "very_high"
-            }
-            return complexity_map.get(current_level, current_level)
-        
-        return current_level
-    
-    def _optimize_custom_capabilities(self, agent: CustomAgent, performance_data: Dict[str, Any]) -> None:
-        """Optimize custom agent capabilities"""
-        # Implementation for custom capability optimization
-        pass
-    
-    def get_created_agents(self) -> Dict[str, Union[CompositeAgent, CustomAgent]]:
-        """Trả về tất cả created agents"""
+    def get_created_agents(self) -> Dict[str, BaseAgentTemplate]:
+        """Get all created agents"""
         return self.created_agents.copy()
     
-    def get_agent_by_id(self, agent_id: str) -> Optional[Union[CompositeAgent, CustomAgent]]:
-        """Trả về agent theo ID"""
-        return self.created_agents.get(agent_id)
-    
     def get_creation_stats(self) -> Dict[str, Any]:
-        """Trả về creation statistics"""
-        return self.creation_stats.copy()
-    
-    async def validate_agent_effectiveness(self, 
-                                         agent: Union[CompositeAgent, CustomAgent],
-                                         test_tensions: List[Tension]) -> Dict[str, Any]:
-        """
-        Validate agent effectiveness với test tensions.
+        """Get creation statistics"""
+        total_agents = self.creation_stats["composite_agents_created"] + self.creation_stats["custom_agents_created"]
         
-        Args:
-            agent: Agent cần validate
-            test_tensions: List tensions để test
-            
-        Returns:
-            Validation results
-        """
-        try:
-            results = {
-                "agent_id": agent.agent_id,
-                "total_tensions_tested": len(test_tensions),
-                "can_handle_count": 0,
-                "average_confidence": 0.0,
-                "solutions_generated": 0,
-                "validation_score": 0.0
-            }
-            
-            total_confidence = 0.0
-            total_solutions = 0
-            
-            for tension in test_tensions:
-                # Test if agent can handle tension
-                can_handle = await agent.can_handle_tension(tension)
-                if can_handle:
-                    results["can_handle_count"] += 1
-                    
-                    # Generate solutions và count
-                    solutions = await agent.generate_specialized_solutions(tension)
-                    total_solutions += len(solutions)
-                    
-                    # Calculate average confidence from solutions
-                    if solutions:
-                        confidence_sum = sum(s.get("confidence_score", 0) for s in solutions)
-                        total_confidence += confidence_sum / len(solutions)
-            
-            # Calculate metrics
-            if results["can_handle_count"] > 0:
-                results["average_confidence"] = total_confidence / results["can_handle_count"]
-                results["solutions_generated"] = total_solutions
-                
-                # Calculate overall validation score
-                handle_rate = results["can_handle_count"] / len(test_tensions)
-                confidence_rate = results["average_confidence"] / 100.0
-                solution_rate = min(total_solutions / len(test_tensions), 1.0)
-                
-                results["validation_score"] = (handle_rate * 0.4 + confidence_rate * 0.3 + solution_rate * 0.3) * 100
-            
-            self.logger.info(f"Validation completed for agent {agent.agent_id}: score {results['validation_score']:.1f}")
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"Error validating agent effectiveness: {str(e)}")
-            return {"error": str(e)} 
+        stats = self.creation_stats.copy()
+        stats["total_agents_created"] = total_agents
+        
+        if total_agents > 0:
+            stats["average_creation_time"] = self.creation_stats["total_creation_time"] / total_agents
+        
+        return stats 

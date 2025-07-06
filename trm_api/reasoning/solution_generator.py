@@ -269,7 +269,7 @@ class SolutionGenerator:
                     solutions.append(alternative)
         
         # Generate escalation solution for high-priority tensions
-        if tension_analysis.suggested_priority >= 1:
+        if tension_analysis.suggested_priority >= 2:  # Only for really critical tensions
             escalation_solution = self._generate_escalation_solution(
                 tension_analysis, tension_title, context
             )

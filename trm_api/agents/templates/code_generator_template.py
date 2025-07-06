@@ -9,731 +9,1017 @@ import re
 import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+import logging
 
 from .base_template import BaseAgentTemplate, AgentTemplateMetadata, AgentCapability
 from ..base_agent import AgentMetadata
 from ...eventbus.system_event_bus import EventType, SystemEvent
 from ...models.tension import Tension
-from ...models.enums import TensionType
+from ...models.enums import TensionType, Priority
 
 
 class CodeGeneratorAgent(BaseAgentTemplate):
     """
-    Agent chuyên biệt cho code generation và development automation.
+    Specialized agent template for code generation and development tasks.
     
-    Capabilities:
-    - Code generation và refactoring
-    - API development
-    - Automation scripts
-    - Testing code generation
-    - Documentation generation
-    - Code review và optimization
+    Tuân thủ đầy đủ triết lý TRM-OS:
+    - Tension-based operation với proper enum handling
+    - WIN optimization trong code generation decisions
+    - Quantum Operating Model implementation
+    - Strategic alignment với software development best practices
     """
     
-    def __init__(self, agent_id: Optional[str] = None, metadata: Optional[AgentMetadata] = None):
-        # Tạo metadata cho CodeGenerator nếu chưa có
-        if not metadata:
-            metadata = AgentMetadata(
-                name="CodeGeneratorAgent",
-                agent_type="CodeGenerator",
-                description="AI Agent chuyên biệt xử lý tensions liên quan đến coding và development automation",
-                capabilities=["code_generation", "api_development", "automation_scripting", "testing", "documentation", "code_review"],
-                status="active",
-                version="1.0.0"
+    def __init__(self, agent_id: Optional[str] = None):
+        # Define capabilities trước khi gọi super().__init__()
+        capabilities = [
+            AgentCapability(
+                name="api_development",
+                description="Design and implement RESTful APIs and microservices",
+                proficiency_level=0.9,
+                estimated_time_per_task=120.0,
+                related_tension_types=[TensionType.TECHNICAL_DEBT, TensionType.COMMUNICATION_BREAKDOWN, TensionType.PROCESS_IMPROVEMENT]
+            ),
+            AgentCapability(
+                name="database_integration",
+                description="Database design, ORM implementation, and data access layers",
+                proficiency_level=0.85,
+                estimated_time_per_task=90.0,
+                related_tension_types=[TensionType.TECHNICAL_DEBT, TensionType.PROCESS_IMPROVEMENT, TensionType.RESOURCE_CONSTRAINT]
+            ),
+            AgentCapability(
+                name="frontend_development",
+                description="Modern frontend frameworks and responsive UI development",
+                proficiency_level=0.8,
+                estimated_time_per_task=150.0,
+                related_tension_types=[TensionType.TECHNICAL_DEBT, TensionType.COMMUNICATION_BREAKDOWN, TensionType.PROCESS_IMPROVEMENT]
+            ),
+            AgentCapability(
+                name="testing_automation",
+                description="Unit testing, integration testing, and test automation",
+                proficiency_level=0.9,
+                estimated_time_per_task=60.0,
+                related_tension_types=[TensionType.TECHNICAL_DEBT, TensionType.PROCESS_IMPROVEMENT, TensionType.RESOURCE_CONSTRAINT]
+            ),
+            AgentCapability(
+                name="code_optimization",
+                description="Performance optimization and code refactoring",
+                proficiency_level=0.85,
+                estimated_time_per_task=75.0,
+                related_tension_types=[TensionType.TECHNICAL_DEBT, TensionType.PROCESS_IMPROVEMENT, TensionType.RESOURCE_CONSTRAINT]
+            ),
+            AgentCapability(
+                name="security_implementation",
+                description="Security best practices and vulnerability mitigation",
+                proficiency_level=0.8,
+                estimated_time_per_task=90.0,
+                related_tension_types=[TensionType.TECHNICAL_DEBT, TensionType.PROCESS_IMPROVEMENT, TensionType.RESOURCE_CONSTRAINT]
             )
+        ]
         
-        super().__init__(agent_id, metadata)
+        # Create metadata với proper template info
+        metadata = AgentMetadata(
+            name="CodeGeneratorAgent",
+            agent_type="template",
+            description="Specialized agent for high-quality code generation and software development",
+            capabilities=[cap.name for cap in capabilities],
+            status="active",
+            version="2.0.0"
+        )
         
-        # Code-specific patterns
-        self.code_patterns = {
-            "development_requests": [
-                r"(?:tạo|viết|develop|create).*(?:code|api|function|module)",
-                r"implement.*(?:feature|functionality|logic)",
-                r"automation.*(?:script|tool|process)",
-                r"refactor.*(?:code|codebase|function)"
+        template_metadata = AgentTemplateMetadata(
+            template_name="CodeGeneratorAgent",
+            primary_domain="software_development",
+            capabilities=capabilities,
+            domain_expertise=["python", "javascript", "typescript", "react", "fastapi", "postgresql", "testing"],
+            supported_tension_types=[
+                TensionType.TECHNICAL_DEBT,
+                TensionType.PROCESS_IMPROVEMENT,
+                TensionType.RESOURCE_CONSTRAINT,
+                TensionType.COMMUNICATION_BREAKDOWN  # API integration issues
             ],
-            "bug_fixes": [
-                r"(?:fix|sửa|debug).*(?:bug|lỗi|error|issue)",
-                r"(?:not working|không hoạt động|broken|hỏng)",
-                r"exception.*(?:error|lỗi)",
-                r"performance.*(?:slow|chậm|issue|problem)"
-            ],
-            "testing_needs": [
-                r"(?:test|testing|unit test|integration test)",
-                r"(?:coverage|test coverage)",
-                r"(?:quality assurance|qa)",
-                r"(?:validation|verify|kiểm tra)"
-            ],
-            "documentation": [
-                r"(?:document|documentation|docs|tài liệu)",
-                r"(?:readme|guide|hướng dẫn)",
-                r"(?:api doc|api documentation)",
-                r"(?:comment|ghi chú|annotation)"
-            ]
+            performance_metrics={
+                "code_quality": 0.92,
+                "delivery_speed": 0.88,
+                "bug_rate": 0.05,
+                "maintainability": 0.90
+            },
+            version="2.0.0",
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+        
+        super().__init__(agent_id=agent_id, template_metadata=template_metadata)
+        
+        # Specialized components for code generation
+        self.development_tools = {
+            "languages": ["python", "javascript", "typescript", "sql"],
+            "frameworks": ["fastapi", "react", "nextjs", "express", "django"],
+            "databases": ["postgresql", "mongodb", "redis"],
+            "testing_frameworks": ["pytest", "jest", "cypress"],
+            "deployment_tools": ["docker", "kubernetes", "railway", "vercel"]
         }
         
-        self.programming_languages = {
-            "backend": ["python", "java", "node.js", "go", "c#"],
-            "frontend": ["javascript", "typescript", "react", "vue", "angular"],
-            "mobile": ["swift", "kotlin", "react native", "flutter"],
-            "data": ["python", "r", "sql", "scala"],
-            "devops": ["bash", "powershell", "terraform", "docker"]
+        self.coding_standards = {
+            "python": {
+                "style_guide": "PEP8",
+                "type_hints": "required",
+                "docstrings": "google_style",
+                "testing": "pytest_with_coverage"
+            },
+            "javascript": {
+                "style_guide": "ESLint_Airbnb",
+                "type_checking": "typescript_preferred",
+                "testing": "jest_with_rtl",
+                "bundling": "vite_or_webpack"
+            }
         }
         
-        self.development_patterns = {
-            "api_development": ["REST", "GraphQL", "gRPC", "WebSocket"],
-            "architecture_patterns": ["MVC", "MVP", "MVVM", "Clean Architecture", "Microservices"],
-            "testing_frameworks": ["pytest", "jest", "junit", "mocha", "cypress"],
-            "automation_tools": ["selenium", "playwright", "github actions", "jenkins"]
+        self.architecture_patterns = {
+            "backend": ["microservices", "clean_architecture", "repository_pattern"],
+            "frontend": ["component_composition", "state_management", "responsive_design"],
+            "database": ["normalization", "indexing_strategy", "migration_management"]
         }
     
     def _get_default_template_metadata(self) -> AgentTemplateMetadata:
-        """Trả về metadata mặc định cho CodeGenerator template"""
+        """Return default template metadata for CodeGeneratorAgent"""
+        capabilities = [
+            AgentCapability(
+                name="api_development",
+                description="RESTful API development",
+                proficiency_level=0.9,
+                estimated_time_per_task=120.0
+            )
+        ]
+        
         return AgentTemplateMetadata(
             template_name="CodeGeneratorAgent",
-            template_version="1.0.0",
-            description="Agent chuyên biệt xử lý tensions liên quan đến coding và development automation",
-            primary_domain="code",
-            capabilities=[
-                AgentCapability(
-                    name="code_generation",
-                    description="Tạo code tự động theo specifications",
-                    required_skills=["programming", "software_design", "best_practices"],
-                    complexity_level=4,
-                    estimated_time=120
-                ),
-                AgentCapability(
-                    name="api_development",
-                    description="Phát triển APIs và web services",
-                    required_skills=["api_design", "backend_development", "database_integration"],
-                    complexity_level=4,
-                    estimated_time=180
-                ),
-                AgentCapability(
-                    name="automation_scripting",
-                    description="Tạo automation scripts và tools",
-                    required_skills=["scripting", "automation", "workflow_optimization"],
-                    complexity_level=3,
-                    estimated_time=90
-                ),
-                AgentCapability(
-                    name="testing_automation",
-                    description="Tạo automated tests và test frameworks",
-                    required_skills=["testing", "quality_assurance", "test_automation"],
-                    complexity_level=3,
-                    estimated_time=60
-                ),
-                AgentCapability(
-                    name="code_review_optimization",
-                    description="Review và optimize existing code",
-                    required_skills=["code_review", "performance_optimization", "refactoring"],
-                    complexity_level=3,
-                    estimated_time=45
-                ),
-                AgentCapability(
-                    name="documentation_generation",
-                    description="Tạo technical documentation tự động",
-                    required_skills=["technical_writing", "documentation", "code_analysis"],
-                    complexity_level=2,
-                    estimated_time=30
-                )
-            ],
-            recommended_tensions=[
-                "Development Tasks",
-                "Bug Fixes",
-                "Automation Needs",
-                "Testing Requirements",
-                "Code Quality Issues",
-                "Documentation Gaps"
-            ],
-            dependencies=["development_environment", "version_control", "testing_tools"],
-            performance_metrics=[
-                "code_quality_score",
-                "development_velocity",
-                "bug_reduction_rate",
-                "test_coverage_improvement",
-                "automation_efficiency"
-            ]
+            primary_domain="software_development",
+            capabilities=capabilities,
+            domain_expertise=["python", "javascript"],
+            supported_tension_types=[TensionType.TECHNICAL_DEBT],
+            performance_metrics={"code_quality": 0.9},
+            version="2.0.0",
+            created_at=datetime.now(),
+            updated_at=datetime.now()
         )
     
     async def can_handle_tension(self, tension: Tension) -> bool:
-        """Kiểm tra xem có thể xử lý tension này không"""
+        """
+        Đánh giá khả năng xử lý tension theo triết lý TRM-OS.
+        Sử dụng proper enum comparison và WIN optimization.
+        """
         try:
-            description = tension.description.lower()
-            title = tension.title.lower()
+            # Kiểm tra tension type với proper enum handling
+            if not tension.tensionType:
+                self.logger.warning(f"Tension {tension.tensionId} has no tensionType")
+                return False
             
-            # Tìm coding-related keywords
-            code_keywords = [
-                "code", "coding", "develop", "development", "api", "function",
-                "script", "automation", "bug", "lỗi", "test", "testing",
-                "refactor", "optimize", "documentation", "docs", "implement",
-                "feature", "module", "component", "library", "framework"
+            # Code Generator có thể handle các tension types sau
+            supported_types = [
+                TensionType.TECHNICAL_DEBT,
+                TensionType.PROCESS_IMPROVEMENT,  # Automation, optimization
+                TensionType.RESOURCE_CONSTRAINT,  # Efficiency improvements
+                TensionType.COMMUNICATION_BREAKDOWN  # API integration issues
             ]
             
-            has_code_keywords = any(keyword in description or keyword in title 
-                                  for keyword in code_keywords)
+            # Primary capability check
+            if tension.tensionType not in supported_types:
+                self.logger.debug(f"Tension type {tension.tensionType} not in supported types")
+                return False
             
-            # Kiểm tra programming language mentions
-            has_language_keywords = any(
-                lang in description or lang in title
-                for lang_category in self.programming_languages.values()
-                for lang in lang_category
-            )
+            # Sử dụng quantum model để assess fit
+            can_handle = await super().can_handle_tension(tension)
             
-            # Kiểm tra code patterns
-            pattern_match = False
-            for category, patterns in self.code_patterns.items():
-                for pattern in patterns:
-                    if re.search(pattern, description, re.IGNORECASE) or \
-                       re.search(pattern, title, re.IGNORECASE):
-                        pattern_match = True
-                        break
-                if pattern_match:
-                    break
-            
-            # Kiểm tra tension type
-            suitable_types = [TensionType.PROBLEM, TensionType.OPPORTUNITY, TensionType.IDEA, TensionType.PROCESS_IMPROVEMENT]
-            type_match = tension.tensionType in suitable_types
-            
-            # Agent có thể handle nếu có code indicators
-            can_handle = (has_code_keywords or has_language_keywords or pattern_match) and type_match
-            
-            if can_handle:
-                self.logger.info(f"CodeGenerator can handle tension {tension.uid}: {tension.title}")
+            # Additional domain-specific checks
+            if can_handle and tension.description:
+                description_lower = tension.description.lower()
+                
+                # Check for development-related keywords
+                dev_keywords = ["code", "api", "database", "frontend", "backend", "integration", 
+                              "development", "programming", "software", "application", "system",
+                              "bug", "feature", "refactor", "optimize", "test", "deploy"]
+                
+                keyword_match = any(keyword in description_lower for keyword in dev_keywords)
+                
+                if not keyword_match:
+                    self.logger.debug(f"No development-related keywords found in tension description")
+                    can_handle = False
+                
+                # Assess technical complexity và WIN potential
+                if can_handle:
+                    complexity = self._assess_technical_complexity(tension)
+                    win_potential = self._calculate_win_potential(tension, complexity)
+                    
+                    # Only handle if WIN potential >= 60
+                    if win_potential < 60.0:
+                        self.logger.info(f"WIN potential {win_potential} below threshold for tension {tension.tensionId}")
+                        can_handle = False
+                    else:
+                        self.logger.info(f"CodeGenerator can handle tension {tension.tensionId} with WIN potential {win_potential}")
             
             return can_handle
             
         except Exception as e:
-            self.logger.error(f"Error checking tension handleability: {str(e)}")
+            self.logger.error(f"Error in can_handle_tension: {e}")
             return False
     
+    def _assess_technical_complexity(self, tension: Tension) -> str:
+        """Assess technical complexity of development task"""
+        if not tension.description:
+            return "medium"
+        
+        description = tension.description.lower()
+        
+        # High complexity indicators
+        high_complexity_keywords = [
+            "microservices", "distributed system", "machine learning integration",
+            "real-time", "high performance", "scalability", "architecture redesign",
+            "migration", "complex algorithm", "multi-tenant"
+        ]
+        
+        # Medium complexity indicators
+        medium_complexity_keywords = [
+            "api integration", "database design", "authentication", "testing suite",
+            "frontend framework", "state management", "responsive design", "optimization"
+        ]
+        
+        # Low complexity indicators
+        low_complexity_keywords = [
+            "simple crud", "basic form", "static page", "configuration", "minor bug fix"
+        ]
+        
+        if any(keyword in description for keyword in high_complexity_keywords):
+            return "high"
+        elif any(keyword in description for keyword in low_complexity_keywords):
+            return "low"
+        elif any(keyword in description for keyword in medium_complexity_keywords):
+            return "medium"
+        else:
+            return "medium"  # Default to medium
+    
+    def _calculate_win_potential(self, tension: Tension, complexity: str) -> float:
+        """Calculate potential WIN score for this development tension"""
+        base_score = 50.0
+        
+        # Wisdom component (understanding technical and business context)
+        wisdom_score = 75.0
+        if tension.priority == Priority.HIGH:
+            wisdom_score += 10.0
+        elif tension.priority == Priority.CRITICAL:
+            wisdom_score += 20.0
+        
+        # Intelligence component (technical capability and solution quality)
+        intelligence_score = 85.0  # Base development capability
+        if complexity == "high":
+            intelligence_score += 15.0  # Complex problems showcase intelligence
+        elif complexity == "low":
+            intelligence_score -= 5.0  # Simple tasks don't showcase full capability
+        
+        # Networking component (collaboration and code maintainability)
+        networking_score = 70.0
+        if tension.description:
+            desc = tension.description.lower()
+            if any(word in desc for word in ["team", "collaboration", "integration", "api"]):
+                networking_score += 15.0
+            if any(word in desc for word in ["documentation", "maintainable", "reusable"]):
+                networking_score += 10.0
+        
+        # Calculate total WIN using TRM-OS formula
+        total_win = (wisdom_score * 0.4 + intelligence_score * 0.4 + networking_score * 0.2)
+        
+        return min(100.0, max(0.0, total_win))
+    
     async def analyze_tension_requirements(self, tension: Tension) -> Dict[str, Any]:
-        """Phân tích requirements cụ thể cho coding tension"""
-        requirements = {
-            "development_type": "unknown",
-            "programming_languages": [],
-            "complexity": "medium",
-            "urgency": "normal",
-            "deliverables": [],
-            "tools_needed": [],
-            "estimated_effort": 120,
-            "success_criteria": [],
-            "testing_requirements": [],
-            "documentation_needs": []
+        """
+        Analyze development requirements for the tension.
+        Extends base quantum model với domain-specific analysis.
+        """
+        # Get base requirements from quantum model
+        base_requirements = await super().analyze_tension_requirements(tension)
+        
+        # Add development-specific requirements
+        dev_requirements = {
+            "development_type": self._determine_development_type(tension),
+            "technical_stack": self._determine_tech_stack(tension),
+            "development_approach": self._determine_dev_approach(tension),
+            "architecture_pattern": self._select_architecture_pattern(tension),
+            "testing_strategy": self._define_testing_strategy(tension),
+            "testing_requirements": self._define_testing_strategy(tension),  # Add for test compatibility
+            "deployment_strategy": self._define_deployment_strategy(tension),
+            "code_quality_requirements": self._define_quality_requirements(tension),
+            "performance_requirements": self._define_performance_requirements(tension),
+            "security_requirements": self._define_security_requirements(tension),
+            "estimated_effort": self._estimate_development_effort(tension).get("hours", 40),  # Convert to numeric for tests
+            "deliverables": self._define_development_deliverables(tension)
         }
         
-        try:
-            description = tension.description.lower()
-            title = tension.title.lower()
-            combined_text = f"{title} {description}"
-            
-            # Xác định loại development
-            if any(pattern in combined_text for pattern in ["api", "web service", "endpoint"]):
-                requirements["development_type"] = "api_development"
-                requirements["tools_needed"].extend(["api_framework", "database", "testing_tools"])
-                requirements["deliverables"].append("API Implementation")
-                requirements["estimated_effort"] = 180
-                
-            elif any(pattern in combined_text for pattern in ["automation", "script", "tool"]):
-                requirements["development_type"] = "automation"
-                requirements["tools_needed"].extend(["scripting_environment", "automation_framework"])
-                requirements["deliverables"].append("Automation Script")
-                requirements["estimated_effort"] = 90
-                
-            elif any(pattern in combined_text for pattern in ["test", "testing", "qa"]):
-                requirements["development_type"] = "testing"
-                requirements["tools_needed"].extend(["testing_framework", "test_data"])
-                requirements["deliverables"].append("Test Suite")
-                requirements["estimated_effort"] = 60
-                
-            elif any(pattern in combined_text for pattern in ["bug", "fix", "debug", "lỗi"]):
-                requirements["development_type"] = "bug_fix"
-                requirements["tools_needed"].extend(["debugging_tools", "profiling_tools"])
-                requirements["deliverables"].append("Bug Fix")
-                requirements["estimated_effort"] = 45
-                
-            elif any(pattern in combined_text for pattern in ["refactor", "optimize", "improve"]):
-                requirements["development_type"] = "refactoring"
-                requirements["tools_needed"].extend(["code_analysis", "performance_tools"])
-                requirements["deliverables"].append("Refactored Code")
-                requirements["estimated_effort"] = 90
-                
-            elif any(pattern in combined_text for pattern in ["document", "docs", "readme"]):
-                requirements["development_type"] = "documentation"
-                requirements["tools_needed"].extend(["documentation_tools", "code_analysis"])
-                requirements["deliverables"].append("Technical Documentation")
-                requirements["estimated_effort"] = 30
-                
-            # Detect programming languages
-            for category, languages in self.programming_languages.items():
-                for lang in languages:
-                    if lang in combined_text:
-                        requirements["programming_languages"].append(lang)
-            
-            # Xác định complexity
-            complexity_indicators = {
-                "high": ["complex", "phức tạp", "advanced", "enterprise", "scalable", "microservice"],
-                "low": ["simple", "đơn giản", "basic", "cơ bản", "quick", "nhanh"]
-            }
-            
-            for level, indicators in complexity_indicators.items():
-                if any(indicator in combined_text for indicator in indicators):
-                    requirements["complexity"] = level
-                    break
-            
-            # Adjust effort based on complexity
-            if requirements["complexity"] == "high":
-                requirements["estimated_effort"] = int(requirements["estimated_effort"] * 1.5)
-            elif requirements["complexity"] == "low":
-                requirements["estimated_effort"] = int(requirements["estimated_effort"] * 0.7)
-            
-            # Xác định urgency
-            if any(pattern in combined_text for pattern in ["urgent", "gấp", "asap", "critical"]):
-                requirements["urgency"] = "high"
-                requirements["estimated_effort"] = max(30, requirements["estimated_effort"] // 2)
-            
-            # Testing requirements
-            if requirements["development_type"] != "testing":
-                requirements["testing_requirements"] = [
-                    "Unit tests cho core functionality",
-                    "Integration tests nếu có external dependencies",
-                    "Code coverage > 80%"
-                ]
-            
-            # Documentation needs
-            if requirements["development_type"] != "documentation":
-                requirements["documentation_needs"] = [
-                    "Code comments cho complex logic",
-                    "README với usage instructions",
-                    "API documentation nếu applicable"
-                ]
-            
-            # Success criteria
-            requirements["success_criteria"] = [
-                "Code passes all tests",
-                "Meets functional requirements",
-                "Follows coding standards",
-                "Performance meets expectations",
-                "Documentation is complete"
-            ]
-            
-            self.logger.info(f"Analyzed requirements for tension {tension.uid}: {requirements['development_type']}")
-            
-        except Exception as e:
-            self.logger.error(f"Error analyzing tension requirements: {str(e)}")
+        # Merge với base requirements
+        base_requirements.update(dev_requirements)
         
-        return requirements
+        return base_requirements
     
-    async def generate_specialized_solutions(self, tension: Tension, 
-                                           requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions chuyên biệt cho coding tasks"""
-        solutions = []
-        
-        try:
-            development_type = requirements.get("development_type", "unknown")
-            
-            if development_type == "api_development":
-                solutions.extend(await self._generate_api_solutions(tension, requirements))
-                
-            elif development_type == "automation":
-                solutions.extend(await self._generate_automation_solutions(tension, requirements))
-                
-            elif development_type == "testing":
-                solutions.extend(await self._generate_testing_solutions(tension, requirements))
-                
-            elif development_type == "bug_fix":
-                solutions.extend(await self._generate_bugfix_solutions(tension, requirements))
-                
-            elif development_type == "refactoring":
-                solutions.extend(await self._generate_refactoring_solutions(tension, requirements))
-                
-            elif development_type == "documentation":
-                solutions.extend(await self._generate_documentation_solutions(tension, requirements))
-                
-            else:
-                # Generic development solutions
-                solutions.extend(await self._generate_generic_development_solutions(tension, requirements))
-            
-            # Thêm metadata cho tất cả solutions
-            for solution in solutions:
-                solution.update({
-                    "agent_template": "CodeGeneratorAgent",
-                    "domain": "development",
-                    "estimated_effort": requirements.get("estimated_effort", 120),
-                    "complexity": requirements.get("complexity", "medium"),
-                    "programming_languages": requirements.get("programming_languages", []),
-                    "testing_requirements": requirements.get("testing_requirements", []),
-                    "success_criteria": requirements.get("success_criteria", [])
-                })
-            
-            self.logger.info(f"Generated {len(solutions)} development solutions for tension {tension.uid}")
-            
-        except Exception as e:
-            self.logger.error(f"Error generating solutions: {str(e)}")
-        
-        return solutions
-    
-    async def _generate_api_solutions(self, tension: Tension, 
-                                    requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho API development"""
-        return [
-            {
-                "title": "RESTful API Development",
-                "description": "Phát triển RESTful API với best practices và security",
-                "approach": "API-First Development",
-                "steps": [
-                    "Design API specification (OpenAPI/Swagger)",
-                    "Implement core API endpoints",
-                    "Add authentication và authorization",
-                    "Implement input validation và error handling",
-                    "Add logging và monitoring",
-                    "Create comprehensive API documentation",
-                    "Write integration tests"
-                ],
-                "tools": ["api_framework", "database_orm", "authentication_lib", "testing_framework"],
-                "deliverables": ["API Implementation", "API Documentation", "Test Suite", "Deployment Guide"],
-                "timeline": "3-4 weeks",
-                "priority": 1
-            },
-            {
-                "title": "GraphQL API Implementation",
-                "description": "Implement GraphQL API với type-safe schema",
-                "approach": "Schema-First GraphQL Development",
-                "steps": [
-                    "Design GraphQL schema",
-                    "Implement resolvers và data loaders",
-                    "Add query optimization và caching",
-                    "Implement real-time subscriptions nếu cần",
-                    "Add security layers (rate limiting, depth limiting)",
-                    "Create GraphQL playground documentation",
-                    "Write comprehensive tests"
-                ],
-                "tools": ["graphql_framework", "schema_tools", "caching_layer", "testing_tools"],
-                "deliverables": ["GraphQL API", "Schema Documentation", "Test Coverage", "Performance Benchmarks"],
-                "timeline": "4-5 weeks",
-                "priority": 2
-            }
-        ]
-    
-    async def _generate_automation_solutions(self, tension: Tension,
-                                           requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho automation tasks"""
-        return [
-            {
-                "title": "Process Automation Script",
-                "description": "Tạo automation script để streamline manual processes",
-                "approach": "Script-based Automation",
-                "steps": [
-                    "Analyze current manual process",
-                    "Identify automation opportunities",
-                    "Design automation workflow",
-                    "Implement automation script với error handling",
-                    "Add logging và monitoring",
-                    "Create configuration management",
-                    "Test automation với various scenarios"
-                ],
-                "tools": ["scripting_language", "workflow_engine", "monitoring_tools", "config_management"],
-                "deliverables": ["Automation Script", "Configuration Files", "Documentation", "Test Results"],
-                "timeline": "2-3 weeks",
-                "priority": 1
-            },
-            {
-                "title": "CI/CD Pipeline Automation",
-                "description": "Thiết lập automated CI/CD pipeline",
-                "approach": "DevOps Automation",
-                "steps": [
-                    "Analyze current deployment process",
-                    "Design CI/CD pipeline architecture",
-                    "Implement automated testing stages",
-                    "Setup automated deployment với rollback capability",
-                    "Add monitoring và alerting",
-                    "Create deployment documentation",
-                    "Train team về new process"
-                ],
-                "tools": ["ci_cd_platform", "containerization", "orchestration", "monitoring"],
-                "deliverables": ["CI/CD Pipeline", "Deployment Scripts", "Monitoring Setup", "Team Training"],
-                "timeline": "3-4 weeks",
-                "priority": 2
-            }
-        ]
-    
-    async def _generate_testing_solutions(self, tension: Tension,
-                                        requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho testing needs"""
-        return [
-            {
-                "title": "Comprehensive Test Suite",
-                "description": "Tạo comprehensive test suite với high coverage",
-                "approach": "Test-Driven Development",
-                "steps": [
-                    "Analyze codebase để identify test gaps",
-                    "Design test strategy (unit, integration, e2e)",
-                    "Implement unit tests cho core functionality",
-                    "Create integration tests cho system interactions",
-                    "Add end-to-end tests cho critical user flows",
-                    "Setup test automation trong CI/CD",
-                    "Generate test coverage reports"
-                ],
-                "tools": ["testing_framework", "mocking_library", "test_runner", "coverage_tools"],
-                "deliverables": ["Test Suite", "Coverage Reports", "Test Documentation", "CI Integration"],
-                "timeline": "2-3 weeks",
-                "priority": 1
-            },
-            {
-                "title": "Automated Testing Framework",
-                "description": "Thiết lập automated testing framework cho long-term maintainability",
-                "approach": "Framework-based Testing",
-                "steps": [
-                    "Design testing framework architecture",
-                    "Implement test utilities và helpers",
-                    "Create test data management system",
-                    "Setup parallel test execution",
-                    "Add visual regression testing nếu applicable",
-                    "Implement test reporting dashboard",
-                    "Create testing guidelines và best practices"
-                ],
-                "tools": ["test_framework", "test_utilities", "parallel_execution", "reporting_tools"],
-                "deliverables": ["Testing Framework", "Test Utilities", "Reporting Dashboard", "Guidelines"],
-                "timeline": "3-4 weeks",
-                "priority": 2
-            }
-        ]
-    
-    async def _generate_bugfix_solutions(self, tension: Tension,
-                                       requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho bug fixes"""
-        return [
-            {
-                "title": "Bug Investigation & Fix",
-                "description": "Systematic bug investigation và resolution",
-                "approach": "Root Cause Analysis",
-                "steps": [
-                    "Reproduce bug trong controlled environment",
-                    "Analyze logs và error traces",
-                    "Identify root cause using debugging tools",
-                    "Design fix với minimal impact",
-                    "Implement fix với proper testing",
-                    "Add regression tests",
-                    "Deploy fix với monitoring"
-                ],
-                "tools": ["debugging_tools", "profiling_tools", "logging_analysis", "testing_framework"],
-                "deliverables": ["Bug Fix", "Root Cause Analysis", "Regression Tests", "Fix Documentation"],
-                "timeline": "1-2 weeks",
-                "priority": 1
-            }
-        ]
-    
-    async def _generate_refactoring_solutions(self, tension: Tension,
-                                            requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho code refactoring"""
-        return [
-            {
-                "title": "Code Refactoring & Optimization",
-                "description": "Systematic code refactoring để improve maintainability và performance",
-                "approach": "Incremental Refactoring",
-                "steps": [
-                    "Analyze code quality metrics",
-                    "Identify refactoring opportunities",
-                    "Create comprehensive test coverage trước refactoring",
-                    "Implement refactoring trong small, safe steps",
-                    "Optimize performance bottlenecks",
-                    "Update documentation",
-                    "Validate improvements với metrics"
-                ],
-                "tools": ["code_analysis", "refactoring_tools", "performance_profiling", "testing_framework"],
-                "deliverables": ["Refactored Code", "Performance Improvements", "Updated Documentation", "Quality Metrics"],
-                "timeline": "2-3 weeks",
-                "priority": 1
-            }
-        ]
-    
-    async def _generate_documentation_solutions(self, tension: Tension,
-                                              requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho documentation needs"""
-        return [
-            {
-                "title": "Comprehensive Technical Documentation",
-                "description": "Tạo comprehensive technical documentation cho codebase",
-                "approach": "Documentation-as-Code",
-                "steps": [
-                    "Analyze existing codebase để understand functionality",
-                    "Create architecture documentation",
-                    "Generate API documentation từ code",
-                    "Write user guides và tutorials",
-                    "Create deployment và maintenance guides",
-                    "Setup automated documentation generation",
-                    "Implement documentation review process"
-                ],
-                "tools": ["documentation_generator", "diagram_tools", "static_site_generator", "version_control"],
-                "deliverables": ["Technical Documentation", "API Docs", "User Guides", "Architecture Diagrams"],
-                "timeline": "1-2 weeks",
-                "priority": 1
-            }
-        ]
-    
-    async def _generate_generic_development_solutions(self, tension: Tension,
-                                                    requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo generic development solutions"""
-        return [
-            {
-                "title": "Custom Development Solution",
-                "description": "Tailored development solution based on specific requirements",
-                "approach": "Agile Development",
-                "steps": [
-                    "Gather detailed requirements",
-                    "Design solution architecture",
-                    "Implement core functionality",
-                    "Add proper error handling và validation",
-                    "Create comprehensive tests",
-                    "Write documentation",
-                    "Deploy và monitor solution"
-                ],
-                "tools": ["development_framework", "testing_tools", "deployment_platform", "monitoring"],
-                "deliverables": ["Custom Implementation", "Test Suite", "Documentation", "Deployment Guide"],
-                "timeline": "3-4 weeks",
-                "priority": 1
-            }
-        ]
-    
-    async def execute_solution(self, solution: Dict[str, Any], 
-                             context: Dict[str, Any]) -> Dict[str, Any]:
-        """Thực thi coding solution"""
-        execution_result = {
-            "status": "completed",
-            "execution_time": datetime.now().isoformat(),
-            "results": {},
-            "deliverables_created": [],
-            "next_steps": [],
-            "code_metrics": {}
+    def _determine_tech_stack(self, tension: Tension) -> Dict[str, str]:
+        """Determine appropriate technology stack"""
+        stack = {
+            "backend": "fastapi",
+            "frontend": "react",
+            "database": "postgresql",
+            "testing": "pytest"
         }
         
-        try:
-            solution_title = solution.get("title", "Unknown Solution")
-            self.logger.info(f"Executing coding solution: {solution_title}")
+        if tension.description:
+            desc = tension.description.lower()
             
-            # Simulate solution execution
-            await asyncio.sleep(2)  # Simulate development time
+            # Backend framework selection
+            if "django" in desc:
+                stack["backend"] = "django"
+            elif "express" in desc or "node" in desc:
+                stack["backend"] = "express"
             
-            # Mock results based on solution type
-            if "api" in solution_title.lower():
-                execution_result["results"] = {
-                    "endpoints_created": 8,
-                    "test_coverage": 92.5,
-                    "performance_score": 85.0,
-                    "security_score": 88.0
-                }
-                execution_result["deliverables_created"] = ["API Implementation", "API Documentation", "Test Suite"]
-                execution_result["code_metrics"] = {
-                    "lines_of_code": 1250,
-                    "complexity_score": 15.2,
-                    "maintainability_index": 78.5
-                }
-                
-            elif "automation" in solution_title.lower():
-                execution_result["results"] = {
-                    "processes_automated": 5,
-                    "time_saved_per_day": 180,  # minutes
-                    "error_reduction": 85.0,
-                    "efficiency_improvement": 65.0
-                }
-                execution_result["deliverables_created"] = ["Automation Script", "Configuration", "Documentation"]
-                
-            elif "test" in solution_title.lower():
-                execution_result["results"] = {
-                    "test_cases_created": 45,
-                    "code_coverage": 94.2,
-                    "bugs_found": 12,
-                    "execution_time": 3.5  # minutes
-                }
-                execution_result["deliverables_created"] = ["Test Suite", "Coverage Report", "Test Documentation"]
-                
-            elif "bug" in solution_title.lower():
-                execution_result["results"] = {
-                    "bugs_fixed": 3,
-                    "root_causes_identified": 2,
-                    "regression_tests_added": 8,
-                    "performance_improvement": 15.0
-                }
-                execution_result["deliverables_created"] = ["Bug Fix", "Regression Tests", "Root Cause Analysis"]
-                
-            elif "refactor" in solution_title.lower():
-                execution_result["results"] = {
-                    "code_complexity_reduced": 25.0,
-                    "performance_improvement": 18.5,
-                    "maintainability_improved": 30.0,
-                    "technical_debt_reduced": 40.0
-                }
-                execution_result["deliverables_created"] = ["Refactored Code", "Performance Report", "Quality Metrics"]
-                
-            elif "documentation" in solution_title.lower():
-                execution_result["results"] = {
-                    "documentation_pages": 25,
-                    "api_endpoints_documented": 15,
-                    "code_coverage_documented": 88.0,
-                    "readability_score": 92.0
-                }
-                execution_result["deliverables_created"] = ["Technical Documentation", "API Docs", "User Guides"]
-                
-            else:
-                execution_result["results"] = {
-                    "features_implemented": 5,
-                    "test_coverage": 87.0,
-                    "code_quality_score": 82.5,
-                    "performance_score": 80.0
-                }
-                execution_result["deliverables_created"] = ["Implementation", "Tests", "Documentation"]
+            # Frontend framework selection
+            if "nextjs" in desc or "next.js" in desc:
+                stack["frontend"] = "nextjs"
+            elif "vue" in desc:
+                stack["frontend"] = "vue"
             
-            execution_result["next_steps"] = [
-                "Code review với team members",
-                "Deploy to staging environment",
-                "Conduct user acceptance testing",
-                "Monitor performance metrics",
-                "Plan next iteration improvements"
-            ]
-            
-            self.logger.info(f"Successfully executed solution: {solution_title}")
-            
-        except Exception as e:
-            execution_result["status"] = "failed"
-            execution_result["error"] = str(e)
-            self.logger.error(f"Error executing solution: {str(e)}")
+            # Database selection
+            if "mongodb" in desc or "nosql" in desc:
+                stack["database"] = "mongodb"
+            elif "redis" in desc:
+                stack["database"] = "redis"
         
-        return execution_result
+        return stack
+    
+    def _determine_dev_approach(self, tension: Tension) -> str:
+        """Determine development approach"""
+        complexity = self._assess_technical_complexity(tension)
+        
+        if complexity == "high":
+            return "iterative_with_prototyping"
+        elif complexity == "low":
+            return "direct_implementation"
+        else:
+            return "agile_incremental"
+    
+    def _select_architecture_pattern(self, tension: Tension) -> str:
+        """Select appropriate architecture pattern"""
+        if not tension.description:
+            return "clean_architecture"
+        
+        desc = tension.description.lower()
+        
+        if "microservice" in desc:
+            return "microservices"
+        elif "api" in desc:
+            return "api_first"
+        elif "component" in desc:
+            return "component_based"
+        else:
+            return "clean_architecture"
+    
+    def _define_testing_strategy(self, tension: Tension) -> Dict[str, Any]:
+        """Define comprehensive testing strategy"""
+        complexity = self._assess_technical_complexity(tension)
+        
+        strategy = {
+            "unit_tests": True,
+            "integration_tests": True,
+            "coverage_target": 80
+        }
+        
+        if complexity == "high":
+            strategy.update({
+                "e2e_tests": True,
+                "performance_tests": True,
+                "coverage_target": 90
+            })
+        elif complexity == "medium":
+            strategy.update({
+                "e2e_tests": True,
+                "coverage_target": 85
+            })
+        
+        return strategy
+    
+    def _define_deployment_strategy(self, tension: Tension) -> Dict[str, Any]:
+        """Define deployment strategy"""
+        return {
+            "containerization": "docker",
+            "orchestration": "kubernetes" if self._assess_technical_complexity(tension) == "high" else "docker_compose",
+            "ci_cd": "github_actions",
+            "monitoring": "prometheus_grafana",
+            "logging": "structured_logging"
+        }
+    
+    def _define_quality_requirements(self, tension: Tension) -> Dict[str, Any]:
+        """Define code quality requirements"""
+        return {
+            "code_style": "automated_formatting",
+            "type_safety": "strict_typing",
+            "documentation": "comprehensive_docstrings",
+            "code_review": "mandatory_peer_review",
+            "static_analysis": "linting_and_security_scan",
+            "maintainability_index": "> 75"
+        }
+    
+    def _define_performance_requirements(self, tension: Tension) -> Dict[str, Any]:
+        """Define performance requirements"""
+        complexity = self._assess_technical_complexity(tension)
+        
+        if complexity == "high":
+            return {
+                "response_time": "< 200ms",
+                "throughput": "> 1000 req/sec",
+                "memory_usage": "< 512MB",
+                "cpu_usage": "< 70%"
+            }
+        elif complexity == "medium":
+            return {
+                "response_time": "< 500ms",
+                "throughput": "> 500 req/sec",
+                "memory_usage": "< 256MB",
+                "cpu_usage": "< 60%"
+            }
+        else:
+            return {
+                "response_time": "< 1000ms",
+                "throughput": "> 100 req/sec",
+                "memory_usage": "< 128MB",
+                "cpu_usage": "< 50%"
+            }
+    
+    def _define_security_requirements(self, tension: Tension) -> List[str]:
+        """Define security requirements"""
+        base_requirements = [
+            "input_validation",
+            "sql_injection_prevention",
+            "xss_protection",
+            "authentication",
+            "authorization"
+        ]
+        
+        if tension.description and "sensitive" in tension.description.lower():
+            base_requirements.extend([
+                "data_encryption",
+                "audit_logging",
+                "security_headers",
+                "rate_limiting"
+            ])
+        
+        return base_requirements
+    
+    def _estimate_development_effort(self, tension: Tension) -> Dict[str, Any]:
+        """Estimate development effort"""
+        complexity = self._assess_technical_complexity(tension)
+        
+        effort_map = {
+            "low": {"days": 2, "hours": 16, "story_points": 3},
+            "medium": {"days": 5, "hours": 40, "story_points": 8},
+            "high": {"days": 10, "hours": 80, "story_points": 21}
+        }
+        
+        base_effort = effort_map.get(complexity, effort_map["medium"])
+        
+        # Adjust based on priority (rush jobs take more effort)
+        if tension.priority == Priority.CRITICAL:
+            base_effort = {k: int(v * 1.3) if isinstance(v, (int, float)) else v 
+                          for k, v in base_effort.items()}
+        
+        return base_effort
+    
+    def _define_development_deliverables(self, tension: Tension) -> List[str]:
+        """Define development deliverables based on tension content and development type"""
+        deliverables = [
+            "working_code",
+            "unit_tests",
+            "technical_documentation",
+            "deployment_instructions"
+        ]
+        
+        # Add specific deliverables based on tension title and description
+        if tension.title:
+            title_lower = tension.title.lower()
+            if "automation" in title_lower or "script" in title_lower:
+                deliverables.append("Automation Script")
+            elif "api" in title_lower:
+                deliverables.append("API Implementation")
+            elif "ui" in title_lower or "interface" in title_lower:
+                deliverables.append("User Interface")
+            elif "integration" in title_lower:
+                deliverables.append("Integration Solution")
+        
+        complexity = self._assess_technical_complexity(tension)
+        
+        if complexity in ["medium", "high"]:
+            deliverables.extend([
+                "integration_tests",
+                "api_documentation",
+                "performance_benchmarks"
+            ])
+        
+        if complexity == "high":
+            deliverables.extend([
+                "architecture_documentation",
+                "security_analysis",
+                "monitoring_setup"
+            ])
+        
+        return deliverables
+    
+    async def generate_specialized_solutions(self, tension: Tension, requirements: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """
+        Generate development solutions optimized for WIN score.
+        """
+        if not requirements:
+            requirements = await self.analyze_tension_requirements(tension)
+        
+        # Get base solutions from quantum model
+        base_solutions = await super().generate_specialized_solutions(tension, requirements)
+        
+        # Enhance with development-specific solutions
+        complexity = self._assess_technical_complexity(tension)
+        tech_stack = requirements.get("technical_stack", {})
+        
+        enhanced_solutions = []
+        
+        for solution in base_solutions:
+            # Enhance base solution with development-specific details
+            enhanced_solution = solution.copy()
+            enhanced_solution.update({
+                "agent_template": "CodeGeneratorAgent",  # Add agent_template field for tests
+                "technical_implementation": self._design_technical_implementation(requirements),
+                "development_phases": self._plan_development_phases(complexity),
+                "risk_mitigation": self._identify_technical_risks(tension, complexity),
+                "quality_gates": self._define_quality_gates(requirements),
+                "business_value": self._calculate_business_value(tension, complexity)
+            })
+            
+            # Recalculate WIN score with development expertise
+            enhanced_solution["expected_win_score"] = self._calculate_enhanced_win_score(
+                enhanced_solution, tension, requirements
+            )
+            
+            enhanced_solutions.append(enhanced_solution)
+        
+        # Add specialized development solution
+        specialized_solution = {
+            "id": f"dev_solution_{tension.tensionId}_specialized",
+            "type": "comprehensive_development_solution",
+            "agent_template": "CodeGeneratorAgent",  # Add agent_template field for tests
+            "title": self._generate_development_solution_title(tension, requirements.get("development_type", "general")),  # Add intelligent title
+            "description": f"Full-stack development solution with {complexity} complexity",
+            "approach": "clean_architecture_with_testing",
+            "technical_stack": tech_stack,
+            "development_methodology": requirements.get("development_approach", "agile_incremental"),
+            "deliverables": requirements.get("deliverables", []),
+            "effort_estimate": requirements.get("estimated_effort", {}),
+            "quality_assurance": requirements.get("testing_strategy", {}),
+            "expected_win_score": self._calculate_specialized_win_score(tension, complexity),
+            "confidence": 0.9,
+            "business_impact": "high" if complexity == "high" else "medium",
+            "technical_debt_reduction": True,
+            "maintainability_improvement": True,
+            "scalability_enhancement": complexity in ["medium", "high"],
+            "success_probability": 95.0
+        }
+        
+        enhanced_solutions.append(specialized_solution)
+        
+        # Sort by WIN score descending
+        enhanced_solutions.sort(key=lambda x: x.get("expected_win_score", 0), reverse=True)
+        
+        return enhanced_solutions
+    
+    def _design_technical_implementation(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Design detailed technical implementation"""
+        return {
+            "architecture": requirements.get("architecture_pattern", "clean_architecture"),
+            "tech_stack": requirements.get("technical_stack", {}),
+            "data_layer": "repository_pattern_with_orm",
+            "business_logic": "service_layer_with_dependency_injection",
+            "api_layer": "restful_with_openapi_spec",
+            "frontend_layer": "component_based_with_state_management",
+            "testing_pyramid": "unit_integration_e2e",
+            "deployment": requirements.get("deployment_strategy", {})
+        }
+    
+    def _plan_development_phases(self, complexity: str) -> List[Dict[str, Any]]:
+        """Plan development phases"""
+        if complexity == "high":
+            return [
+                {"phase": "discovery", "duration_days": 2, "deliverables": ["technical_spec", "architecture_design"]},
+                {"phase": "foundation", "duration_days": 3, "deliverables": ["project_setup", "core_models", "basic_tests"]},
+                {"phase": "core_development", "duration_days": 4, "deliverables": ["business_logic", "api_endpoints", "integration_tests"]},
+                {"phase": "integration", "duration_days": 2, "deliverables": ["frontend_integration", "e2e_tests"]},
+                {"phase": "optimization", "duration_days": 1, "deliverables": ["performance_tuning", "security_hardening"]}
+            ]
+        elif complexity == "medium":
+            return [
+                {"phase": "planning", "duration_days": 1, "deliverables": ["technical_spec"]},
+                {"phase": "development", "duration_days": 3, "deliverables": ["core_functionality", "tests"]},
+                {"phase": "integration", "duration_days": 1, "deliverables": ["integration_tests", "documentation"]}
+            ]
+        else:
+            return [
+                {"phase": "development", "duration_days": 1, "deliverables": ["implementation", "unit_tests"]},
+                {"phase": "testing", "duration_days": 0.5, "deliverables": ["validation", "documentation"]}
+            ]
+    
+    def _identify_technical_risks(self, tension: Tension, complexity: str) -> List[Dict[str, Any]]:
+        """Identify and plan mitigation for technical risks"""
+        risks = []
+        
+        if complexity == "high":
+            risks.extend([
+                {
+                    "risk": "architecture_complexity",
+                    "probability": "medium",
+                    "impact": "high",
+                    "mitigation": "iterative_development_with_prototyping"
+                },
+                {
+                    "risk": "performance_bottlenecks",
+                    "probability": "medium",
+                    "impact": "medium",
+                    "mitigation": "early_performance_testing"
+                }
+            ])
+        
+        # Common risks for all complexities
+        risks.extend([
+            {
+                "risk": "requirement_changes",
+                "probability": "medium",
+                "impact": "medium",
+                "mitigation": "agile_methodology_with_frequent_feedback"
+            },
+            {
+                "risk": "integration_issues",
+                "probability": "low",
+                "impact": "medium",
+                "mitigation": "comprehensive_integration_testing"
+            }
+        ])
+        
+        return risks
+    
+    def _define_quality_gates(self, requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Define quality gates for development process"""
+        return [
+            {
+                "gate": "code_quality",
+                "criteria": ["linting_passes", "type_checking_passes", "code_coverage >= 80%"],
+                "automated": True
+            },
+            {
+                "gate": "functionality",
+                "criteria": ["all_tests_pass", "acceptance_criteria_met"],
+                "automated": True
+            },
+            {
+                "gate": "performance",
+                "criteria": requirements.get("performance_requirements", {}),
+                "automated": True
+            },
+            {
+                "gate": "security",
+                "criteria": ["security_scan_passes", "vulnerability_assessment_clean"],
+                "automated": True
+            },
+            {
+                "gate": "documentation",
+                "criteria": ["api_docs_complete", "code_documented", "deployment_guide_ready"],
+                "automated": False
+            }
+        ]
+    
+    def _calculate_business_value(self, tension: Tension, complexity: str) -> Dict[str, Any]:
+        """Calculate expected business value of development work"""
+        base_value = 75000  # Base value for development work
+        
+        multipliers = {
+            "low": 0.5,
+            "medium": 1.0,
+            "high": 2.5
+        }
+        
+        priority_multipliers = {
+            Priority.LOW: 0.8,
+            Priority.NORMAL: 1.0,
+            Priority.HIGH: 1.3,
+            Priority.CRITICAL: 1.8
+        }
+        
+        estimated_value = (base_value * 
+                          multipliers.get(complexity, 1.0) * 
+                          priority_multipliers.get(tension.priority, 1.0))
+        
+        return {
+            "estimated_value_usd": estimated_value,
+            "value_drivers": [
+                "operational_efficiency",
+                "technical_debt_reduction", 
+                "scalability_improvement",
+                "maintenance_cost_reduction"
+            ],
+            "roi_timeframe": "6-12 months",
+            "productivity_gain": f"{20 if complexity == 'high' else 10}% improvement"
+        }
+    
+    def _calculate_enhanced_win_score(self, solution: Dict[str, Any], tension: Tension, requirements: Dict[str, Any]) -> float:
+        """Calculate enhanced WIN score with development expertise"""
+        base_score = solution.get("expected_win_score", 50.0)
+        
+        # Wisdom enhancement (business and technical understanding)
+        wisdom_boost = 0.0
+        if solution.get("business_value", {}).get("estimated_value_usd", 0) > 150000:
+            wisdom_boost += 15.0
+        if "technical_debt_reduction" in solution.get("value_drivers", []):
+            wisdom_boost += 10.0
+        
+        # Intelligence enhancement (technical sophistication)
+        intelligence_boost = 0.0
+        if "clean_architecture" in solution.get("technical_implementation", {}).get("architecture", ""):
+            intelligence_boost += 12.0
+        if solution.get("quality_assurance", {}).get("coverage_target", 0) >= 90:
+            intelligence_boost += 8.0
+        
+        # Networking enhancement (collaboration and maintainability)
+        networking_boost = 0.0
+        if solution.get("maintainability_improvement", False):
+            networking_boost += 15.0
+        if len(solution.get("deliverables", [])) > 5:
+            networking_boost += 10.0
+        
+        enhanced_score = base_score + (wisdom_boost * 0.4 + intelligence_boost * 0.4 + networking_boost * 0.2)
+        
+        return min(100.0, enhanced_score)
+    
+    def _calculate_specialized_win_score(self, tension: Tension, complexity: str) -> float:
+        """Calculate WIN score for specialized development solution"""
+        # Base score for development expertise
+        wisdom = 88.0  # Deep understanding of technical and business requirements
+        intelligence = 92.0  # High technical proficiency
+        networking = 80.0  # Strong collaboration through clean code and documentation
+        
+        # Adjust based on complexity
+        complexity_multipliers = {
+            "low": 0.85,
+            "medium": 1.0,
+            "high": 1.15
+        }
+        
+        multiplier = complexity_multipliers.get(complexity, 1.0)
+        
+        total_win = ((wisdom * multiplier) * 0.4 + 
+                    (intelligence * multiplier) * 0.4 + 
+                    (networking * multiplier) * 0.2)
+        
+        return min(100.0, total_win)
     
     async def _register_specialized_handlers(self) -> None:
-        """Đăng ký specialized event handlers cho CodeGenerator"""
-        # Đăng ký events liên quan đến development
-        self.subscribe_to_event(EventType.CODE_COMMIT)
-        self.subscribe_to_event(EventType.BUILD_COMPLETED)
+        """Register development-specific event handlers"""
+        # Subscribe to development-related events
+        self.subscribe_to_event(EventType.CODE_REVIEW_REQUESTED)
         self.subscribe_to_event(EventType.DEPLOYMENT_REQUESTED)
-        
-    async def _initialize_specialized_components(self) -> None:
-        """Khởi tạo development components"""
-        self.logger.info("Initializing CodeGenerator specialized components")
-        
-        # Initialize development tools, IDE connections, etc.
-        # This would be implemented based on actual infrastructure
-        
-    async def _handle_specialized_event(self, event: SystemEvent) -> None:
-        """Xử lý specialized events cho CodeGenerator"""
-        if event.event_type == EventType.CODE_COMMIT:
-            await self._handle_code_commit(event)
-        elif event.event_type == EventType.BUILD_COMPLETED:
-            await self._handle_build_completed(event)
-        elif event.event_type == EventType.DEPLOYMENT_REQUESTED:
-            await self._handle_deployment_requested(event)
+        self.subscribe_to_event(EventType.BUG_REPORTED)
+        self.subscribe_to_event(EventType.FEATURE_REQUESTED)
     
-    async def _handle_code_commit(self, event: SystemEvent) -> None:
-        """Xử lý sự kiện code commit"""
-        self.logger.info(f"Code commit event received: {event.entity_id}")
-        # Implement code commit handling logic
+    async def _initialize_specialized_components(self) -> None:
+        """Initialize development-specific components"""
+        self.logger.info(f"Initializing CodeGenerator specialized components for {self.agent_id}")
         
-    async def _handle_build_completed(self, event: SystemEvent) -> None:
-        """Xử lý sự kiện build completed"""
-        self.logger.info(f"Build completed: {event.entity_id}")
-        # Implement build completion handling logic
+        # Initialize development session
+        self.development_tools["current_session"] = {
+            "start_time": datetime.now(),
+            "active_projects": [],
+            "completed_projects": [],
+            "code_quality_metrics": {
+                "lines_of_code": 0,
+                "test_coverage": 0.0,
+                "bug_count": 0,
+                "performance_score": 0.0
+            }
+        }
         
+        # Load coding standards for session
+        self.coding_standards["session_preferences"] = {
+            "preferred_language": "python",
+            "preferred_framework": "fastapi",
+            "testing_approach": "tdd",
+            "documentation_level": "comprehensive"
+        }
+    
+    async def _handle_specialized_event(self, event: SystemEvent) -> None:
+        """Handle development-specific events"""
+        try:
+            if event.event_type == EventType.CODE_REVIEW_REQUESTED:
+                await self._handle_code_review_requested(event)
+            elif event.event_type == EventType.DEPLOYMENT_REQUESTED:
+                await self._handle_deployment_requested(event)
+            elif event.event_type == EventType.BUG_REPORTED:
+                await self._handle_bug_reported(event)
+            elif event.event_type == EventType.FEATURE_REQUESTED:
+                await self._handle_feature_requested(event)
+            else:
+                self.logger.debug(f"Unhandled specialized event: {event.event_type}")
+                
+        except Exception as e:
+            self.logger.error(f"Error handling specialized event {event.event_type}: {e}")
+    
+    async def _handle_code_review_requested(self, event: SystemEvent) -> None:
+        """Handle code review request events"""
+        self.logger.info(f"Code review requested: {event.data}")
+        
+        # Create review entry
+        review_entry = {
+            "id": f"review_{datetime.now().timestamp()}",
+            "code_location": event.data.get("code_location"),
+            "review_type": event.data.get("review_type", "standard"),
+            "status": "queued",
+            "created_at": datetime.now()
+        }
+        
+        # Send acknowledgment
+        await self.send_event(
+            event_type=EventType.CODE_REVIEW_QUEUED,
+            data={"review_id": review_entry["id"], "estimated_completion": "2-4 hours"}
+        )
+    
     async def _handle_deployment_requested(self, event: SystemEvent) -> None:
-        """Xử lý sự kiện deployment requested"""
-        self.logger.info(f"Deployment requested: {event.entity_id}")
-        # Implement deployment handling logic 
+        """Handle deployment request events"""
+        self.logger.info(f"Deployment requested: {event.data}")
+        
+        # Validate deployment readiness
+        deployment_checks = [
+            "tests_passing",
+            "code_review_approved", 
+            "security_scan_clean",
+            "performance_benchmarks_met"
+        ]
+        
+        # Send deployment status
+        await self.send_event(
+            event_type=EventType.DEPLOYMENT_VALIDATION_STARTED,
+            data={
+                "deployment_id": event.data.get("deployment_id"),
+                "checks_required": deployment_checks
+            }
+        )
+    
+    async def _handle_bug_reported(self, event: SystemEvent) -> None:
+        """Handle bug report events"""
+        self.logger.info(f"Bug reported: {event.data}")
+        
+        # Assess bug severity and priority
+        bug_data = event.data
+        severity = bug_data.get("severity", "medium")
+        
+        # Create bug fix entry
+        bug_fix_entry = {
+            "id": f"bugfix_{datetime.now().timestamp()}",
+            "bug_id": bug_data.get("bug_id"),
+            "severity": severity,
+            "estimated_effort": self._estimate_bug_fix_effort(severity),
+            "status": "triaged",
+            "created_at": datetime.now()
+        }
+        
+        # Add to active projects
+        self.development_tools["current_session"]["active_projects"].append(bug_fix_entry)
+        
+        # Send acknowledgment
+        await self.send_event(
+            event_type=EventType.BUG_FIX_QUEUED,
+            data={
+                "bug_fix_id": bug_fix_entry["id"],
+                "estimated_completion": bug_fix_entry["estimated_effort"]
+            }
+        )
+    
+    async def _handle_feature_requested(self, event: SystemEvent) -> None:
+        """Handle feature request events"""
+        self.logger.info(f"Feature requested: {event.data}")
+        
+        # Analyze feature complexity
+        feature_data = event.data
+        complexity = self._assess_feature_complexity(feature_data.get("description", ""))
+        
+        # Create feature development entry
+        feature_entry = {
+            "id": f"feature_{datetime.now().timestamp()}",
+            "feature_id": feature_data.get("feature_id"),
+            "complexity": complexity,
+            "estimated_effort": self._estimate_feature_effort(complexity),
+            "status": "analyzed",
+            "created_at": datetime.now()
+        }
+        
+        # Send analysis results
+        await self.send_event(
+            event_type=EventType.FEATURE_ANALYSIS_COMPLETE,
+            data={
+                "feature_id": feature_entry["feature_id"],
+                "complexity": complexity,
+                "estimated_effort": feature_entry["estimated_effort"],
+                "recommended_approach": self._recommend_development_approach(complexity)
+            }
+        )
+    
+    def _estimate_bug_fix_effort(self, severity: str) -> str:
+        """Estimate effort required for bug fix"""
+        effort_map = {
+            "critical": "4-8 hours",
+            "high": "2-4 hours", 
+            "medium": "1-2 hours",
+            "low": "0.5-1 hour"
+        }
+        return effort_map.get(severity, "1-2 hours")
+    
+    def _assess_feature_complexity(self, description: str) -> str:
+        """Assess complexity of feature request"""
+        if not description:
+            return "medium"
+        
+        desc = description.lower()
+        
+        if any(word in desc for word in ["integration", "api", "database", "complex"]):
+            return "high"
+        elif any(word in desc for word in ["simple", "basic", "minor"]):
+            return "low"
+        else:
+            return "medium"
+    
+    def _estimate_feature_effort(self, complexity: str) -> str:
+        """Estimate effort for feature development"""
+        effort_map = {
+            "low": "1-2 days",
+            "medium": "3-5 days",
+            "high": "1-2 weeks"
+        }
+        return effort_map.get(complexity, "3-5 days")
+    
+    def _recommend_development_approach(self, complexity: str) -> str:
+        """Recommend development approach based on complexity"""
+        approach_map = {
+            "low": "direct_implementation",
+            "medium": "agile_with_testing",
+            "high": "iterative_with_prototyping"
+        }
+        return approach_map.get(complexity, "agile_with_testing")
+
+    def _determine_development_type(self, tension: Tension) -> str:
+        """Determine type of development needed with intelligent keyword matching"""
+        if not tension.description:
+            return "general_development"
+        
+        desc = tension.description.lower()
+        
+        # Automation development keywords
+        automation_keywords = ["automation", "script", "deploy", "streamline", "automate", 
+                             "tự động", "kịch bản", "triển khai"]
+        
+        # API development keywords  
+        api_keywords = ["api", "rest", "endpoint", "integration", "service",
+                       "giao diện", "tích hợp", "dịch vụ"]
+        
+        # Frontend development keywords
+        frontend_keywords = ["ui", "frontend", "interface", "web", "react", "vue",
+                           "giao diện", "trang web", "frontend"]
+        
+        # Backend development keywords
+        backend_keywords = ["backend", "server", "database", "microservice",
+                          "backend", "máy chủ", "cơ sở dữ liệu"]
+        
+        # Bug fix keywords
+        bugfix_keywords = ["bug", "fix", "error", "issue", "problem",
+                         "lỗi", "sửa", "vấn đề"]
+        
+        # Check for specific development types
+        if any(keyword in desc for keyword in automation_keywords):
+            return "automation"
+        elif any(keyword in desc for keyword in api_keywords):
+            return "api_development"
+        elif any(keyword in desc for keyword in frontend_keywords):
+            return "frontend_development"
+        elif any(keyword in desc for keyword in backend_keywords):
+            return "backend_development"
+        elif any(keyword in desc for keyword in bugfix_keywords):
+            return "bug_fix"
+        else:
+            return "general_development"
+
+    def _generate_development_solution_title(self, tension: Tension, development_type: str) -> str:
+        """Generate intelligent solution title based on development type and tension content"""
+        if development_type == "automation":
+            return "Automation Script Development"
+        elif development_type == "api_development":
+            return "REST API Integration Solution"
+        elif development_type == "frontend_development":
+            return "Frontend Component Development"
+        elif development_type == "backend_development":
+            return "Backend Service Implementation"
+        elif development_type == "bug_fix":
+            return "Bug Fix & Code Improvement"
+        else:
+            return "Full-Stack Development Solution" 

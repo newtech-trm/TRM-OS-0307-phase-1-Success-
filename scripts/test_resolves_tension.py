@@ -76,7 +76,7 @@ async def test_create_project_and_tension():
         description="Tension kiểm thử mối quan hệ RESOLVES_TENSION với schema mới",
         status="Open",
         projectId=project.uid,  # Sử dụng projectId thay vì project_id
-        priority=1  # Sử dụng int thay vì string
+        priority="medium"  # Sử dụng string enum value
     )
     tension = tension_repo.create_tension(new_tension_data)
     print(f"Đã tạo Tension: {tension.title} (UID: {tension.uid})", flush=True)
@@ -106,7 +106,7 @@ async def test_connect_project_to_tension():
         description="Tension kiểm thử mối quan hệ RESOLVES_TENSION với schema mới",
         status="Open",
         projectId=project.uid,
-        priority=1
+        priority="medium"
     )
     tension = tension_repo.create_tension(new_tension_data)
     
@@ -148,7 +148,7 @@ async def test_query_related_items():
         description="Tension kiểm thử mối quan hệ RESOLVES_TENSION với schema mới",
         status="Open",
         projectId=project.uid,
-        priority=1
+        priority="medium"
     )
     tension = tension_repo.create_tension(new_tension_data)
     

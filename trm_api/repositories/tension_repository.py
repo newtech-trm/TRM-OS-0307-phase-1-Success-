@@ -10,6 +10,7 @@ from trm_api.graph_models.agent import Agent as GraphAgent
 from trm_api.graph_models.task import Task as GraphTask
 from trm_api.graph_models.win import WIN as GraphWIN
 import logging
+from trm_api.models.enums import Priority
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,30 @@ class TensionRepository:
     """
     Repository for handling all database operations related to Tensions.
     """
+
+    def _convert_priority_to_int(self, priority_value) -> int:
+        """
+        Convert Priority enum string value to integer for Neo4j storage.
+        
+        Mapping:
+        - "low" -> 0
+        - "medium" -> 0  
+        - "high" -> 1
+        - "critical" -> 2
+        """
+        if isinstance(priority_value, Priority):
+            priority_str = priority_value.value
+        else:
+            priority_str = str(priority_value).lower()
+            
+        priority_mapping = {
+            "low": 0,
+            "medium": 0,
+            "high": 1, 
+            "critical": 2
+        }
+        
+        return priority_mapping.get(priority_str, 0)  # Default to 0 if unknown
 
     @db.transaction
     def create_tension(self, tension_data: TensionCreate) -> Optional[GraphTension]:
@@ -32,6 +57,10 @@ class TensionRepository:
 
         # 2. Create the new tension node with properties following Ontology V3.2
         tension_dict = tension_data.model_dump(exclude={'projectId', 'reporterAgentId', 'ownerAgentId'})
+        
+        # Convert priority enum to integer
+        if 'priority' in tension_dict:
+            tension_dict['priority'] = self._convert_priority_to_int(tension_dict['priority'])
         
         # Set default dates if not provided
         if 'creationDate' not in tension_dict:
@@ -115,6 +144,10 @@ class TensionRepository:
             exclude_unset=True,
             exclude={'ownerAgentId'}
         )
+        
+        # Convert priority enum to integer if present
+        if 'priority' in update_dict:
+            update_dict['priority'] = self._convert_priority_to_int(update_dict['priority'])
             
         # Update the tension node properties
         for key, value in update_dict.items():

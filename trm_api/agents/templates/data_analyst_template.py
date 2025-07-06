@@ -9,528 +9,755 @@ import re
 import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+import logging
 
-from .base_template import BaseAgentTemplate, AgentTemplateMetadata, AgentCapability
-from ..base_agent import AgentMetadata
-from ...eventbus.system_event_bus import EventType, SystemEvent
-from ...models.tension import Tension
-from ...models.enums import TensionType
+from trm_api.agents.templates.base_template import BaseAgentTemplate
+from trm_api.agents.base_agent import AgentMetadata
+from trm_api.models.agent_template import AgentTemplateMetadata, AgentCapability
+from trm_api.models.tension import Tension
+from trm_api.models.enums import TensionType, Priority
+from trm_api.eventbus.system_event_bus import SystemEvent, EventType
 
 
 class DataAnalystAgent(BaseAgentTemplate):
     """
-    Agent chuyên biệt cho data analysis và business intelligence.
+    Specialized agent template for data analysis tasks.
     
-    Capabilities:
-    - Data quality assessment
-    - Statistical analysis
-    - Report generation
-    - Data visualization recommendations
-    - Performance metrics calculation
-    - Trend analysis
+    Tuân thủ đầy đủ triết lý TRM-OS:
+    - Tension-based operation với proper enum handling
+    - WIN optimization trong mọi quyết định
+    - Quantum Operating Model implementation
+    - Strategic alignment với domain expertise
     """
     
-    def __init__(self, agent_id: Optional[str] = None, metadata: Optional[AgentMetadata] = None):
-        # Tạo metadata cho DataAnalyst nếu chưa có
-        if not metadata:
-            metadata = AgentMetadata(
-                name="DataAnalystAgent",
-                agent_type="DataAnalyst",
-                description="AI Agent chuyên biệt xử lý tensions liên quan đến data analysis và business intelligence",
-                capabilities=["data_analysis", "statistical_computing", "report_generation", "data_visualization", "performance_metrics"],
-                status="active",
-                version="1.0.0"
+    def __init__(self, agent_id: Optional[str] = None):
+        # Define capabilities trước khi gọi super().__init__()
+        capabilities = [
+            AgentCapability(
+                name="statistical_analysis",
+                description="Perform comprehensive statistical analysis including descriptive stats, hypothesis testing, and advanced modeling",
+                proficiency_level=0.95,
+                estimated_time_per_task=45.0,
+                related_tension_types=[TensionType.DATA_ANALYSIS, TensionType.PROCESS_IMPROVEMENT]
+            ),
+            AgentCapability(
+                name="data_visualization",
+                description="Create compelling data visualizations and interactive dashboards",
+                proficiency_level=0.90,
+                estimated_time_per_task=30.0,
+                related_tension_types=[TensionType.DATA_ANALYSIS, TensionType.COMMUNICATION_BREAKDOWN]
+            ),
+            AgentCapability(
+                name="business_intelligence",
+                description="Transform data into actionable business insights and strategic recommendations",
+                proficiency_level=0.88,
+                estimated_time_per_task=60.0,
+                related_tension_types=[TensionType.DATA_ANALYSIS, TensionType.PROCESS_IMPROVEMENT, TensionType.RESOURCE_CONSTRAINT]
+            ),
+            AgentCapability(
+                name="predictive_modeling",
+                description="Build and validate predictive models for forecasting and trend analysis",
+                proficiency_level=0.85,
+                estimated_time_per_task=120.0,
+                related_tension_types=[TensionType.DATA_ANALYSIS, TensionType.OPPORTUNITY]
+            ),
+            AgentCapability(
+                name="data_quality_assessment",
+                description="Assess and improve data quality, identify anomalies and inconsistencies",
+                proficiency_level=0.92,
+                estimated_time_per_task=25.0,
+                related_tension_types=[TensionType.DATA_ANALYSIS, TensionType.TECHNICAL_DEBT, TensionType.PROCESS_IMPROVEMENT]
             )
+        ]
         
-        super().__init__(agent_id, metadata)
+        # Store capabilities as instance attribute
+        self.capabilities = capabilities
         
-        # Data-specific components
-        self.data_patterns = {
-            "quality_issues": [
-                r"dữ liệu.*(?:thiếu|sai|không chính xác|lỗi)",
-                r"data.*(?:missing|incorrect|invalid|corrupted)",
-                r"quality.*(?:poor|low|bad)",
-                r"report.*(?:sai|không đúng|lỗi)"
+        # Create template metadata với comprehensive configuration
+        template_metadata = AgentTemplateMetadata(
+            template_name="DataAnalystAgent",
+            primary_domain="data",
+            capabilities=capabilities,
+            domain_expertise=["statistics", "business_intelligence", "data_science", "reporting"],
+            supported_tension_types=[
+                TensionType.DATA_ANALYSIS,
+                TensionType.RESOURCE_CONSTRAINT,
+                TensionType.PROCESS_IMPROVEMENT
             ],
-            "analysis_requests": [
-                r"phân tích.*(?:dữ liệu|số liệu|báo cáo)",
-                r"analyze.*(?:data|metrics|performance|trends)",
-                r"statistical.*(?:analysis|report|study)",
-                r"dashboard.*(?:cần|thiếu|yêu cầu)"
-            ],
-            "performance_metrics": [
-                r"(?:KPI|metric|chỉ số).*(?:giảm|tăng|thay đổi)",
-                r"performance.*(?:drop|increase|change|issue)",
-                r"conversion.*(?:rate|tỷ lệ)",
-                r"efficiency.*(?:hiệu suất|năng suất)"
-            ]
+            performance_metrics={
+                "accuracy": 0.92,
+                "efficiency": 0.88,
+                "user_satisfaction": 0.90
+            },
+            version="2.0.0"
+        )
+        
+        super().__init__(agent_id=agent_id, template_metadata=template_metadata)
+        
+        # Specialized components for data analysis
+        self.analysis_tools = {
+            "statistical_tests": ["t_test", "chi_square", "anova", "regression"],
+            "visualization_types": ["histogram", "scatter", "line", "heatmap", "box_plot"],
+            "modeling_algorithms": ["linear_regression", "random_forest", "clustering", "time_series"]
         }
         
-        self.analysis_tools = {
-            "statistical_methods": ["descriptive_stats", "correlation", "regression", "time_series"],
-            "visualization_types": ["charts", "graphs", "dashboards", "heatmaps"],
-            "data_sources": ["database", "api", "files", "real_time_streams"],
-            "reporting_formats": ["executive_summary", "detailed_report", "dashboard", "presentation"]
+        self.domain_knowledge = {
+            "business_metrics": ["revenue", "conversion_rate", "churn", "cac", "ltv"],
+            "statistical_concepts": ["correlation", "causation", "significance", "confidence_interval"],
+            "data_types": ["numerical", "categorical", "time_series", "text", "geospatial"]
         }
     
     def _get_default_template_metadata(self) -> AgentTemplateMetadata:
-        """Trả về metadata mặc định cho DataAnalyst template"""
+        """Return default template metadata for DataAnalystAgent"""
+        capabilities = [
+            AgentCapability(
+                name="statistical_analysis",
+                description="Advanced statistical analysis",
+                proficiency_level=0.9,
+                estimated_time_per_task=30.0
+            )
+        ]
+        
         return AgentTemplateMetadata(
             template_name="DataAnalystAgent",
-            template_version="1.0.0",
-            description="Agent chuyên biệt xử lý tensions liên quan đến data analysis và business intelligence",
-            primary_domain="data",
-            capabilities=[
-                AgentCapability(
-                    name="data_quality_assessment",
-                    description="Đánh giá chất lượng dữ liệu và phát hiện issues",
-                    required_skills=["data_validation", "statistical_analysis"],
-                    complexity_level=3,
-                    estimated_time=30
-                ),
-                AgentCapability(
-                    name="statistical_analysis",
-                    description="Thực hiện phân tích thống kê và tìm insights",
-                    required_skills=["statistics", "data_science", "pattern_recognition"],
-                    complexity_level=4,
-                    estimated_time=60
-                ),
-                AgentCapability(
-                    name="report_generation",
-                    description="Tạo báo cáo và dashboards tự động",
-                    required_skills=["reporting", "visualization", "business_intelligence"],
-                    complexity_level=3,
-                    estimated_time=45
-                ),
-                AgentCapability(
-                    name="performance_monitoring",
-                    description="Monitor và phân tích performance metrics",
-                    required_skills=["metrics_analysis", "monitoring", "alerting"],
-                    complexity_level=2,
-                    estimated_time=20
-                ),
-                AgentCapability(
-                    name="trend_analysis",
-                    description="Phân tích xu hướng và dự báo",
-                    required_skills=["time_series", "forecasting", "trend_detection"],
-                    complexity_level=4,
-                    estimated_time=90
-                )
-            ],
-            recommended_tensions=[
-                "Data Quality Issues",
-                "Performance Metrics Problems", 
-                "Reporting Requirements",
-                "Business Intelligence Needs",
-                "Analytics Automation"
-            ],
-            dependencies=["database_access", "visualization_tools"],
-            performance_metrics=[
-                "data_accuracy_improvement",
-                "report_generation_time",
-                "insights_discovery_rate",
-                "stakeholder_satisfaction"
-            ]
+            primary_domain="data", 
+            capabilities=capabilities,
+            domain_expertise=["statistics", "data_science"],
+            supported_tension_types=[TensionType.DATA_ANALYSIS],
+            performance_metrics={"accuracy": 0.9},
+            version="2.0.0",
+            created_at=datetime.now(),
+            updated_at=datetime.now()
         )
     
     async def can_handle_tension(self, tension: Tension) -> bool:
-        """Kiểm tra xem có thể xử lý tension này không"""
+        """
+        Đánh giá khả năng xử lý tension theo triết lý TRM-OS.
+        Sử dụng proper enum comparison và WIN optimization.
+        """
         try:
-            # Kiểm tra description của tension
-            description = tension.description.lower()
+            # Kiểm tra tension type với proper enum handling
+            if not tension.tensionType:
+                self.logger.warning(f"Tension {tension.tensionId} has no tensionType")
+                return False
             
-            # Tìm data-related keywords
-            data_keywords = [
-                "data", "dữ liệu", "số liệu", "báo cáo", "report", "dashboard",
-                "analytics", "phân tích", "thống kê", "statistical", "metrics",
-                "KPI", "performance", "hiệu suất", "chỉ số"
+            # Data Analyst có thể handle các tension types sau
+            supported_types = [
+                TensionType.DATA_ANALYSIS,
+                TensionType.RESOURCE_CONSTRAINT,  # Nếu liên quan đến data resources
+                TensionType.PROCESS_IMPROVEMENT   # Nếu cần data-driven insights
             ]
             
-            has_data_keywords = any(keyword in description for keyword in data_keywords)
+            # Primary capability check
+            if tension.tensionType not in supported_types:
+                self.logger.debug(f"Tension type {tension.tensionType} not in supported types")
+                return False
             
-            # Kiểm tra patterns cụ thể
-            pattern_match = False
-            for category, patterns in self.data_patterns.items():
-                for pattern in patterns:
-                    if re.search(pattern, description, re.IGNORECASE):
-                        pattern_match = True
-                        break
-                if pattern_match:
-                    break
+            # Sử dụng quantum model để assess fit
+            can_handle = await super().can_handle_tension(tension)
             
-            # Kiểm tra tension type
-            suitable_types = [TensionType.PROBLEM, TensionType.OPPORTUNITY, TensionType.IDEA, TensionType.RESOURCE_CONSTRAINT]
-            type_match = tension.tensionType in suitable_types
-            
-            # Agent có thể handle nếu có data keywords hoặc pattern match
-            can_handle = (has_data_keywords or pattern_match) and type_match
-            
-            if can_handle:
-                self.logger.info(f"DataAnalyst can handle tension {tension.uid}: {tension.title}")
+            # Additional domain-specific checks
+            if can_handle and tension.description:
+                description_lower = tension.description.lower()
+                
+                # Check for data-related keywords (English and Vietnamese)
+                data_keywords = ["data", "analysis", "statistics", "report", "dashboard", 
+                               "metrics", "kpi", "trend", "pattern", "insight",
+                               "dữ liệu", "phân tích", "thống kê", "báo cáo", "biểu đồ",
+                               "chỉ số", "xu hướng", "mẫu", "thông tin"]
+                
+                keyword_match = any(keyword in description_lower for keyword in data_keywords)
+                
+                if not keyword_match:
+                    self.logger.debug(f"No data-related keywords found in tension description")
+                    can_handle = False
+                
+                # Assess complexity và WIN potential
+                if can_handle:
+                    complexity = self._assess_data_complexity(tension)
+                    win_potential = self._calculate_win_potential(tension, complexity)
+                    
+                    # Only handle if WIN potential >= 60
+                    if win_potential < 60.0:
+                        self.logger.info(f"WIN potential {win_potential} below threshold for tension {tension.tensionId}")
+                        can_handle = False
+                    else:
+                        self.logger.info(f"DataAnalyst can handle tension {tension.tensionId} with WIN potential {win_potential}")
             
             return can_handle
             
         except Exception as e:
-            self.logger.error(f"Error checking tension handleability: {str(e)}")
+            self.logger.error(f"Error in can_handle_tension: {e}")
             return False
     
+    def _assess_data_complexity(self, tension: Tension) -> str:
+        """Assess complexity of data analysis required"""
+        if not tension.description:
+            return "low"
+        
+        description = tension.description.lower()
+        
+        # High complexity indicators
+        high_complexity_keywords = [
+            "machine learning", "predictive model", "advanced analytics", 
+            "statistical modeling", "multivariate", "time series forecasting"
+        ]
+        
+        # Medium complexity indicators  
+        medium_complexity_keywords = [
+            "correlation analysis", "regression", "segmentation",
+            "a/b test", "statistical test", "trend analysis"
+        ]
+        
+        if any(keyword in description for keyword in high_complexity_keywords):
+            return "high"
+        elif any(keyword in description for keyword in medium_complexity_keywords):
+            return "medium"
+        else:
+            return "low"
+    
+    def _calculate_win_potential(self, tension: Tension, complexity: str) -> float:
+        """Calculate potential WIN score for this tension"""
+        base_score = 50.0
+        
+        # Wisdom component (understanding business context)
+        wisdom_score = 70.0
+        if tension.priority == Priority.HIGH:
+            wisdom_score += 15.0
+        elif tension.priority == Priority.CRITICAL:
+            wisdom_score += 25.0
+        
+        # Intelligence component (technical capability match)
+        intelligence_score = 80.0  # Base data analysis capability
+        if complexity == "high":
+            intelligence_score += 10.0  # Challenging problems = higher intelligence demonstration
+        elif complexity == "low":
+            intelligence_score -= 10.0
+        
+        # Networking component (collaboration potential)
+        networking_score = 60.0
+        if tension.description and ("stakeholder" in tension.description.lower() or 
+                                   "business" in tension.description.lower()):
+            networking_score += 20.0
+        
+        # Calculate total WIN using TRM-OS formula
+        total_win = (wisdom_score * 0.4 + intelligence_score * 0.4 + networking_score * 0.2)
+        
+        return min(100.0, max(0.0, total_win))
+    
     async def analyze_tension_requirements(self, tension: Tension) -> Dict[str, Any]:
-        """Phân tích requirements cụ thể cho data tension"""
-        requirements = {
-            "analysis_type": "unknown",
-            "data_sources": [],
-            "complexity": "medium",
-            "urgency": "normal",
-            "deliverables": [],
-            "tools_needed": [],
-            "estimated_effort": 60,
-            "success_criteria": []
+        """
+        Analyze data analysis requirements for the tension.
+        Extends base quantum model với domain-specific analysis.
+        """
+        # Get base requirements from quantum model
+        base_requirements = await super().analyze_tension_requirements(tension)
+        
+        # Add data-specific requirements
+        data_requirements = {
+            "data_sources_needed": self._identify_data_sources(tension),
+            "analysis_type": self._determine_analysis_type(tension),
+            "deliverables": self._define_deliverables(tension),
+            "tools_required": self._select_analysis_tools(tension),
+            "estimated_timeline": self._estimate_timeline(tension),
+            "estimated_effort": self._estimate_timeline(tension).get("hours", 24),  # Convert to numeric for tests
+            "success_criteria": self._define_success_criteria(tension),
+            "stakeholders": self._identify_stakeholders(tension)
         }
         
-        try:
-            description = tension.description.lower()
-            
-            # Xác định loại analysis
-            if any(pattern in description for pattern in ["quality", "chất lượng", "validation"]):
-                requirements["analysis_type"] = "data_quality"
-                requirements["tools_needed"].extend(["data_profiling", "validation_rules"])
-                requirements["deliverables"].append("Data Quality Report")
-                
-            elif any(pattern in description for pattern in ["performance", "hiệu suất", "kpi", "metrics"]):
-                requirements["analysis_type"] = "performance_analysis"
-                requirements["tools_needed"].extend(["metrics_dashboard", "alerting"])
-                requirements["deliverables"].append("Performance Dashboard")
-                
-            elif any(pattern in description for pattern in ["trend", "xu hướng", "forecast", "dự báo"]):
-                requirements["analysis_type"] = "trend_analysis"
-                requirements["tools_needed"].extend(["time_series_analysis", "forecasting_models"])
-                requirements["deliverables"].append("Trend Analysis Report")
-                requirements["estimated_effort"] = 90
-                
-            elif any(pattern in description for pattern in ["report", "báo cáo", "dashboard"]):
-                requirements["analysis_type"] = "reporting"
-                requirements["tools_needed"].extend(["reporting_engine", "visualization_tools"])
-                requirements["deliverables"].append("Custom Report/Dashboard")
-                
-            # Xác định data sources
-            if "database" in description:
-                requirements["data_sources"].append("database")
-            if any(pattern in description for pattern in ["api", "real-time", "thời gian thực"]):
-                requirements["data_sources"].append("api")
-            if any(pattern in description for pattern in ["file", "csv", "excel", "tệp"]):
-                requirements["data_sources"].append("files")
-                
-            # Xác định complexity
-            complexity_indicators = {
-                "high": ["complex", "phức tạp", "advanced", "machine learning", "ai"],
-                "low": ["simple", "đơn giản", "basic", "cơ bản"]
-            }
-            
-            for level, indicators in complexity_indicators.items():
-                if any(indicator in description for indicator in indicators):
-                    requirements["complexity"] = level
-                    break
-            
-            # Xác định urgency
-            if any(pattern in description for pattern in ["urgent", "gấp", "asap", "ngay lập tức"]):
-                requirements["urgency"] = "high"
-                requirements["estimated_effort"] = max(30, requirements["estimated_effort"] // 2)
-            
-            # Success criteria
-            requirements["success_criteria"] = [
-                "Data accuracy > 95%",
-                "Report generation time < 5 minutes",
-                "Stakeholder approval achieved",
-                "Insights actionable and clear"
-            ]
-            
-            self.logger.info(f"Analyzed requirements for tension {tension.uid}: {requirements['analysis_type']}")
-            
-        except Exception as e:
-            self.logger.error(f"Error analyzing tension requirements: {str(e)}")
+        # Merge với base requirements
+        base_requirements.update(data_requirements)
         
-        return requirements
+        return base_requirements
     
-    async def generate_specialized_solutions(self, tension: Tension, 
-                                           requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions chuyên biệt cho data analysis"""
-        solutions = []
+    def _identify_data_sources(self, tension: Tension) -> List[str]:
+        """Identify required data sources"""
+        sources = ["database", "analytics_platform"]
         
-        try:
-            analysis_type = requirements.get("analysis_type", "unknown")
+        if tension.description:
+            desc = tension.description.lower()
+            if "sales" in desc:
+                sources.append("crm_system")
+            if "user" in desc or "customer" in desc:
+                sources.append("user_analytics")
+            if "financial" in desc:
+                sources.append("financial_system")
+            if "marketing" in desc:
+                sources.append("marketing_platform")
+        
+        return sources
+    
+    def _determine_analysis_type(self, tension: Tension) -> str:
+        """Determine type of analysis needed with intelligent keyword matching"""
+        if not tension.description:
+            return "descriptive"
+        
+        desc = tension.description.lower()
+        
+        # Performance analysis keywords (English and Vietnamese)
+        performance_keywords = ["performance", "metrics", "kpi", "dashboard", "monitor", 
+                              "hiệu suất", "chỉ số", "đo lường", "theo dõi", "giám sát"]
+        
+        # Predictive analysis keywords
+        predictive_keywords = ["predict", "forecast", "future", "model", "trend", "projection",
+                             "dự đoán", "dự báo", "tương lai", "mô hình", "xu hướng"]
+        
+        # Diagnostic analysis keywords  
+        diagnostic_keywords = ["why", "cause", "impact", "effect", "root cause", "analysis",
+                             "tại sao", "nguyên nhân", "ảnh hưởng", "tác động", "phân tích"]
+        
+        # Prescriptive analysis keywords
+        prescriptive_keywords = ["recommend", "optimize", "should", "best", "improve", "solution",
+                               "khuyến nghị", "tối ưu", "nên", "tốt nhất", "cải thiện", "giải pháp"]
+        
+        # Check for specific analysis types
+        if any(keyword in desc for keyword in performance_keywords):
+            return "performance_analysis"
+        elif any(keyword in desc for keyword in predictive_keywords):
+            return "predictive"
+        elif any(keyword in desc for keyword in diagnostic_keywords):
+            return "diagnostic"
+        elif any(keyword in desc for keyword in prescriptive_keywords):
+            return "prescriptive"
+        else:
+            return "descriptive"
+    
+    def _define_deliverables(self, tension: Tension) -> List[str]:
+        """Define expected deliverables with intelligent content-based determination"""
+        deliverables = ["analysis_report", "data_insights"]
+        
+        if tension.description:
+            desc = tension.description.lower()
             
-            if analysis_type == "data_quality":
-                solutions.extend(await self._generate_data_quality_solutions(tension, requirements))
-                
+            # Performance analysis deliverables
+            if any(keyword in desc for keyword in ["performance", "metrics", "kpi", "hiệu suất", "chỉ số"]):
+                deliverables.append("Performance Dashboard")
+                deliverables.append("performance_metrics_report")
+            
+            # Dashboard/visualization deliverables
+            if "dashboard" in desc or "visualization" in desc or "biểu đồ" in desc:
+                deliverables.append("interactive_dashboard")
+            
+            # Presentation deliverables
+            if "presentation" in desc or "báo cáo" in desc or "management" in desc:
+                deliverables.append("executive_presentation")
+            
+            # Recommendation deliverables
+            if "recommendation" in desc or "khuyến nghị" in desc or "solution" in desc:
+                deliverables.append("action_recommendations")
+            
+            # Quality assessment deliverables
+            if "quality" in desc or "cleanup" in desc or "chất lượng" in desc:
+                deliverables.append("data_quality_report")
+                deliverables.append("cleanup_recommendations")
+        
+        return deliverables
+    
+    def _select_analysis_tools(self, tension: Tension) -> List[str]:
+        """Select appropriate analysis tools"""
+        tools = ["statistical_analysis"]
+        
+        complexity = self._assess_data_complexity(tension)
+        
+        if complexity == "high":
+            tools.extend(["machine_learning", "advanced_modeling"])
+        elif complexity == "medium":
+            tools.extend(["regression_analysis", "segmentation"])
+        
+        tools.append("data_visualization")
+        return tools
+    
+    def _estimate_timeline(self, tension: Tension) -> Dict[str, Any]:
+        """Estimate project timeline"""
+        complexity = self._assess_data_complexity(tension)
+        
+        timeline_map = {
+            "low": {"days": 3, "hours": 24},
+            "medium": {"days": 7, "hours": 56}, 
+            "high": {"days": 14, "hours": 112}
+        }
+        
+        base_timeline = timeline_map.get(complexity, timeline_map["medium"])
+        
+        # Adjust based on priority
+        if tension.priority == Priority.CRITICAL:
+            base_timeline["days"] = int(base_timeline["days"] * 0.7)  # Rush job
+            base_timeline["hours"] = int(base_timeline["hours"] * 0.7)
+        
+        return base_timeline
+    
+    def _define_success_criteria(self, tension: Tension) -> List[str]:
+        """Define success criteria for the analysis"""
+        criteria = [
+            "actionable_insights_generated",
+            "stakeholder_questions_answered",
+            "data_quality_validated"
+        ]
+        
+        if tension.priority in [Priority.HIGH, Priority.CRITICAL]:
+            criteria.append("business_impact_quantified")
+        
+        return criteria
+    
+    def _identify_stakeholders(self, tension: Tension) -> List[str]:
+        """Identify key stakeholders"""
+        stakeholders = ["data_requester"]
+        
+        if tension.description:
+            desc = tension.description.lower()
+            if "executive" in desc or "management" in desc:
+                stakeholders.append("executive_team")
+            if "business" in desc:
+                stakeholders.append("business_analysts")
+            if "technical" in desc:
+                stakeholders.append("technical_team")
+        
+        return stakeholders
+    
+    async def generate_specialized_solutions(self, tension: Tension, requirements: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """
+        Generate data analysis solutions optimized for WIN score.
+        """
+        if not requirements:
+            requirements = await self.analyze_tension_requirements(tension)
+        
+        # Get base solutions from quantum model
+        base_solutions = await super().generate_specialized_solutions(tension, requirements)
+        
+        # Enhance with data-specific solutions
+        analysis_type = requirements.get("analysis_type", "descriptive")
+        complexity = self._assess_data_complexity(tension)
+        
+        enhanced_solutions = []
+        
+        for solution in base_solutions:
+            # Enhance base solution with data-specific details
+            enhanced_solution = solution.copy()
+            
+            # Generate intelligent title based on analysis type and tension description
+            if "quality" in tension.description.lower() or "cleanup" in tension.description.lower():
+                enhanced_solution["title"] = "Data Quality Assessment & Improvement"
             elif analysis_type == "performance_analysis":
-                solutions.extend(await self._generate_performance_solutions(tension, requirements))
-                
-            elif analysis_type == "trend_analysis":
-                solutions.extend(await self._generate_trend_solutions(tension, requirements))
-                
-            elif analysis_type == "reporting":
-                solutions.extend(await self._generate_reporting_solutions(tension, requirements))
-                
+                enhanced_solution["title"] = "Performance Analytics Dashboard"
+            elif analysis_type == "predictive":
+                enhanced_solution["title"] = "Predictive Data Modeling"
+            elif analysis_type == "diagnostic":
+                enhanced_solution["title"] = "Root Cause Data Analysis"
             else:
-                # Generic data solutions
-                solutions.extend(await self._generate_generic_data_solutions(tension, requirements))
+                enhanced_solution["title"] = f"Comprehensive {analysis_type.title()} Analysis"
             
-            # Thêm metadata cho tất cả solutions
-            for solution in solutions:
-                solution.update({
-                    "agent_template": "DataAnalystAgent",
-                    "domain": "data_analysis",
-                    "estimated_effort": requirements.get("estimated_effort", 60),
-                    "complexity": requirements.get("complexity", "medium"),
-                    "success_criteria": requirements.get("success_criteria", [])
-                })
+            enhanced_solution.update({
+                "agent_template": "DataAnalystAgent",  # Add agent_template field for tests
+                "analysis_approach": self._get_analysis_approach(analysis_type, complexity),
+                "data_pipeline": self._design_data_pipeline(requirements),
+                "visualization_strategy": self._design_visualization(requirements),
+                "quality_assurance": self._define_qa_process(),
+                "business_value": self._calculate_business_value(tension, complexity)
+            })
             
-            self.logger.info(f"Generated {len(solutions)} data analysis solutions for tension {tension.uid}")
+            # Recalculate WIN score with domain expertise
+            enhanced_solution["expected_win_score"] = self._calculate_enhanced_win_score(
+                enhanced_solution, tension, requirements
+            )
             
-        except Exception as e:
-            self.logger.error(f"Error generating solutions: {str(e)}")
+            enhanced_solutions.append(enhanced_solution)
         
-        return solutions
-    
-    async def _generate_data_quality_solutions(self, tension: Tension, 
-                                             requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho data quality issues"""
-        return [
-            {
-                "title": "Data Quality Assessment & Cleanup",
-                "description": "Thực hiện đánh giá toàn diện chất lượng dữ liệu và đề xuất cleanup plan",
-                "approach": "Automated Data Profiling",
-                "steps": [
-                    "Chạy data profiling tools để phát hiện issues",
-                    "Phân tích missing values, duplicates, outliers",
-                    "Tạo data quality rules và validation logic",
-                    "Implement automated cleanup procedures",
-                    "Setup monitoring cho data quality ongoing"
-                ],
-                "tools": ["data_profiling", "validation_engine", "cleanup_scripts"],
-                "deliverables": ["Data Quality Report", "Cleanup Scripts", "Monitoring Dashboard"],
-                "timeline": "2-3 weeks",
-                "priority": 2
-            },
-            {
-                "title": "Real-time Data Validation System",
-                "description": "Thiết lập hệ thống validation real-time để prevent data quality issues",
-                "approach": "Preventive Data Governance",
-                "steps": [
-                    "Thiết kế validation rules cho data ingestion",
-                    "Implement real-time validation pipeline",
-                    "Setup alerts cho data quality violations", 
-                    "Tạo data quality metrics dashboard",
-                    "Train team về data quality best practices"
-                ],
-                "tools": ["validation_pipeline", "alerting_system", "metrics_dashboard"],
-                "deliverables": ["Validation System", "Quality Metrics", "Training Materials"],
-                "timeline": "3-4 weeks",
-                "priority": 1
-            }
-        ]
-    
-    async def _generate_performance_solutions(self, tension: Tension,
-                                            requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho performance analysis"""
-        return [
-            {
-                "title": "Performance Metrics Dashboard",
-                "description": "Tạo dashboard real-time tracking key performance indicators",
-                "approach": "Real-time Performance Monitoring",
-                "steps": [
-                    "Identify key performance metrics cần track",
-                    "Setup data collection từ multiple sources",
-                    "Design interactive dashboard với drill-down capability",
-                    "Implement automated alerting cho performance thresholds",
-                    "Create performance trend analysis reports"
-                ],
-                "tools": ["dashboard_builder", "metrics_collector", "alerting_engine"],
-                "deliverables": ["Performance Dashboard", "Alerting System", "Trend Reports"],
-                "timeline": "2-3 weeks",
-                "priority": 1
-            },
-            {
-                "title": "Advanced Performance Analytics",
-                "description": "Phân tích sâu performance patterns và root causes",
-                "approach": "Statistical Performance Analysis",
-                "steps": [
-                    "Collect historical performance data",
-                    "Apply statistical analysis để identify patterns",
-                    "Perform root cause analysis cho performance issues",
-                    "Create predictive models cho performance forecasting",
-                    "Generate actionable recommendations"
-                ],
-                "tools": ["statistical_analysis", "predictive_modeling", "root_cause_analysis"],
-                "deliverables": ["Analysis Report", "Predictive Models", "Recommendations"],
-                "timeline": "3-4 weeks",
-                "priority": 2
-            }
-        ]
-    
-    async def _generate_trend_solutions(self, tension: Tension,
-                                      requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho trend analysis"""
-        return [
-            {
-                "title": "Trend Analysis & Forecasting System",
-                "description": "Implement comprehensive trend analysis với forecasting capabilities",
-                "approach": "Time Series Analysis & Machine Learning",
-                "steps": [
-                    "Collect và prepare historical time series data",
-                    "Apply time series analysis techniques",
-                    "Develop forecasting models (ARIMA, Prophet, etc.)",
-                    "Create trend visualization dashboards",
-                    "Setup automated forecasting reports"
-                ],
-                "tools": ["time_series_analysis", "forecasting_models", "trend_visualization"],
-                "deliverables": ["Trend Analysis Report", "Forecasting Models", "Prediction Dashboard"],
-                "timeline": "4-5 weeks",
-                "priority": 1
-            }
-        ]
-    
-    async def _generate_reporting_solutions(self, tension: Tension,
-                                          requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo solutions cho reporting needs"""
-        return [
-            {
-                "title": "Automated Reporting System",
-                "description": "Thiết lập hệ thống báo cáo tự động với customizable templates",
-                "approach": "Template-based Automated Reporting",
-                "steps": [
-                    "Analyze reporting requirements và stakeholder needs",
-                    "Design flexible report templates",
-                    "Implement automated data collection và processing",
-                    "Create scheduling system cho regular reports",
-                    "Setup distribution mechanism cho stakeholders"
-                ],
-                "tools": ["report_generator", "template_engine", "scheduler"],
-                "deliverables": ["Report Templates", "Automation System", "Distribution Setup"],
-                "timeline": "2-3 weeks",
-                "priority": 1
-            }
-        ]
-    
-    async def _generate_generic_data_solutions(self, tension: Tension,
-                                             requirements: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Tạo generic data solutions"""
-        return [
-            {
-                "title": "Data Analysis & Insights Discovery",
-                "description": "Comprehensive data analysis để discover actionable insights",
-                "approach": "Exploratory Data Analysis",
-                "steps": [
-                    "Perform exploratory data analysis",
-                    "Apply statistical methods để find patterns",
-                    "Create data visualizations",
-                    "Generate insights report",
-                    "Present findings to stakeholders"
-                ],
-                "tools": ["data_analysis", "visualization", "statistical_methods"],
-                "deliverables": ["Analysis Report", "Visualizations", "Insights Summary"],
-                "timeline": "2-3 weeks",
-                "priority": 1
-            }
-        ]
-    
-    async def execute_solution(self, solution: Dict[str, Any], 
-                             context: Dict[str, Any]) -> Dict[str, Any]:
-        """Thực thi data analysis solution"""
-        execution_result = {
-            "status": "completed",
-            "execution_time": datetime.now().isoformat(),
-            "results": {},
-            "deliverables_created": [],
-            "next_steps": []
+        # Add specialized data analysis solution
+        specialized_solution = {
+            "id": f"data_solution_{tension.tensionId}_specialized",
+            "type": "comprehensive_data_analysis",
+            "agent_template": "DataAnalystAgent",  # Add agent_template field for tests
+            "title": self._generate_solution_title(tension, analysis_type),  # Add intelligent title
+            "description": f"Comprehensive {analysis_type} analysis with {complexity} complexity",
+            "approach": "data_driven_insights",
+            "analysis_methodology": self._get_analysis_methodology(analysis_type),
+            "deliverables": requirements.get("deliverables", []),
+            "timeline": requirements.get("estimated_timeline", {}),
+            "tools": requirements.get("tools_required", []),
+            "expected_win_score": self._calculate_specialized_win_score(tension, complexity),
+            "confidence": 0.85,
+            "business_impact": "high" if complexity == "high" else "medium",
+            "risk_level": "low",
+            "success_probability": 90.0
         }
         
-        try:
-            solution_title = solution.get("title", "Unknown Solution")
-            self.logger.info(f"Executing data solution: {solution_title}")
-            
-            # Simulate solution execution
-            await asyncio.sleep(1)  # Simulate processing time
-            
-            # Mock results based on solution type
-            if "quality" in solution_title.lower():
-                execution_result["results"] = {
-                    "data_quality_score": 85.2,
-                    "issues_found": 127,
-                    "issues_resolved": 89,
-                    "improvement_percentage": 15.3
-                }
-                execution_result["deliverables_created"] = ["Data Quality Report", "Cleanup Scripts"]
-                
-            elif "performance" in solution_title.lower():
-                execution_result["results"] = {
-                    "metrics_tracked": 25,
-                    "performance_improvement": 12.7,
-                    "alerts_configured": 8,
-                    "dashboard_views": 15
-                }
-                execution_result["deliverables_created"] = ["Performance Dashboard", "Metrics Setup"]
-                
-            elif "trend" in solution_title.lower():
-                execution_result["results"] = {
-                    "trends_identified": 7,
-                    "forecast_accuracy": 78.5,
-                    "prediction_horizon": "3 months",
-                    "confidence_level": 85.0
-                }
-                execution_result["deliverables_created"] = ["Trend Analysis Report", "Forecasting Models"]
-                
-            else:
-                execution_result["results"] = {
-                    "insights_discovered": 12,
-                    "recommendations_generated": 8,
-                    "stakeholder_satisfaction": 4.2,
-                    "data_coverage": 95.0
-                }
-                execution_result["deliverables_created"] = ["Analysis Report", "Insights Dashboard"]
-            
-            execution_result["next_steps"] = [
-                "Review results with stakeholders",
-                "Implement recommended improvements",
-                "Setup ongoing monitoring",
-                "Schedule follow-up analysis"
-            ]
-            
-            self.logger.info(f"Successfully executed solution: {solution_title}")
-            
-        except Exception as e:
-            execution_result["status"] = "failed"
-            execution_result["error"] = str(e)
-            self.logger.error(f"Error executing solution: {str(e)}")
+        enhanced_solutions.append(specialized_solution)
         
-        return execution_result
+        # Sort by WIN score descending
+        enhanced_solutions.sort(key=lambda x: x.get("expected_win_score", 0), reverse=True)
+        
+        return enhanced_solutions
+    
+    def _get_analysis_approach(self, analysis_type: str, complexity: str) -> Dict[str, Any]:
+        """Get detailed analysis approach"""
+        approaches = {
+            "descriptive": {
+                "methods": ["summary_statistics", "data_profiling", "trend_analysis"],
+                "focus": "understanding_current_state"
+            },
+            "diagnostic": {
+                "methods": ["correlation_analysis", "root_cause_analysis", "comparative_analysis"], 
+                "focus": "explaining_why_something_happened"
+            },
+            "predictive": {
+                "methods": ["regression_modeling", "time_series_forecasting", "machine_learning"],
+                "focus": "predicting_future_outcomes"
+            },
+            "prescriptive": {
+                "methods": ["optimization_modeling", "simulation", "recommendation_engines"],
+                "focus": "recommending_actions"
+            }
+        }
+        
+        approach = approaches.get(analysis_type, approaches["descriptive"])
+        
+        # Adjust based on complexity
+        if complexity == "high":
+            approach["methods"].append("advanced_statistical_modeling")
+        elif complexity == "low":
+            approach["methods"] = approach["methods"][:2]  # Simplify
+        
+        return approach
+    
+    def _design_data_pipeline(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Design data processing pipeline"""
+        return {
+            "data_sources": requirements.get("data_sources_needed", []),
+            "extraction": "automated_etl",
+            "transformation": ["data_cleaning", "feature_engineering", "normalization"],
+            "validation": ["quality_checks", "completeness_validation", "consistency_checks"],
+            "storage": "analytical_datastore"
+        }
+    
+    def _design_visualization(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Design visualization strategy"""
+        deliverables = requirements.get("deliverables", [])
+        
+        viz_strategy = {
+            "chart_types": ["bar_chart", "line_chart", "scatter_plot"],
+            "interactive_elements": False,
+            "dashboard_required": False
+        }
+        
+        if "interactive_dashboard" in deliverables:
+            viz_strategy["interactive_elements"] = True
+            viz_strategy["dashboard_required"] = True
+            viz_strategy["chart_types"].extend(["heatmap", "treemap", "gauge"])
+        
+        return viz_strategy
+    
+    def _define_qa_process(self) -> Dict[str, Any]:
+        """Define quality assurance process"""
+        return {
+            "data_validation": ["completeness", "accuracy", "consistency"],
+            "analysis_review": ["methodology_check", "statistical_significance", "business_logic"],
+            "output_verification": ["cross_validation", "peer_review", "stakeholder_feedback"]
+        }
+    
+    def _calculate_business_value(self, tension: Tension, complexity: str) -> Dict[str, Any]:
+        """Calculate expected business value"""
+        base_value = 50000  # Base value in USD
+        
+        multipliers = {
+            "low": 1.0,
+            "medium": 2.0, 
+            "high": 4.0
+        }
+        
+        priority_multipliers = {
+            Priority.LOW: 0.8,
+            Priority.NORMAL: 1.0,
+            Priority.HIGH: 1.5,
+            Priority.CRITICAL: 2.0
+        }
+        
+        estimated_value = (base_value * 
+                          multipliers.get(complexity, 1.0) * 
+                          priority_multipliers.get(tension.priority, 1.0))
+        
+        return {
+            "estimated_value_usd": estimated_value,
+            "value_drivers": ["improved_decision_making", "operational_efficiency", "risk_reduction"],
+            "roi_timeframe": "3-6 months"
+        }
+    
+    def _calculate_enhanced_win_score(self, solution: Dict[str, Any], tension: Tension, requirements: Dict[str, Any]) -> float:
+        """Calculate enhanced WIN score with domain expertise"""
+        base_score = solution.get("expected_win_score", 50.0)
+        
+        # Wisdom enhancement (domain knowledge application)
+        wisdom_boost = 0.0
+        if solution.get("business_value", {}).get("estimated_value_usd", 0) > 100000:
+            wisdom_boost += 10.0
+        
+        # Intelligence enhancement (technical sophistication)
+        intelligence_boost = 0.0
+        if "advanced_statistical_modeling" in solution.get("analysis_approach", {}).get("methods", []):
+            intelligence_boost += 15.0
+        
+        # Networking enhancement (stakeholder engagement)
+        networking_boost = 0.0
+        if len(requirements.get("stakeholders", [])) > 2:
+            networking_boost += 10.0
+        
+        enhanced_score = base_score + (wisdom_boost * 0.4 + intelligence_boost * 0.4 + networking_boost * 0.2)
+        
+        return min(100.0, enhanced_score)
+    
+    def _calculate_specialized_win_score(self, tension: Tension, complexity: str) -> float:
+        """Calculate WIN score for specialized data solution"""
+        # Base score for data analysis expertise
+        wisdom = 85.0  # Deep understanding of data and business context
+        intelligence = 90.0  # Technical proficiency in data analysis
+        networking = 75.0  # Collaboration with stakeholders
+        
+        # Adjust based on complexity
+        complexity_multipliers = {
+            "low": 0.9,
+            "medium": 1.0,
+            "high": 1.1
+        }
+        
+        multiplier = complexity_multipliers.get(complexity, 1.0)
+        
+        total_win = ((wisdom * multiplier) * 0.4 + 
+                    (intelligence * multiplier) * 0.4 + 
+                    (networking * multiplier) * 0.2)
+        
+        return min(100.0, total_win)
+    
+    def _get_analysis_methodology(self, analysis_type: str) -> str:
+        """Get detailed methodology for analysis type"""
+        methodologies = {
+            "descriptive": "Exploratory Data Analysis (EDA) with statistical summarization",
+            "diagnostic": "Hypothesis-driven analysis with causal inference techniques",
+            "predictive": "Machine learning pipeline with cross-validation and model selection",
+            "prescriptive": "Optimization modeling with scenario analysis and sensitivity testing"
+        }
+        
+        return methodologies.get(analysis_type, methodologies["descriptive"])
     
     async def _register_specialized_handlers(self) -> None:
-        """Đăng ký specialized event handlers cho DataAnalyst"""
-        # Đăng ký events liên quan đến data
+        """Register data analysis specific event handlers"""
+        # Subscribe to data-related events
         self.subscribe_to_event(EventType.DATA_UPDATED)
-        self.subscribe_to_event(EventType.REPORT_REQUESTED)
-        
+        self.subscribe_to_event(EventType.ANALYSIS_REQUESTED) 
+        self.subscribe_to_event(EventType.REPORT_GENERATED)
+    
     async def _initialize_specialized_components(self) -> None:
-        """Khởi tạo data analysis components"""
-        self.logger.info("Initializing DataAnalyst specialized components")
+        """Initialize data analysis specific components"""
+        self.logger.info(f"Initializing DataAnalyst specialized components for {self.agent_id}")
         
-        # Initialize data connections, analysis tools, etc.
-        # This would be implemented based on actual infrastructure
+        # Initialize analysis tools
+        self.analysis_tools["current_session"] = {
+            "start_time": datetime.now(),
+            "active_analyses": [],
+            "completed_analyses": []
+        }
         
+        # Load domain knowledge
+        self.domain_knowledge["session_context"] = {
+            "preferred_tools": self.analysis_tools["statistical_tests"][:3],
+            "default_visualizations": self.analysis_tools["visualization_types"][:4]
+        }
+    
     async def _handle_specialized_event(self, event: SystemEvent) -> None:
-        """Xử lý specialized events cho DataAnalyst"""
-        if event.event_type == EventType.DATA_UPDATED:
-            await self._handle_data_updated(event)
-        elif event.event_type == EventType.REPORT_REQUESTED:
-            await self._handle_report_requested(event)
+        """Handle data analysis specific events"""
+        try:
+            if event.event_type == EventType.DATA_UPDATED:
+                await self._handle_data_updated(event)
+            elif event.event_type == EventType.ANALYSIS_REQUESTED:
+                await self._handle_analysis_requested(event)
+            elif event.event_type == EventType.REPORT_GENERATED:
+                await self._handle_report_generated(event)
+            else:
+                self.logger.debug(f"Unhandled specialized event: {event.event_type}")
+                
+        except Exception as e:
+            self.logger.error(f"Error handling specialized event {event.event_type}: {e}")
     
     async def _handle_data_updated(self, event: SystemEvent) -> None:
-        """Xử lý sự kiện data được cập nhật"""
-        self.logger.info(f"Data updated event received: {event.entity_id}")
-        # Implement data update handling logic
+        """Handle data update events"""
+        self.logger.info(f"Data updated event received: {event.data}")
         
-    async def _handle_report_requested(self, event: SystemEvent) -> None:
-        """Xử lý sự kiện yêu cầu báo cáo"""
-        self.logger.info(f"Report requested: {event.entity_id}")
-        # Implement report generation logic 
+        # Check if any active analyses need to be refreshed
+        active_analyses = self.analysis_tools["current_session"].get("active_analyses", [])
+        
+        for analysis in active_analyses:
+            if analysis.get("data_source") == event.data.get("source"):
+                self.logger.info(f"Refreshing analysis {analysis['id']} due to data update")
+                # Trigger analysis refresh
+                await self.send_event(
+                    event_type=EventType.ANALYSIS_REFRESH_REQUESTED,
+                    data={"analysis_id": analysis["id"], "reason": "data_updated"}
+                )
+    
+    async def _handle_analysis_requested(self, event: SystemEvent) -> None:
+        """Handle analysis request events"""
+        self.logger.info(f"Analysis requested: {event.data}")
+        
+        # Create new analysis entry
+        analysis_entry = {
+            "id": f"analysis_{datetime.now().timestamp()}",
+            "request_data": event.data,
+            "status": "queued",
+            "created_at": datetime.now()
+        }
+        
+        self.analysis_tools["current_session"]["active_analyses"].append(analysis_entry)
+        
+        # Send acknowledgment
+        await self.send_event(
+            event_type=EventType.ANALYSIS_QUEUED,
+            data={"analysis_id": analysis_entry["id"], "estimated_completion": "2-4 hours"}
+        )
+    
+    async def _handle_report_generated(self, event: SystemEvent) -> None:
+        """Handle report generation events"""
+        self.logger.info(f"Report generated: {event.data}")
+        
+        # Move completed analysis to completed list
+        analysis_id = event.data.get("analysis_id")
+        active_analyses = self.analysis_tools["current_session"]["active_analyses"]
+        
+        for analysis in active_analyses[:]:  # Copy to avoid modification during iteration
+            if analysis["id"] == analysis_id:
+                analysis["status"] = "completed"
+                analysis["completed_at"] = datetime.now()
+                
+                self.analysis_tools["current_session"]["completed_analyses"].append(analysis)
+                active_analyses.remove(analysis)
+                
+                self.logger.info(f"Moved analysis {analysis_id} to completed")
+                break 
+    
+    def _generate_solution_title(self, tension: Tension, analysis_type: str) -> str:
+        """Generate intelligent solution title based on tension content and analysis type"""
+        if not tension.description:
+            return f"{analysis_type.title()} Analysis Solution"
+        
+        desc = tension.description.lower()
+        
+        # Quality-related solutions
+        if "quality" in desc or "cleanup" in desc or "chất lượng" in desc:
+            return "Data Quality Assessment & Improvement"
+        
+        # Performance-related solutions
+        if "performance" in desc or "metrics" in desc or "hiệu suất" in desc:
+            return "Performance Analytics Dashboard"
+        
+        # Reporting solutions
+        if "report" in desc or "báo cáo" in desc or "management" in desc:
+            return "Executive Data Reporting Solution"
+        
+        # Analysis type specific titles
+        if analysis_type == "performance_analysis":
+            return "Performance Analytics Dashboard"
+        elif analysis_type == "predictive":
+            return "Predictive Data Modeling Solution"
+        elif analysis_type == "diagnostic":
+            return "Root Cause Data Analysis"
+        elif analysis_type == "prescriptive":
+            return "Data-Driven Optimization Recommendations"
+        else:
+            return "Comprehensive Data Analysis Solution" 

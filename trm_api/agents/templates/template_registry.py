@@ -301,23 +301,8 @@ class AgentTemplateRegistry:
             
             template_class = self._templates[template_name]
             
-            # Tạo default metadata nếu không có custom metadata
-            if not custom_metadata:
-                timestamp = datetime.now().timestamp()
-                template_meta = self._template_metadata.get(template_name)
-                
-                custom_metadata = AgentMetadata(
-                    name=f"{template_name}_{timestamp}",
-                    agent_type="AIAgent",  # Use standard AIAgent type
-                    description=template_meta.description if template_meta else f"AI Agent template for {template_name}",
-                    capabilities=[cap.name for cap in template_meta.capabilities] if template_meta else [],
-                    status="active",
-                    version="1.0.0",
-                    creation_date=datetime.now()
-                )
-            
-            # Tạo agent instance
-            agent = template_class(agent_id=agent_id, metadata=custom_metadata)
+            # Tạo agent instance without metadata parameter
+            agent = template_class(agent_id=agent_id)
             
             # Khởi tạo agent
             await agent.initialize()

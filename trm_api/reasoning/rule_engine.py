@@ -49,9 +49,21 @@ class RuleCondition:
         elif self.operator == OperatorType.LESS_THAN:
             return field_value < self.value
         elif self.operator == OperatorType.CONTAINS:
-            return self.value in str(field_value).lower()
+            # Handle both list and string field values
+            if isinstance(field_value, list):
+                # Check if value exists in list (case-insensitive)
+                return any(str(self.value).lower() == str(item).lower() for item in field_value)
+            else:
+                # Original string contains logic (case-insensitive)
+                return str(self.value).lower() in str(field_value).lower()
         elif self.operator == OperatorType.NOT_CONTAINS:
-            return self.value not in str(field_value).lower()
+            # Handle both list and string field values
+            if isinstance(field_value, list):
+                # Check if value does NOT exist in list (case-insensitive)
+                return not any(str(self.value).lower() == str(item).lower() for item in field_value)
+            else:
+                # Original string not contains logic (case-insensitive)
+                return str(self.value).lower() not in str(field_value).lower()
         elif self.operator == OperatorType.IN:
             return field_value in self.value
         elif self.operator == OperatorType.NOT_IN:

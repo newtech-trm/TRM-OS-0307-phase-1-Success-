@@ -61,7 +61,12 @@ def sample_tensions():
         title="Sales Data Analysis Required",
         description="Need to analyze quarterly sales data to identify trends and patterns for strategic planning",
         priority=Priority.HIGH,
-        tensionType=TensionType.RESOURCE_CONSTRAINT
+        tensionType=TensionType.DATA_ANALYSIS,
+        tensionId="test_tension_001",
+        status="Open",
+        source="TestFixture",
+        creationDate=datetime.now(),
+        lastModifiedDate=datetime.now()
     )
     tensions.append(tension1)
     
@@ -70,7 +75,12 @@ def sample_tensions():
         title="API Integration Development",
         description="Develop REST API integration for customer management system with authentication and error handling",
         priority=Priority.MEDIUM,
-        tensionType=TensionType.PROCESS_IMPROVEMENT
+        tensionType=TensionType.TECHNICAL_DEBT,
+        tensionId="test_tension_002",
+        status="Open",
+        source="TestFixture",
+        creationDate=datetime.now(),
+        lastModifiedDate=datetime.now()
     )
     tensions.append(tension2)
     
@@ -79,7 +89,12 @@ def sample_tensions():
         title="User Interface Redesign",
         description="Redesign user interface for better accessibility and mobile responsiveness",
         priority=Priority.HIGH,
-        tensionType=TensionType.COMMUNICATION_BREAKDOWN
+        tensionType=TensionType.COMMUNICATION_BREAKDOWN,
+        tensionId="test_tension_003",
+        status="Open",
+        source="TestFixture",
+        creationDate=datetime.now(),
+        lastModifiedDate=datetime.now()
     )
     tensions.append(tension3)
     

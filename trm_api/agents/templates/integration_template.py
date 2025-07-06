@@ -14,6 +14,7 @@ from .base_template import BaseAgentTemplate, AgentTemplateMetadata, AgentCapabi
 from ..base_agent import AgentMetadata
 from ...eventbus.system_event_bus import EventType, SystemEvent
 from ...models.tension import Tension
+from trm_api.models.enums import TensionType
 
 
 class IntegrationAgent(BaseAgentTemplate):
@@ -146,13 +147,13 @@ class IntegrationAgent(BaseAgentTemplate):
                 "Third-party Service Integration"
             ],
             dependencies=["api_gateway", "message_broker", "database_access", "security_infrastructure"],
-            performance_metrics=[
-                "integration_success_rate",
-                "data_sync_accuracy",
-                "api_response_time",
-                "system_uptime",
-                "error_rate"
-            ]
+            performance_metrics={
+                "integration_success_rate": 0.95,
+                "data_sync_accuracy": 0.98,
+                "api_response_time": 0.85,
+                "system_uptime": 0.99,
+                "error_rate": 0.02
+            }
         )
     
     async def can_handle_tension(self, tension: Tension) -> bool:
@@ -161,12 +162,13 @@ class IntegrationAgent(BaseAgentTemplate):
             description = tension.description.lower()
             title = tension.title.lower()
             
-            # Tìm integration-related keywords
+            # Tìm integration-related keywords (English and Vietnamese)
             integration_keywords = [
                 "integration", "integrate", "api", "sync", "synchronize",
                 "connect", "connection", "third party", "external", "enterprise",
                 "workflow", "automation", "data", "system", "service",
-                "webhook", "endpoint", "microservice", "etl", "migration"
+                "webhook", "endpoint", "microservice", "etl", "migration",
+                "tích hợp", "đồng bộ", "kết nối", "hệ thống", "dịch vụ"
             ]
             
             has_integration_keywords = any(keyword in description or keyword in title 
@@ -190,8 +192,13 @@ class IntegrationAgent(BaseAgentTemplate):
                 for tech in tech_category
             )
             
-            # Kiểm tra tension type
-            suitable_types = ["Problem", "Opportunity", "Idea"]
+            # Kiểm tra tension type - use proper TensionType enums
+            suitable_types = [
+                TensionType.PROCESS_IMPROVEMENT,  # Integration improves processes
+                TensionType.TECHNICAL_DEBT,      # Integration can solve technical debt
+                TensionType.OPPORTUNITY,         # Integration creates opportunities
+                TensionType.PROBLEM              # Integration solves problems
+            ]
             type_match = tension.tensionType in suitable_types
             
             # Agent có thể handle nếu có integration indicators

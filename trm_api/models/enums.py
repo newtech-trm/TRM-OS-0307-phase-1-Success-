@@ -96,6 +96,8 @@ class TensionType(str, Enum):
     PROCESS_IMPROVEMENT = "Process_Improvement"
     COMMUNICATION_BREAKDOWN = "Communication_Breakdown"
     STRATEGIC_MISALIGNMENT = "Strategic_Misalignment"
+    DATA_ANALYSIS = "Data_Analysis"
+    TECHNICAL_DEBT = "Technical_Debt"
     UNKNOWN = "Unknown"
 
 # Enum cho Agent Types

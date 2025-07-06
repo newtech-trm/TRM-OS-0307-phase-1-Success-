@@ -66,7 +66,11 @@ class TensionAnalyzer:
             r'\b(lỗi|bug|sự cố|vấn đề|thất bại|không hoạt động|bị hỏng)\b',
             r'\b(error|failure|issue|problem|broken|not working)\b',
             r'\b(thiếu|mất|không có|không đủ)\b',
-            r'\b(missing|lack|insufficient|absent)\b'
+            r'\b(missing|lack|insufficient|absent)\b',
+            # Performance and degradation patterns
+            r'\b(chậm|lag|slow|degradation|performance|latency)\b',
+            r'\b(timeout|hanging|freeze|unresponsive|stuck)\b',
+            r'\b(giảm hiệu suất|hiệu suất kém|chậm chạp)\b'
         ]
         
         self.opportunity_patterns = [

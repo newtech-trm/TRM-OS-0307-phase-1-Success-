@@ -677,9 +677,18 @@ class PriorityCalculator:
             f"Business context identified as '{business_context}' affecting weight distribution"
         )
         
-        # Identify top contributing factors
-        top_factors = sorted(result.contributing_factors.items(), key=lambda x: x[1], reverse=True)[:3]
+        # Identify top contributing factors (only numeric values)
+        numeric_factors = {k: v for k, v in result.contributing_factors.items() if isinstance(v, (int, float))}
+        string_factors = {k: v for k, v in result.contributing_factors.items() if isinstance(v, str)}
+        
+        top_factors = sorted(numeric_factors.items(), key=lambda x: x[1], reverse=True)[:3]
         factor_names = [f"{name} ({value:.2f})" for name, value in top_factors]
+        
+        # Add string factors if any
+        if string_factors:
+            string_factor_names = [f"{name} ({value})" for name, value in string_factors.items()]
+            factor_names.extend(string_factor_names)
+        
         reasoning_parts.append(
             f"Primary contributing factors: {', '.join(factor_names)}"
         )

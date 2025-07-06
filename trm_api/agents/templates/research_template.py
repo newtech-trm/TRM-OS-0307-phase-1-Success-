@@ -152,13 +152,13 @@ class ResearchAgent(BaseAgentTemplate):
                 "Best Practices Research"
             ],
             dependencies=["data_sources", "research_tools", "analysis_software"],
-            performance_metrics=[
-                "research_quality_score",
-                "insight_discovery_rate",
-                "source_credibility_score",
-                "stakeholder_satisfaction",
-                "actionability_rating"
-            ]
+            performance_metrics={
+                "research_quality_score": 0.92,
+                "insight_discovery_rate": 0.88,
+                "source_credibility_score": 0.95,
+                "stakeholder_satisfaction": 0.90,
+                "actionability_rating": 0.85
+            }
         )
     
     async def can_handle_tension(self, tension: Tension) -> bool:

@@ -14,6 +14,7 @@ from .base_template import BaseAgentTemplate, AgentTemplateMetadata, AgentCapabi
 from ..base_agent import AgentMetadata
 from ...eventbus.system_event_bus import EventType, SystemEvent
 from ...models.tension import Tension
+from trm_api.models.enums import TensionType
 
 
 class UserInterfaceAgent(BaseAgentTemplate):
@@ -146,13 +147,13 @@ class UserInterfaceAgent(BaseAgentTemplate):
                 "User Experience Improvements"
             ],
             dependencies=["design_tools", "frontend_frameworks", "testing_tools"],
-            performance_metrics=[
-                "user_satisfaction_score",
-                "usability_test_success_rate",
-                "accessibility_compliance_score",
-                "page_load_performance",
-                "design_consistency_score"
-            ]
+            performance_metrics={
+                "user_satisfaction_score": 0.90,
+                "usability_test_success_rate": 0.88,
+                "accessibility_compliance_score": 0.95,
+                "page_load_performance": 0.85,
+                "design_consistency_score": 0.92
+            }
         )
     
     async def can_handle_tension(self, tension: Tension) -> bool:
@@ -161,12 +162,13 @@ class UserInterfaceAgent(BaseAgentTemplate):
             description = tension.description.lower()
             title = tension.title.lower()
             
-            # Tìm UI/UX-related keywords
+            # Tìm UI/UX-related keywords (English and Vietnamese)
             ui_keywords = [
                 "ui", "ux", "interface", "giao diện", "design", "thiết kế",
                 "user", "người dùng", "frontend", "client", "web", "mobile",
                 "usability", "accessibility", "responsive", "layout", "component",
-                "visual", "interaction", "navigation", "menu", "button", "form"
+                "visual", "interaction", "navigation", "menu", "button", "form",
+                "user-friendly", "thân thiện", "experience", "trải nghiệm"
             ]
             
             has_ui_keywords = any(keyword in description or keyword in title 
@@ -190,8 +192,13 @@ class UserInterfaceAgent(BaseAgentTemplate):
                 for tool in tool_category
             )
             
-            # Kiểm tra tension type
-            suitable_types = ["Problem", "Opportunity", "Idea"]
+            # Kiểm tra tension type - use proper TensionType enums
+            suitable_types = [
+                TensionType.PROCESS_IMPROVEMENT,  # UI improvements are process improvements
+                TensionType.COMMUNICATION_BREAKDOWN,  # UI issues can cause communication problems
+                TensionType.OPPORTUNITY,  # UI improvements create opportunities
+                TensionType.PROBLEM  # UI issues are problems to solve
+            ]
             type_match = tension.tensionType in suitable_types
             
             # Agent có thể handle nếu có UI/UX indicators

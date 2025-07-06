@@ -78,8 +78,8 @@ class GeneratedTemplate(BaseAgentTemplate):
         self.capabilities = []
         
         for cap_name in self.source_pattern.capabilities:
-            # Estimate proficiency từ success metrics
-            proficiency = min(95, int(self.source_pattern.effectiveness_score))
+            # Estimate proficiency từ success metrics (convert to 0.0-1.0 scale)
+            proficiency = min(0.95, self.source_pattern.effectiveness_score / 100.0)
             
             capability = AgentCapability(
                 name=cap_name,
@@ -130,13 +130,12 @@ class GeneratedTemplate(BaseAgentTemplate):
         
         self.template_metadata = AgentTemplateMetadata(
             template_name=self.template_name,
-            template_version="1.0.0",
-            description=self.source_pattern.description,
             primary_domain=self.source_pattern.domain_expertise[0] if self.source_pattern.domain_expertise else "general",
-            capabilities=self.capabilities,
-            recommended_tensions=["pattern_based", "proven"],
-            dependencies=[],
-            performance_metrics=["efficiency", "quality", "pattern_match"]
+            capabilities=self.capabilities if hasattr(self, 'capabilities') and self.capabilities else [],
+            domain_expertise=self.source_pattern.domain_expertise,
+            supported_tension_types=[TensionType.UNKNOWN],
+            performance_metrics={"efficiency": 0.8, "quality": 0.9, "pattern_match": 0.85},
+            version="1.0.0"
         )
     
     def _determine_complexity_level(self) -> str:
@@ -171,7 +170,7 @@ class GeneratedTemplate(BaseAgentTemplate):
         
         # Check capability match
         for capability in self.source_pattern.capabilities:
-            if capability.lower() in description_lower or capability.lower() in title_lower:
+            if capability.name.lower() in description_lower or capability.name.lower() in title_lower:
                 return True
         
         return False
@@ -255,13 +254,12 @@ class GeneratedTemplate(BaseAgentTemplate):
         
         return AgentTemplateMetadata(
             template_name=template_name,
-            template_version="1.0.0",
-            description=self.source_pattern.description,
             primary_domain=self.source_pattern.domain_expertise[0] if self.source_pattern.domain_expertise else "general",
             capabilities=self.capabilities if hasattr(self, 'capabilities') and self.capabilities else [],
-            recommended_tensions=["pattern_based", "proven"],
-            dependencies=[],
-            performance_metrics=["efficiency", "quality", "pattern_match"]
+            domain_expertise=self.source_pattern.domain_expertise,
+            supported_tension_types=[TensionType.UNKNOWN],
+            performance_metrics={"efficiency": 0.8, "quality": 0.9, "pattern_match": 0.85},
+            version="1.0.0"
         )
 
     async def _register_specialized_handlers(self) -> None:

@@ -19,6 +19,7 @@ from trm_api.agents.templates.research_template import ResearchAgent
 from trm_api.agents.templates.template_registry import AgentTemplateRegistry, TemplateMatchResult
 from trm_api.agents.base_agent import AgentMetadata
 from trm_api.models.tension import Tension
+from trm_api.models.enums import TensionType, Priority
 
 
 class TestAgentTemplateBase:
@@ -28,9 +29,28 @@ class TestAgentTemplateBase:
         """Tạo mock tension cho testing"""
         tension = Mock(spec=Tension)
         tension.uid = f"test-tension-{datetime.now().timestamp()}"
+        tension.tensionId = tension.uid  # Add tensionId for compatibility
         tension.title = title
         tension.description = description
         tension.tension_type = tension_type
+        # Use proper TensionType enum based on description content - prioritize integration over data
+        if "integration" in description.lower() or "sync" in description.lower() or "api" in description.lower():
+            tension.tensionType = TensionType.PROCESS_IMPROVEMENT  # Integration improves processes
+        elif "data" in description.lower() and "analysis" in description.lower():
+            tension.tensionType = TensionType.DATA_ANALYSIS  # Pure data analysis only
+        elif "code" in description.lower() or "automation" in description.lower():
+            tension.tensionType = TensionType.TECHNICAL_DEBT
+        elif "ui" in description.lower() or "interface" in description.lower() or "design" in description.lower() or "user-friendly" in description.lower():
+            tension.tensionType = TensionType.PROCESS_IMPROVEMENT  # UI improvements are process improvements
+        elif "research" in description.lower() or "nghiên cứu" in description.lower():
+            tension.tensionType = TensionType.OPPORTUNITY  # Research creates opportunities
+        else:
+            tension.tensionType = TensionType.PROCESS_IMPROVEMENT  # Default
+        tension.priority = Priority.MEDIUM  # Use Priority enum instead of string
+        tension.status = "Open"  # Add status attribute
+        tension.source = "TestFixture"  # Add source attribute
+        tension.creationDate = datetime.now()  # Add creationDate
+        tension.lastModifiedDate = datetime.now()  # Add lastModifiedDate
         return tension
 
 
@@ -674,9 +694,16 @@ class TestAgentTemplatePerformance:
         registry = AgentTemplateRegistry()
         tension = Mock(spec=Tension)
         tension.uid = "test-tension"
+        tension.tensionId = "test-tension"  # Add tensionId
         tension.title = "Performance Test"
         tension.description = "Test tension để measure matching performance"
         tension.tension_type = "Problem"
+        tension.tensionType = "Problem"  # Add tensionType
+        tension.priority = "medium"  # Add priority
+        tension.status = "Open"  # Add status
+        tension.source = "TestFixture"  # Add source
+        tension.creationDate = datetime.now()  # Add creationDate
+        tension.lastModifiedDate = datetime.now()  # Add lastModifiedDate
         
         start_time = time.time()
         
@@ -696,9 +723,16 @@ class TestAgentTemplatePerformance:
         agent = CodeGeneratorAgent()
         tension = Mock(spec=Tension)
         tension.uid = "test-tension"
+        tension.tensionId = "test-tension"  # Add tensionId
         tension.title = "API Development"
         tension.description = "Develop REST API với authentication và rate limiting"
         tension.tension_type = "Problem"
+        tension.tensionType = "Problem"  # Add tensionType
+        tension.priority = "high"  # Add priority
+        tension.status = "Open"  # Add status
+        tension.source = "TestFixture"  # Add source
+        tension.creationDate = datetime.now()  # Add creationDate
+        tension.lastModifiedDate = datetime.now()  # Add lastModifiedDate
         
         start_time = time.time()
         

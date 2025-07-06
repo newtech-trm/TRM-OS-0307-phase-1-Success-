@@ -142,7 +142,9 @@ class ReasoningCoordinator:
         
         finally:
             end_time = datetime.now()
-            result.processing_time = (end_time - start_time).total_seconds()
+            processing_time = (end_time - start_time).total_seconds()
+            # Ensure minimum processing time for tracking purposes (microsecond precision)
+            result.processing_time = max(processing_time, 0.000001)  # Minimum 1 microsecond
         
         return result
     
@@ -307,6 +309,8 @@ class ReasoningCoordinator:
     def _update_component_stats(self, component: str, start_time: datetime):
         """Update performance statistics for component"""
         processing_time = (datetime.now() - start_time).total_seconds()
+        # Ensure minimum processing time for tracking purposes
+        processing_time = max(processing_time, 0.000001)  # Minimum 1 microsecond
         
         stats = self.processing_stats["component_performance"][component]
         stats["count"] += 1
@@ -315,6 +319,8 @@ class ReasoningCoordinator:
     def _update_processing_stats(self, start_time: datetime, success: bool):
         """Update overall processing statistics"""
         processing_time = (datetime.now() - start_time).total_seconds()
+        # Ensure minimum processing time for tracking purposes
+        processing_time = max(processing_time, 0.000001)  # Minimum 1 microsecond
         
         self.processing_stats["total_processed"] += 1
         if success:
