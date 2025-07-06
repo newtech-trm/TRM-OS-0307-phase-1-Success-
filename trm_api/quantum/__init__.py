@@ -3,16 +3,25 @@ TRM-OS Quantum WIN States với Machine Learning
 Advanced quantum state management cho organizational intelligence
 """
 
-from .quantum_win_engine import QuantumWINEngine
+from .quantum_system_manager import QuantumSystemManager
 from .state_detector import AdaptiveStateDetector
 from .optimization_engine import QuantumOptimizationEngine
-from .quantum_types import QuantumState, WINProbability, StateTransition
+from .state_transition_engine import StateTransitionEngine
+from .win_probability_calculator import WINProbabilityCalculator
+from .quantum_coherence_monitor import QuantumCoherenceMonitor
+from .quantum_types import QuantumState, WINProbability, StateTransition, QuantumSystem, QuantumStateType, WINCategory
 
 __all__ = [
-    "QuantumWINEngine",
+    "QuantumSystemManager",
     "AdaptiveStateDetector", 
     "QuantumOptimizationEngine",
+    "StateTransitionEngine",
+    "WINProbabilityCalculator",
+    "QuantumCoherenceMonitor",
     "QuantumState",
     "WINProbability",
-    "StateTransition"
+    "StateTransition",
+    "QuantumSystem",
+    "QuantumStateType",
+    "WINCategory"
 ] 

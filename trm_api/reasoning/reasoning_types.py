@@ -227,4 +227,31 @@ class ReasoningGoal(BaseModel):
     description: str
     success_criteria: List[str] = []
     constraints: List[ReasoningConstraint] = []
-    priority: int = Field(default=5, ge=1, le=10) 
+    priority: int = Field(default=5, ge=1, le=10)
+
+
+class ReasoningChain(BaseModel):
+    """Chain of reasoning for complex problem solving"""
+    chain_id: str = Field(default_factory=lambda: str(uuid4()))
+    query: str
+    context: Dict[str, Any] = {}
+    reasoning_type: str = "hybrid"
+    steps: List[ReasoningStep] = []
+    current_step: int = 0
+    completed: bool = False
+    confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+
+
+class LogicalRule(BaseModel):
+    """Logical rule for reasoning"""
+    rule_id: str = Field(default_factory=lambda: str(uuid4()))
+    rule_type: str  # "if_then", "implication", "constraint", "heuristic"
+    condition: str
+    conclusion: str
+    confidence: float = Field(default=0.8, ge=0.0, le=1.0)
+    domain: Optional[str] = None
+    priority: int = Field(default=5, ge=1, le=10)
+    metadata: Dict[str, Any] = {}
+    created_at: datetime = Field(default_factory=datetime.now) 

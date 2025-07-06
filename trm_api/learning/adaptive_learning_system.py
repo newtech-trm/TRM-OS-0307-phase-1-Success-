@@ -163,15 +163,34 @@ class AdaptiveLearningSystem:
     
     async def learn_from_experience(
         self,
-        experience_type: ExperienceType,
-        context: Dict[str, Any],
-        action_taken: Dict[str, Any],
-        outcome: Dict[str, Any],
-        success: bool,
+        experience_type_or_obj,
+        context: Dict[str, Any] = None,
+        action_taken: Dict[str, Any] = None,
+        outcome: Dict[str, Any] = None,
+        success: bool = None,
         performance_metrics: Dict[str, float] = None,
         confidence_level: float = 0.5
     ) -> str:
-        """Learn from a single experience"""
+        """Learn from a single experience - supports both individual parameters and LearningExperience object"""
+        
+        # Check if first parameter is a LearningExperience object
+        if hasattr(experience_type_or_obj, 'experience_type'):
+            # It's a LearningExperience object
+            experience = experience_type_or_obj
+            experience_type = experience.experience_type
+            context = experience.context
+            action_taken = experience.action_taken
+            outcome = experience.outcome
+            success = experience.success
+            performance_metrics = getattr(experience, 'performance_metrics', None)
+            confidence_level = experience.confidence_level
+        else:
+            # It's individual parameters
+            experience_type = experience_type_or_obj
+            
+            # Validate required parameters
+            if context is None or action_taken is None or outcome is None or success is None:
+                raise ValueError("Missing required parameters for learn_from_experience")
         
         # Validate experience_type
         if isinstance(experience_type, str):
@@ -216,6 +235,10 @@ class AdaptiveLearningSystem:
                 asyncio.create_task(self.run_learning_cycle())
         
         return experience_id
+    
+    async def learn_from_experience_obj(self, experience: LearningExperience) -> str:
+        """Learn from a LearningExperience object (deprecated - use learn_from_experience)"""
+        return await self.learn_from_experience(experience)
     
     async def run_learning_cycle(self) -> Dict[str, Any]:
         """Run a complete learning cycle"""
@@ -684,4 +707,22 @@ class AdaptiveLearningSystem:
                 "action": "system_reset",
                 "reset_at": datetime.now()
             }
-        ) 
+        )
+    
+    def get_statistics(self) -> Dict[str, Any]:
+        """Get system statistics for compatibility with other components"""
+        status = self.get_learning_status()
+        return {
+            "learning_effectiveness": status["system_stats"]["average_cycle_time"],
+            "adaptation_success_rate": status["system_stats"]["total_adaptations_applied"] / max(1, status["system_stats"]["total_learning_cycles"]),
+            "total_learning_cycles": status["system_stats"]["total_learning_cycles"],
+            "total_experiences_processed": status["system_stats"]["total_experiences_processed"],
+            "total_patterns_discovered": status["system_stats"]["total_patterns_discovered"],
+            "total_adaptations_applied": status["system_stats"]["total_adaptations_applied"],
+            "goals_achieved": status["system_stats"]["goals_achieved"],
+            "average_cycle_time": status["system_stats"]["average_cycle_time"]
+        }
+    
+    async def start_learning_cycle(self) -> None:
+        # Implementation of start_learning_cycle method
+        pass 

@@ -37,6 +37,15 @@ class ExperienceType(Enum):
     FEEDBACK_ADAPTATION = "feedback_adaptation"
     INTENT_RECOGNITION = "intent_recognition"
     CONTEXT_UNDERSTANDING = "context_understanding"
+    # NEW: Quantum Experience Types
+    QUANTUM_STATE_DETECTION = "quantum_state_detection"
+    QUANTUM_OPTIMIZATION = "quantum_optimization"
+    STATE_TRANSITION = "state_transition"
+    WIN_PROBABILITY_CALCULATION = "win_probability_calculation"
+    COHERENCE_MONITORING = "coherence_monitoring"
+    QUANTUM_ENTANGLEMENT = "quantum_entanglement"
+    QUANTUM_MEASUREMENT = "quantum_measurement"
+    QUANTUM_EVOLUTION = "quantum_evolution"
 
 
 class MetricType(Enum):

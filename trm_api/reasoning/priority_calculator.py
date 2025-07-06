@@ -52,6 +52,11 @@ class PriorityCalculationResult:
     confidence_level: float  # 0.0 - 1.0
     reasoning: str
     recommendations: List[str]
+    
+    @property
+    def priority_score(self) -> float:
+        """Backward compatibility property"""
+        return self.final_score
 
 class PriorityCalculator:
     """

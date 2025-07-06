@@ -1,7 +1,21 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Dict, Any
 from datetime import datetime
+from enum import Enum
 import uuid
+
+
+class EventType(Enum):
+    """Event types for TRM-OS system"""
+    SYSTEM_INITIALIZED = "system.initialized"
+    KNOWLEDGE_CREATED = "knowledge.created"
+    AGENT_ACTION_COMPLETED = "agent.action.completed"
+    AGENT_ACTION_FAILED = "agent.action.failed"
+    QUANTUM_STATE_DETECTED = "quantum.state.detected"
+    QUANTUM_OPTIMIZATION_COMPLETED = "quantum.optimization.completed"
+    COHERENCE_ALERT = "coherence.alert"
+    WIN_PROBABILITY_CALCULATED = "win.probability.calculated"
+
 
 class EventBase(BaseModel):
     # e.g., 'tension.created', 'task.status.changed', 'agent.action.completed'

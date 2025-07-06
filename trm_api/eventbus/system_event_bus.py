@@ -40,6 +40,9 @@ class EventType(str, Enum):
     
     # WIN events
     WIN_CREATED = "win.created"
+    
+    # Reasoning events
+    REASONING_COMPLETED = "reasoning.completed"
 
 class SystemEvent(BaseModel):
     """Định nghĩa cấu trúc của một sự kiện trong hệ thống"""
