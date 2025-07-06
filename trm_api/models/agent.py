@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Optional, List
 from datetime import datetime
 import uuid
@@ -9,7 +9,7 @@ class AgentBase(BaseModel):
     purpose: Optional[str] = Field(None, description="The agent's primary function or goal.")
     description: Optional[str] = Field(None, description="A brief description of the agent.")
     status: str = Field("active", description="The operational status of the agent. E.g., 'active', 'inactive', 'error', 'archived'.")
-    capabilities: List[str] = Field(default_factory=list, description="List of capabilities this agent possesses.")
+    capabilities: Optional[List[str]] = Field(default_factory=list, description="List of capabilities this agent possesses.")
     
     # Fields specific to InternalAgent, including Founder
     job_title: Optional[str] = Field(None, description="Job title, applicable for InternalAgent.", alias="jobTitle")
@@ -18,6 +18,13 @@ class AgentBase(BaseModel):
     founder_recognition_authority: bool = Field(False, description="Indicates if the founder has recognition authority.", alias="founderRecognitionAuthority")
     contact_info: Optional[dict] = Field(None, description="Contact information for the agent.", alias="contactInfo")
 
+    @field_validator('capabilities', mode='before')
+    @classmethod
+    def validate_capabilities(cls, v):
+        """Convert None to empty list for capabilities"""
+        if v is None:
+            return []
+        return v
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -55,6 +62,14 @@ class AgentUpdate(BaseModel):
     contact_info: Optional[dict] = Field(None, alias="contactInfo")
     tool_ids: Optional[List[str]] = Field(None, alias="toolIds")
 
+    @field_validator('capabilities', mode='before')
+    @classmethod
+    def validate_capabilities(cls, v):
+        """Convert None to empty list for capabilities"""
+        if v is None:
+            return []
+        return v
+
 class AgentInDB(AgentBase): 
     uid: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="agentId", description="Unique ID of the agent.") 
     creation_date: datetime = Field(default_factory=datetime.utcnow, alias="creationDate", description="Timestamp of agent creation.")
@@ -83,7 +98,15 @@ class AgentInDB(AgentBase):
     )
 
 class Agent(AgentInDB):
-    tool_ids: List[str] = Field(default_factory=list, alias="toolIds", description="List of tool IDs this agent is equipped to use.")
+    tool_ids: Optional[List[str]] = Field(default_factory=list, alias="toolIds", description="List of tool IDs this agent is equipped to use.")
+
+    @field_validator('tool_ids', mode='before')
+    @classmethod
+    def validate_tool_ids(cls, v):
+        """Convert None to empty list for tool_ids"""
+        if v is None:
+            return []
+        return v
 
 class PaginatedAgentResponse(BaseModel):
     items: List[Agent] = Field(..., description="List of agents")
