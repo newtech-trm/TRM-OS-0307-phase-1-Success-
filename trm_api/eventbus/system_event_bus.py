@@ -29,6 +29,7 @@ class EventType(str, Enum):
     AGENT_ACTIVATED = "agent.activated"
     AGENT_DEACTIVATED = "agent.deactivated"
     AGENT_ERROR = "agent.error"
+    AGENT_ACTION_COMPLETED = "agent.action.completed"
     
     # Knowledge events
     KNOWLEDGE_CREATED = "knowledge.created"
