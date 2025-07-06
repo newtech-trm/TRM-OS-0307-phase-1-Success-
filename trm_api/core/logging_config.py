@@ -42,3 +42,15 @@ LOGGING_CONFIG = {
 def setup_logging():
     """Applies the logging configuration."""
     dictConfig(LOGGING_CONFIG)
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get a logger instance for the given name.
+    
+    Args:
+        name: Logger name (usually __name__)
+        
+    Returns:
+        Configured logger instance
+    """
+    return logging.getLogger(name)

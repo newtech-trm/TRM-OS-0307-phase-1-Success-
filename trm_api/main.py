@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI):
 # Initialize the FastAPI app with the lifespan manager
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    openapi_url="/openapi.json",
     lifespan=lifespan
 )
 
@@ -66,6 +66,10 @@ def health_check():
 # Include the main API router
 from trm_api.api.v1.api import api_router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Include TRM-OS v2 Conversational Intelligence API
+from trm_api.v2.api import v2_router
+app.include_router(v2_router)
 
 # Kết thúc khởi động server khi chạy trực tiếp (python -m trm_api.main)
 if __name__ == "__main__":
