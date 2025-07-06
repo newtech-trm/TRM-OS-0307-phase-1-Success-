@@ -376,3 +376,33 @@
 2025-07-06 07:15:08.407149: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
 2025-07-06 07:15:08.407149: PYTHONPATH: None
 2025-07-06 07:15:08.407149: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
+2025-07-06 07:20:37.552388: --- Uvicorn/FastAPI Startup --- 
+2025-07-06 07:20:37.552388: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\venv-trm\Scripts\python.exe
+2025-07-06 07:20:37.552388: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches\\venv-trm\\Scripts\\pytest.exe', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\venv-trm', 'E:\\tech\\trm-os-branches\\venv-trm\\Lib\\site-packages']
+2025-07-06 07:20:37.552388: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-07-06 07:20:37.553390: PYTHONPATH: None
+2025-07-06 07:20:37.553390: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
+2025-07-06 07:21:07.506350: --- Uvicorn/FastAPI Startup --- 
+2025-07-06 07:21:07.506350: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\venv-trm\Scripts\python.exe
+2025-07-06 07:21:07.506854: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches\\venv-trm\\Scripts\\pytest.exe', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\venv-trm', 'E:\\tech\\trm-os-branches\\venv-trm\\Lib\\site-packages']
+2025-07-06 07:21:07.506854: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-07-06 07:21:07.506854: PYTHONPATH: None
+2025-07-06 07:21:07.506854: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
+2025-07-06 07:21:14.346135: --- Uvicorn/FastAPI Startup --- 
+2025-07-06 07:21:14.346135: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\venv-trm\Scripts\python.exe
+2025-07-06 07:21:14.346135: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches\\venv-trm\\Scripts\\pytest.exe', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\venv-trm', 'E:\\tech\\trm-os-branches\\venv-trm\\Lib\\site-packages']
+2025-07-06 07:21:14.347387: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-07-06 07:21:14.347387: PYTHONPATH: None
+2025-07-06 07:21:14.347387: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
+2025-07-06 07:25:08.656355: --- Uvicorn/FastAPI Startup --- 
+2025-07-06 07:25:08.656355: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\venv-trm\Scripts\python.exe
+2025-07-06 07:25:08.656355: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\venv-trm', 'E:\\tech\\trm-os-branches\\venv-trm\\Lib\\site-packages']
+2025-07-06 07:25:08.657459: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-07-06 07:25:08.657459: PYTHONPATH: None
+2025-07-06 07:25:08.657459: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
+2025-07-06 07:25:09.527771: --- Uvicorn/FastAPI Startup --- 
+2025-07-06 07:25:09.528776: PYTHON_EXECUTABLE_IN_MAIN: E:\tech\trm-os-branches\venv-trm\Scripts\python.exe
+2025-07-06 07:25:09.528776: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311', 'E:\\tech\\trm-os-branches\\venv-trm', 'E:\\tech\\trm-os-branches\\venv-trm\\Lib\\site-packages']
+2025-07-06 07:25:09.528776: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-07-06 07:25:09.528776: PYTHONPATH: None
+2025-07-06 07:25:09.528776: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
