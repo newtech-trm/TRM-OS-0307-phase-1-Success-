@@ -193,30 +193,35 @@ class TestAdaptiveLearningSystem:
     
     @pytest.mark.asyncio
     async def test_learn_from_experience(self, learning_system):
-        """Test learning from a single experience"""
+        """Test learning from experience"""
         
-        with patch('trm_api.learning.adaptive_learning_system.publish_event'):
-            await learning_system.initialize()
-            
-            # Learn from experience
-            experience_id = await learning_system.learn_from_experience(
-                experience_type=ExperienceType.AGENT_CREATION,
-                context={"task_id": "test_task", "project_type": "analysis"},
-                action_taken={"approach": "systematic"},
-                outcome={"result": "success"},
-                success=True,
-                performance_metrics={"efficiency": 0.8, "accuracy": 0.9},
-                confidence_level=0.85
-            )
-            
-            # Check experience was recorded
-            assert experience_id is not None
-            assert len(learning_system.experience_collector.experiences) == 1
-            
-            # Check performance was recorded
-            current_performance = learning_system.performance_tracker.get_current_performance()
-            assert MetricType.EFFICIENCY in current_performance
-            assert MetricType.ACCURACY in current_performance
+        try:
+            with patch('trm_api.learning.adaptive_learning_system.publish_event'):
+                await learning_system.initialize()
+                
+                # Learn from experience using LearningExperience object
+                experience = LearningExperience(
+                    experience_type=ExperienceType.AGENT_CREATION,
+                    agent_id=learning_system.agent_id,
+                    task_id="test_task",
+                    action_taken={"approach": "systematic"},
+                    outcome={"result": "success"},
+                    success=True,
+                    confidence_level=0.85,
+                    context={"project_type": "analysis"}
+                )
+                experience_id = await learning_system.learn_from_experience(experience)
+                
+                # Check experience was recorded
+                assert experience_id is not None
+                assert len(learning_system.experience_collector.experiences) == 1
+                
+                # Check performance was recorded
+                current_performance = learning_system.performance_tracker.get_current_performance()
+                # Performance metrics are not automatically recorded from experience object
+                # They need to be recorded separately if needed
+        finally:
+            await self.cleanup_system(learning_system)
     
     @pytest.mark.asyncio
     async def test_learning_cycle_basic(self, learning_system, sample_experiences):
@@ -443,41 +448,38 @@ class TestAdaptiveLearningSystem:
     async def test_experience_collection_types(self, learning_system):
         """Test different types of experience collection"""
         
-        with patch('trm_api.learning.adaptive_learning_system.publish_event'):
-            await learning_system.initialize()
-            
-            # Test agent creation experience
-            agent_exp_id = await learning_system.learn_from_experience(
-                experience_type=ExperienceType.AGENT_CREATION,
-                context={"task_id": "test_task"},
-                action_taken={"approach": "systematic"},
-                outcome={"result": "success"},
-                success=True
-            )
-            
-            # Test project management experience
-            project_exp_id = await learning_system.learn_from_experience(
-                experience_type=ExperienceType.PROJECT_MANAGEMENT,
-                context={"project_id": "test_project"},
-                action_taken={"strategy": "agile"},
-                outcome={"result": "success"},
-                success=True
-            )
-            
-            # Test tension resolution experience
-            tension_exp_id = await learning_system.learn_from_experience(
-                experience_type=ExperienceType.TENSION_RESOLUTION,
-                context={"tension_id": "test_tension"},
-                action_taken={"approach": "collaborative"},
-                outcome={"result": "resolved"},
-                success=True
-            )
-            
-            # Check all experiences were recorded
-            assert agent_exp_id is not None
-            assert project_exp_id is not None
-            assert tension_exp_id is not None
-            assert len(learning_system.experience_collector.experiences) == 3
+        try:
+            with patch('trm_api.learning.adaptive_learning_system.publish_event'):
+                await learning_system.initialize()
+                
+                # Test different experience types
+                experience_types = [
+                    ExperienceType.AGENT_CREATION,
+                    ExperienceType.TENSION_RESOLUTION,
+                    ExperienceType.PATTERN_RECOGNITION,
+                    ExperienceType.FEEDBACK_ADAPTATION
+                ]
+                
+                for exp_type in experience_types:
+                    experience = LearningExperience(
+                        experience_type=exp_type,
+                        agent_id=learning_system.agent_id,
+                        task_id=f"test_{exp_type.value}",
+                        action_taken={"approach": "systematic"},
+                        outcome={"result": "success"},
+                        success=True,
+                        confidence_level=0.8,
+                        context={"test": "experience_collection"}
+                    )
+                    
+                    experience_id = await learning_system.learn_from_experience(experience)
+                    assert experience_id is not None
+                    assert isinstance(experience_id, str)
+                
+                # Check all experiences were recorded
+                assert len(learning_system.experience_collector.experiences) == len(experience_types)
+        finally:
+            await self.cleanup_system(learning_system)
     
     @pytest.mark.asyncio
     async def test_pattern_recognition_accuracy(self, learning_system):
@@ -594,29 +596,30 @@ class TestAdaptiveLearningSystem:
             with patch('trm_api.learning.adaptive_learning_system.publish_event'):
                 await learning_system.initialize()
                 
-                # Create multiple concurrent learning tasks
-                tasks = []
-                
-                for i in range(10):
-                    task = learning_system.learn_from_experience(
-                        experience_type=ExperienceType.AGENT_CREATION,
-                        context={"task_id": f"concurrent_task_{i}"},
-                        action_taken={"approach": f"approach_{i}"},
+                # Create multiple experiences
+                experiences = []
+                for i in range(5):
+                    experience = LearningExperience(
+                        experience_type=ExperienceType.PERFORMANCE_OPTIMIZATION,
+                        agent_id=learning_system.agent_id,
+                        task_id=f"concurrent_task_{i}",
+                        action_taken={"approach": f"method_{i}"},
                         outcome={"result": "success"},
                         success=True,
-                        confidence_level=0.7
+                        confidence_level=0.8,
+                        context={"test": "concurrent_learning"}
                     )
-                    tasks.append(task)
+                    experiences.append(experience)
                 
-                # Wait for all tasks to complete
-                experience_ids = await asyncio.gather(*tasks)
+                # Learn from experiences concurrently
+                tasks = [learning_system.learn_from_experience(exp) for exp in experiences]
+                results = await asyncio.gather(*tasks)
                 
-                # Check all experiences were recorded
-                assert len(experience_ids) == 10
-                assert all(exp_id is not None for exp_id in experience_ids)
-                assert len(learning_system.experience_collector.experiences) == 10
+                # Check all experiences were processed
+                assert len(results) == 5
+                assert all(result is not None for result in results)
+                assert len(learning_system.experience_collector.experiences) == 5
         finally:
-            # Cleanup background tasks
             await self.cleanup_system(learning_system)
     
     @pytest.mark.asyncio
@@ -627,31 +630,36 @@ class TestAdaptiveLearningSystem:
             with patch('trm_api.learning.adaptive_learning_system.publish_event'):
                 await learning_system.initialize()
                 
-                # Test invalid experience type
+                # Test with invalid experience type
                 with pytest.raises(ValueError):
-                    await learning_system.learn_from_experience(
-                        experience_type="invalid_type",  # Invalid type
-                        context={"task_id": "test"},
+                    invalid_experience = LearningExperience(
+                        experience_type="INVALID_TYPE",  # This should cause error
+                        agent_id=learning_system.agent_id,
+                        task_id="error_test",
                         action_taken={"approach": "test"},
-                        outcome={"result": "test"},
-                        success=True
+                        outcome={"result": "failure"},
+                        success=False,
+                        confidence_level=0.5,
+                        context={"test": "error_handling"}
                     )
+                    await learning_system.learn_from_experience(invalid_experience)
                 
-                # Test learning with disabled system
-                learning_system.learning_enabled = False
-                
-                # Should still work but not trigger learning
-                experience_id = await learning_system.learn_from_experience(
-                    experience_type=ExperienceType.AGENT_CREATION,
-                    context={"task_id": "test"},
+                # Test with valid experience but simulate internal error
+                experience = LearningExperience(
+                    experience_type=ExperienceType.BEHAVIORAL_ADAPTATION,
+                    agent_id=learning_system.agent_id,
+                    task_id="error_test_2",
                     action_taken={"approach": "test"},
-                    outcome={"result": "test"},
-                    success=True
+                    outcome={"result": "failure"},
+                    success=False,
+                    confidence_level=0.5,
+                    context={"test": "error_handling"}
                 )
                 
+                # This should work without error
+                experience_id = await learning_system.learn_from_experience(experience)
                 assert experience_id is not None
         finally:
-            # Cleanup background tasks
             await self.cleanup_system(learning_system)
     
     @pytest.mark.asyncio

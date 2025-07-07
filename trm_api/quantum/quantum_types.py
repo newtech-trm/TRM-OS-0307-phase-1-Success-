@@ -78,6 +78,7 @@ class QuantumState:
     description: str = ""
     organizational_level: str = "team"   # "individual", "team", "department", "organization"
     stakeholders: List[str] = field(default_factory=list)  # Affected stakeholders
+    win_category: Optional[WINCategory] = None  # Associated WIN category
     
     # Temporal properties
     coherence_time: float = 0.0         # How long state remains coherent

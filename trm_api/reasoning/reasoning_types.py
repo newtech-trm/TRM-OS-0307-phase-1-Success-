@@ -24,10 +24,14 @@ class ReasoningType(Enum):
     """Types of reasoning processes"""
     DEDUCTIVE = "deductive"       # Logic-based reasoning
     INDUCTIVE = "inductive"       # Pattern-based reasoning
+    ABDUCTIVE = "abductive"       # Best explanation reasoning
+    ANALOGICAL = "analogical"     # Similarity-based reasoning
     CAUSAL = "causal"            # Cause-effect reasoning
     TEMPORAL = "temporal"        # Time-based reasoning
     CONTEXTUAL = "contextual"    # Context-aware reasoning
     PROBABILISTIC = "probabilistic"  # Uncertainty-based reasoning
+    QUANTUM = "quantum"          # Quantum-inspired reasoning
+    HYBRID = "hybrid"            # Combined reasoning approaches
 
 
 class ReasoningStep(BaseModel):

@@ -335,7 +335,7 @@ class ReasoningCoordinator:
                 constraints=request.context.get("constraints", {}) if request.context else {},
                 objectives=["resolve_tension", "optimize_solution"],
                 available_resources=request.context.get("resources", {}) if request.context else {},
-                priority_level=current_result.priority_calculation.priority_score if current_result.priority_calculation else 5,
+                priority_level=max(1, min(10, int(current_result.priority_calculation.priority_score))) if current_result.priority_calculation else 5,
                 risk_tolerance=0.5,  # Default moderate risk tolerance
                 quantum_context={"tension_id": request.tension_id}
             )

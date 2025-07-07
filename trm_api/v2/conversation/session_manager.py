@@ -42,6 +42,7 @@ class ConversationContext:
     conversation_state: str  # 'active', 'waiting', 'completed'
     last_intent: Optional[ParsedIntent]
     accumulated_context: Dict[str, Any]
+    turn_count: int = 0  # NEW: Track number of turns
     
 
 @dataclass
@@ -54,7 +55,18 @@ class ConversationSession:
     context: ConversationContext
     turns: List[ConversationTurn]
     metadata: Dict[str, Any]
+    status: str = "active"  # NEW: Session status
     
+    @property
+    def turn_count(self) -> int:
+        """Get current turn count"""
+        return len(self.turns)
+    
+    @property
+    def created_at(self) -> datetime:
+        """Alias for start_time"""
+        return self.start_time
+
 
 class ConversationMemory:
     """
@@ -201,7 +213,8 @@ class ConversationSessionManager:
                 active_entities={},
                 conversation_state='active',
                 last_intent=None,
-                accumulated_context={}
+                accumulated_context={},
+                turn_count=0  # Initialize turn count
             )
             
             session = ConversationSession(
@@ -270,12 +283,15 @@ class ConversationSessionManager:
             # Store last intent
             context.last_intent = parsed_intent
             
+            # Increment turn count
+            context.turn_count += 1
+            
             # Add to accumulated context
             context.accumulated_context.update({
                 'last_message': message,
                 'last_intent_type': parsed_intent.intent_type.value,
                 'last_confidence': parsed_intent.confidence,
-                'turn_count': len(session.turns) + 1
+                'turn_count': context.turn_count
             })
             
             logger.info(f"Updated context for session {session_id}")

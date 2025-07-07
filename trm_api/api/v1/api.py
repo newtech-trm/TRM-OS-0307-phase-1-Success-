@@ -50,6 +50,9 @@ api_router.include_router(knowledge_snippet.router, prefix="/knowledge-snippets"
 from trm_api.api.v1.endpoints import agent
 api_router.include_router(agent.router, prefix="/agents", tags=["Agents"])
 
+from trm_api.api.v1.endpoints import agent_ecosystem
+api_router.include_router(agent_ecosystem.router, tags=["Agent Ecosystem"])
+
 from trm_api.api.v1.endpoints import event
 api_router.include_router(event.router, prefix="/events", tags=["Events"])
 # api_router.include_router(tool.router, prefix="/tools", tags=["Tools"])
@@ -57,8 +60,8 @@ api_router.include_router(event.router, prefix="/events", tags=["Events"])
 from trm_api.api.v1.endpoints import validate
 api_router.include_router(validate.router, tags=["Validation"])
 
-# NEW: Import V2 Conversation endpoints
-from ..v2.endpoints.conversation import router as conversation_router
+# NEW: Import V2 Conversation endpoints - REMOVED (fake implementation)
+# from ..v2.endpoints.conversation import router as conversation_router
 from ...core.dependencies import cleanup_dependencies
 
 @asynccontextmanager
@@ -98,8 +101,8 @@ app.add_middleware(
 # Include V1 API routes
 app.include_router(api_router, prefix="/api/v1")
 
-# Include V2 Conversation endpoints
-app.include_router(conversation_router, prefix="/api")
+# Include V2 Conversation endpoints - REMOVED (fake implementation)
+# app.include_router(conversation_router, prefix="/api")
 
 @app.get("/")
 async def root():
@@ -120,8 +123,8 @@ async def root():
         ],
         "endpoints": {
             "v1_api": "/api/v1",
-            "v2_conversation": "/api/v2/conversation",
-            "websocket": "/api/v2/conversation/realtime/{user_id}",
+            # "v2_conversation": "/api/v2/conversation",  # REMOVED (fake implementation)
+            # "websocket": "/api/v2/conversation/realtime/{user_id}",  # REMOVED (fake implementation)
             "health": "/api/v2/health",
             "docs": "/docs"
         }

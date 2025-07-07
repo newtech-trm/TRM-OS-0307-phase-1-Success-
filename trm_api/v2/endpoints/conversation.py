@@ -124,11 +124,12 @@ async def analyze_conversation(
     current_user: UserResponse = Depends(get_current_user)
 ):
     """
-    Analyze natural language message và generate intelligent response
+    Analyze natural language message và generate intelligent response với ML-Enhanced Reasoning
     
     Supports:
     - Vietnamese và English language processing
     - Intent detection và entity extraction
+    - ML-Enhanced reasoning cho intelligent insights
     - Context-aware response generation
     - System action execution
     """
@@ -159,6 +160,9 @@ async def analyze_conversation(
         # Extract entities và context
         entity_context = await nlp_processor.extract_entities_and_context(parsed_intent)
         
+        # NEW: Enhance với ML reasoning
+        ml_insights = await nlp_processor.enhance_with_ml_reasoning(entity_context)
+        
         # Map intent to system actions
         system_actions = await nlp_processor.map_intent_to_system_actions(entity_context)
         
@@ -170,12 +174,18 @@ async def analyze_conversation(
             session.session_id, parsed_intent
         )
         
+        # NEW: Add ML reasoning insights to suggestions
+        if ml_insights and "recommendations" in ml_insights:
+            ml_recommendations = ml_insights["recommendations"]
+            suggestions.extend(ml_recommendations[:3])  # Add top 3 ML recommendations
+        
         # Generate natural language response
         response_context = ResponseContext(
             intent=parsed_intent,
             conversation_context=conversation_context,
             action_results=action_results,
-            suggestions=suggestions
+            suggestions=suggestions,
+            ml_insights=ml_insights  # Pass ML insights to response generator
         )
         
         generated_response = await response_generator.generate_natural_language_response(response_context)
@@ -197,7 +207,9 @@ async def analyze_conversation(
                 "type": "response",
                 "text": generated_response.text,
                 "intent": parsed_intent.intent_type.value,
-                "confidence": parsed_intent.confidence
+                "confidence": parsed_intent.confidence,
+                "ml_confidence": ml_insights.get("ml_confidence", 0.0),
+                "reasoning_type": ml_insights.get("reasoning_type", "unknown")
             })
         
         return ConversationResponse(
@@ -205,13 +217,9 @@ async def analyze_conversation(
             intent_detected=parsed_intent.intent_type.value,
             confidence=parsed_intent.confidence,
             session_id=session.session_id,
-            suggested_actions=generated_response.suggested_actions,
-            entities_extracted=parsed_intent.entities,
-            system_actions=[{
-                "action_type": action.action_type,
-                "parameters": action.parameters,
-                "confidence": action.confidence
-            } for action in system_actions],
+            suggested_actions=suggestions,
+            entities_extracted=entity_context.entities,
+            system_actions=[action.dict() for action in system_actions],
             processing_time=processing_time
         )
         

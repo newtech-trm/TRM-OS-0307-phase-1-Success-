@@ -43,12 +43,13 @@ class ResponseTone(Enum):
 
 @dataclass
 class ResponseContext:
-    """Context cho response generation"""
+    """Context cho response generation với ML insights"""
     intent: ParsedIntent
     conversation_context: ConversationContext
     action_results: List[Dict[str, Any]]
     suggestions: List[Dict[str, Any]]
     error_info: Optional[Dict[str, Any]] = None
+    ml_insights: Optional[Dict[str, Any]] = None  # NEW: ML reasoning insights
     
 
 @dataclass
