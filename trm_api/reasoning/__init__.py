@@ -19,6 +19,11 @@ from .advanced_reasoning_engine import AdvancedReasoningEngine
 from .causal_analyzer import CausalAnalyzer  
 from .uncertainty_handler import UncertaintyHandler
 from .context_manager import ContextManager
+from .reasoning_coordinator import ReasoningCoordinator, ReasoningRequest, ReasoningResult as CoordinatorResult
+from .tension_analyzer import TensionAnalyzer
+from .rule_engine import RuleEngine
+from .solution_generator import SolutionGenerator
+from .priority_calculator import PriorityCalculator
 from .reasoning_types import (
     ReasoningContext,
     ReasoningStep, 
@@ -32,6 +37,13 @@ __all__ = [
     "CausalAnalyzer", 
     "UncertaintyHandler",
     "ContextManager",
+    "ReasoningCoordinator",
+    "ReasoningRequest", 
+    "CoordinatorResult",
+    "TensionAnalyzer",
+    "RuleEngine",
+    "SolutionGenerator",
+    "PriorityCalculator",
     "ReasoningContext",
     "ReasoningStep",
     "CausalChain", 

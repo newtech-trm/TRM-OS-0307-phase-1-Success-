@@ -20,7 +20,7 @@ from trm_api.agents.ecosystem.specialized_agents import (
     ProjectManagerAgent, DataAnalystAgent, TensionResolverAgent
 )
 from trm_api.learning.adaptive_learning_system import AdaptiveLearningSystem
-from trm_api.reasoning.ml_enhanced_reasoning_engine import MLEnhancedReasoningEngine
+# ML Enhanced Reasoning removed - Using Commercial AI APIs only
 from trm_api.reasoning.reasoning_types import ReasoningContext, ReasoningType
 from trm_api.quantum.quantum_system_manager import QuantumSystemManager
 from trm_api.reasoning.advanced_reasoning_engine import AdvancedReasoningEngine
@@ -129,11 +129,8 @@ class AgentEcosystemManager:
         self.learning_system = AdaptiveLearningSystem(agent_id=f"ecosystem_manager_{self.system_id}")
         self.quantum_manager = QuantumSystemManager(learning_system=self.learning_system)
         self.advanced_reasoning = AdvancedReasoningEngine(agent_id=f"ecosystem_reasoning_{self.system_id}")
-        self.ml_reasoning_engine = MLEnhancedReasoningEngine(
-            learning_system=self.learning_system,
-            quantum_manager=self.quantum_manager,
-            advanced_reasoning=self.advanced_reasoning
-        )
+        # ML Enhanced Reasoning removed - Using Commercial AI APIs only
+        # Commercial AI coordination per TRM-OS philosophy
         
         # Statistics và monitoring
         self.ecosystem_stats = {
@@ -275,11 +272,8 @@ class AgentEcosystemManager:
                 risk_tolerance=0.5
             )
             
-            reasoning_result = await self.ml_reasoning_engine.reason(
-                query=f"Select best agent for task: {task.description}",
-                context=reasoning_context,
-                reasoning_type=ReasoningType.HYBRID
-            )
+            # Commercial AI coordination would be implemented here
+            # For now, use simple scoring without local ML
             
             # Score agents
             agent_scores = []
@@ -291,10 +285,6 @@ class AgentEcosystemManager:
                     (1.0 - metrics.current_workload / metrics.max_concurrent_tasks) * 0.1
                 )
                 
-                # Bonus from ML reasoning
-                if reasoning_result and reasoning_result.confidence > 0.7:
-                    score *= (1.0 + reasoning_result.confidence * 0.1)
-                
                 agent_scores.append((agent, score))
             
             # Return agent with highest score
@@ -302,7 +292,7 @@ class AgentEcosystemManager:
             return best_agent
             
         except Exception as e:
-            self.logger.warning(f"ML reasoning failed for task assignment: {e}")
+            self.logger.warning(f"Agent selection failed: {e}")
             
             # Fallback to simple scoring
             agent_scores = []

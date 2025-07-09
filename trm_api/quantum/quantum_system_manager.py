@@ -206,6 +206,8 @@ class QuantumSystemManager:
             return None
         
         try:
+            quantum_system = self.quantum_systems[system_id]
+            
             # Get organizational signals
             if organizational_signals is None:
                 organizational_signals = await self._collect_organizational_signals()
@@ -213,22 +215,40 @@ class QuantumSystemManager:
             # Store signals history
             self.organizational_signals_history.append(organizational_signals)
             
-            # Detect state using ML
-            detected_state = await self.state_detector.detect_quantum_state(
-                organizational_signals.__dict__
-            )
-            
-            # Update quantum system
-            quantum_system = self.quantum_systems[system_id]
-            if detected_state and detected_state.state_id in quantum_system.quantum_states:
-                current_state = quantum_system.quantum_states[detected_state.state_id]
-                
-                # Learn from state detection
-                await self._learn_from_state_detection(
-                    system_id, organizational_signals, detected_state
+            # Try ML detection first
+            try:
+                detected_state = await self.state_detector.detect_quantum_state(
+                    organizational_signals.__dict__
                 )
                 
-                return current_state
+                # Update quantum system
+                if detected_state and detected_state.state_id in quantum_system.quantum_states:
+                    current_state = quantum_system.quantum_states[detected_state.state_id]
+                    
+                    # Learn from state detection
+                    await self._learn_from_state_detection(
+                        system_id, organizational_signals, detected_state
+                    )
+                    
+                    return current_state
+            except Exception as e:
+                self.logger.warning(f"ML state detection failed: {e}")
+            
+            # Fallback: return first available state with highest probability
+            if quantum_system.quantum_states:
+                best_state = None
+                best_probability = 0.0
+                
+                for state in quantum_system.quantum_states.values():
+                    if state.probability > best_probability:
+                        best_state = state
+                        best_probability = state.probability
+                
+                if best_state:
+                    return best_state
+                else:
+                    # Return first state as last resort
+                    return list(quantum_system.quantum_states.values())[0]
             
             return None
             

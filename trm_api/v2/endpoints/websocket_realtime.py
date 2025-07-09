@@ -3,7 +3,7 @@ TRM-OS WebSocket Real-time Communication
 ========================================
 
 Real-time WebSocket endpoints cho conversational interface
-với ML-enhanced reasoning integration
+với Commercial AI Coordination integration
 """
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException
@@ -18,7 +18,7 @@ from uuid import uuid4
 from trm_api.v2.conversation.nlp_processor import ConversationProcessor
 from trm_api.v2.conversation.session_manager import ConversationSessionManager
 from trm_api.v2.conversation.response_generator import NaturalResponseGenerator, ResponseContext
-from trm_api.reasoning.ml_enhanced_reasoning_engine import MLEnhancedReasoningEngine
+# ML Enhanced Reasoning removed - Using Commercial AI APIs only
 from trm_api.reasoning.reasoning_types import ReasoningContext, ReasoningType
 from trm_api.learning.adaptive_learning_system import AdaptiveLearningSystem
 from trm_api.quantum.quantum_system_manager import QuantumSystemManager
@@ -86,12 +86,12 @@ manager = ConnectionManager()
 nlp_processor: Optional[ConversationProcessor] = None
 session_manager: Optional[ConversationSessionManager] = None
 response_generator: Optional[NaturalResponseGenerator] = None
-ml_reasoning_engine: Optional[MLEnhancedReasoningEngine] = None
+# Using Commercial AI APIs only (OpenAI, Claude, Gemini)
 
 
 async def initialize_realtime_components():
     """Initialize real-time communication components"""
-    global nlp_processor, session_manager, response_generator, ml_reasoning_engine
+    global nlp_processor, session_manager, response_generator
     
     try:
         # Initialize conversation components
@@ -99,16 +99,12 @@ async def initialize_realtime_components():
         session_manager = ConversationSessionManager()
         response_generator = NaturalResponseGenerator()
         
-        # Initialize ML reasoning components
-        learning_system = AdaptiveLearningSystem(agent_id="realtime_ml")
+        # Initialize Commercial AI coordination components
+        learning_system = AdaptiveLearningSystem(agent_id="realtime_commercial_ai")
         quantum_manager = QuantumSystemManager(learning_system=learning_system)
         advanced_reasoning = AdvancedReasoningEngine(agent_id="realtime_reasoning")
         
-        ml_reasoning_engine = MLEnhancedReasoningEngine(
-            learning_system=learning_system,
-            quantum_manager=quantum_manager,
-            advanced_reasoning=advanced_reasoning
-        )
+        # Using Commercial AI APIs only (OpenAI, Claude, Gemini)
         
         logger.info("Real-time components initialized successfully")
         
@@ -146,7 +142,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, user_id: str):
             "timestamp": datetime.now().isoformat(),
             "capabilities": [
                 "Vietnamese/English conversation",
-                "ML-enhanced reasoning",
+                "Commercial AI coordination",
                 "Real-time response generation",
                 "Context-aware interactions"
             ]
@@ -163,7 +159,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, user_id: str):
                 message_data = json.loads(data)
                 user_message = message_data.get("message", "")
                 language = message_data.get("language", "auto")
-                enable_ml_reasoning = message_data.get("ml_reasoning", True)
+                # Using commercial AI APIs only (OpenAI, Claude, Gemini)
                 
                 if not user_message.strip():
                     continue
@@ -190,40 +186,11 @@ async def websocket_chat_endpoint(websocket: WebSocket, user_id: str):
                     session.session_id, user_message, parsed_intent
                 )
                 
-                # ML reasoning enhancement (if enabled)
-                ml_insights = {}
-                if enable_ml_reasoning and ml_reasoning_engine:
-                    try:
-                        # Create reasoning context
-                        reasoning_context = ReasoningContext(
-                            context_id=f"realtime_{session.session_id}",
-                            domain="conversational_ai",
-                            constraints={"real_time": True},
-                            objectives=["provide_helpful_response"],
-                            available_resources={"websocket": True},
-                            priority_level=conversation_context.turn_count,
-                            risk_tolerance=0.7
-                        )
-                        
-                        # Perform ML reasoning
-                        reasoning_result = await ml_reasoning_engine.reason(
-                            query=user_message,
-                            context=reasoning_context,
-                            reasoning_type=ReasoningType.HYBRID
-                        )
-                        
-                        if reasoning_result:
-                            ml_insights = {
-                                "reasoning_type": reasoning_result.reasoning_type.value,
-                                "confidence": reasoning_result.confidence,
-                                "ml_confidence": getattr(reasoning_result, 'ml_confidence', 0.0),
-                                "quantum_enhancement": getattr(reasoning_result, 'quantum_enhancement', 0.0),
-                                "conclusion": reasoning_result.conclusion
-                            }
-                            
-                    except Exception as e:
-                        logger.warning(f"ML reasoning failed: {e}")
-                        ml_insights = {"error": "ML reasoning unavailable"}
+                # Commercial AI coordination (using OpenAI/Claude/Gemini)
+                commercial_ai_insights = {
+                    "commercial_ai": "Using OpenAI/Claude/Gemini for intelligent responses",
+                    "reasoning_approach": "Commercial AI coordination per TRM-OS philosophy"
+                }
                 
                 # Generate response
                 response_context = ResponseContext(

@@ -1,6 +1,6 @@
 """
-State Transition Engine - ML-Enhanced Quantum State Transitions
-Quản lý transitions giữa quantum states với machine learning optimization
+State Transition Engine - Commercial AI Enhanced Quantum State Transitions
+Quản lý transitions giữa quantum states với Commercial AI coordination
 """
 
 import asyncio
@@ -77,7 +77,7 @@ class TransitionResult:
 
 class StateTransitionEngine:
     """
-    ML-Enhanced State Transition Engine
+    Commercial AI Enhanced State Transition Engine
     Quản lý transitions giữa quantum states với intelligent decision making
     """
     
@@ -298,7 +298,7 @@ class StateTransitionEngine:
         """Predict optimal transition path to target state"""
         
         try:
-            # Use A* algorithm with ML-enhanced heuristics
+            # Use A* algorithm with Commercial AI enhanced heuristics
             path = await self._find_optimal_path(
                 quantum_system, current_state_id, target_state_id, max_steps
             )
@@ -372,7 +372,7 @@ class StateTransitionEngine:
         """Initialize ML models for transition prediction"""
         
         # Placeholder for ML model initialization
-        # Would use sklearn models in real implementation
+        # Using Commercial AI APIs for ML predictions instead of local models
         self.transition_success_predictor = "initialized"
         self.transition_timing_predictor = "initialized"
         
@@ -495,7 +495,7 @@ class StateTransitionEngine:
         """Find optimal transition path using A* algorithm"""
         
         # Simplified path finding
-        # In real implementation, would use A* with ML-enhanced heuristics
+        # In real implementation, would use A* with Commercial AI enhanced heuristics
         
         path = []
         current_state = start_state

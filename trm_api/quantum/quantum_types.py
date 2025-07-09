@@ -220,9 +220,9 @@ class QuantumSystem(BaseModel):
     time_step: float = 1.0              # Time step for evolution
     last_update: datetime = Field(default_factory=datetime.now)
     
-    # Machine learning integration
-    ml_predictions: Dict[str, Any] = {}  # ML model predictions
-    learning_rate: float = Field(ge=0.0, le=1.0, default=0.01)
+    # Commercial AI integration
+    ai_predictions: Dict[str, Any] = {}  # Commercial AI predictions
+    ai_confidence: float = Field(ge=0.0, le=1.0, default=0.5)
     adaptation_history: List[Dict[str, Any]] = []
     
     def add_quantum_state(self, state: QuantumState) -> None:

@@ -46,3 +46,7 @@ class Settings(BaseSettings):
 
 # Singleton instance of the settings
 settings = Settings()
+
+def get_settings() -> Settings:
+    """Get application settings instance"""
+    return settings

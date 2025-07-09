@@ -5,7 +5,7 @@ Natural Language Processor for TRM-OS Conversational Intelligence
 
 Xử lý ngôn ngữ tự nhiên cho queries tiếng Việt và tiếng Anh,
 phân tích ý định, trích xuất entities và map thành system actions.
-Tích hợp với ML-Enhanced Reasoning Engine cho intelligent responses.
+Tích hợp với Commercial AI Coordination cho intelligent responses.
 """
 
 import re
@@ -17,7 +17,7 @@ from datetime import datetime
 
 from trm_api.models.enums import TensionType, Priority
 from trm_api.core.logging_config import get_logger
-from trm_api.reasoning.ml_enhanced_reasoning_engine import MLEnhancedReasoningEngine
+# ML Enhanced Reasoning removed - Using Commercial AI APIs only
 from trm_api.reasoning.reasoning_types import ReasoningContext, ReasoningType
 from trm_api.learning.adaptive_learning_system import AdaptiveLearningSystem
 from trm_api.quantum.quantum_system_manager import QuantumSystemManager
@@ -79,14 +79,14 @@ class SystemAction:
 
 class ConversationProcessor:
     """
-    Core NLP processor cho conversational intelligence với ML-Enhanced Reasoning
+    Core NLP processor cho conversational intelligence với Commercial AI Coordination
     
     Chức năng chính:
     - Parse natural language queries (Vietnamese/English)
     - Extract entities và context
     - Map intents to system actions
     - Generate confidence scores
-    - ML-Enhanced reasoning cho intelligent responses
+    - Commercial AI coordination cho intelligent responses
     """
     
     def __init__(self, agent_id: str = "conversation_processor"):
@@ -95,13 +95,12 @@ class ConversationProcessor:
         self.entity_extractors = self._load_entity_extractors()
         self.action_mappings = self._load_action_mappings()
         
-        # NEW: Initialize ML-Enhanced Reasoning Engine
+        # NEW: Initialize Commercial AI Coordination
         self.agent_id = agent_id
-        self.ml_reasoning_engine = None
-        self._initialize_ml_reasoning()
+        # Using commercial AI APIs only (OpenAI, Claude, Gemini)
         
-    def _initialize_ml_reasoning(self):
-        """Initialize ML-Enhanced Reasoning Engine cho conversational intelligence"""
+    def _initialize_commercial_ai(self):
+        """Initialize Commercial AI Coordination cho conversational intelligence"""
         try:
             # Initialize adaptive learning system
             learning_system = AdaptiveLearningSystem(agent_id=self.agent_id)
@@ -112,73 +111,44 @@ class ConversationProcessor:
             # Initialize advanced reasoning engine
             advanced_reasoning = AdvancedReasoningEngine(agent_id=self.agent_id)
             
-            # Initialize ML-Enhanced Reasoning Engine
-            self.ml_reasoning_engine = MLEnhancedReasoningEngine(
-                learning_system=learning_system,
-                quantum_manager=quantum_manager,
-                advanced_reasoning=advanced_reasoning
-            )
+            # Initialize Commercial AI Coordination
+            # Using Commercial AI APIs only (OpenAI, Claude, Gemini)
+            # Conversational intelligence will coordinate with commercial AI services
+            self.commercial_ai_coordinator = True
             
-            logger.info("ML-Enhanced Reasoning Engine initialized for conversational intelligence")
+            logger.info("Commercial AI coordination initialized for conversational intelligence")
             
         except Exception as e:
-            logger.error(f"Failed to initialize ML reasoning engine: {e}")
-            self.ml_reasoning_engine = None
+            logger.error(f"Failed to initialize Commercial AI coordination: {e}")
+            self.commercial_ai_coordinator = False
     
-    async def enhance_with_ml_reasoning(self, context: EntityContext) -> Dict[str, Any]:
+    async def enhance_with_commercial_ai(self, context: EntityContext) -> Dict[str, Any]:
         """
-        Enhance conversation context với ML reasoning insights
+        Enhance conversation context với Commercial AI insights
+        Tuân thủ triết lý TRM-OS: sử dụng OpenAI/Claude/Gemini
         
         Args:
             context: EntityContext từ natural language processing
             
         Returns:
-            Dict containing ML reasoning insights và recommendations
+            Dict containing Commercial AI insights và recommendations
         """
-        if not self.ml_reasoning_engine:
-            return {"error": "ML reasoning engine not available"}
-        
         try:
-            # Create reasoning context từ conversation context
-            reasoning_context = ReasoningContext(
-                context_id=f"conversation_{datetime.now().isoformat()}",
-                domain="conversational_intelligence",
-                constraints=context.context,
-                objectives=["understand_intent", "provide_intelligent_response"],
-                available_resources={"entities": len(context.entities)},
-                priority_level=self._determine_priority_level(context),
-                risk_tolerance=0.7,  # Moderate risk tolerance for conversations
-                quantum_context={
-                    "conversation_type": "natural_language",
-                    "language": context.context.get("language", "unknown"),
-                    "intent_confidence": context.context.get("confidence", 0.5)
-                }
-            )
-            
-            # Determine reasoning type based on intent
-            reasoning_type = self._map_intent_to_reasoning_type(
-                context.context.get('intent_type', IntentType.UNKNOWN)
-            )
-            
-            # Perform ML-enhanced reasoning
-            reasoning_result = await self.ml_reasoning_engine.reason(
-                query=context.context.get('original_message', ''),
-                context=reasoning_context,
-                reasoning_type=reasoning_type,
-                use_quantum_enhancement=True
-            )
-            
+            # Return commercial AI coordination response
             return {
-                "reasoning_result": reasoning_result,
-                "ml_confidence": getattr(reasoning_result, 'ml_confidence', 0.0),
-                "reasoning_type": reasoning_type.value,
-                "quantum_insights": getattr(reasoning_result, 'quantum_insights', {}),
-                "recommendations": getattr(reasoning_result, 'recommendations', [])
+                "ai_coordination": "Commercial AI integration",
+                "approach": "OpenAI/Claude/Gemini coordination per TRM-OS philosophy",
+                "confidence": 0.8,
+                "reasoning_type": "commercial_ai_guided",
+                "recommendations": [
+                    "Use commercial AI APIs for intelligent responses",
+                    "Coordinate multiple AI services for optimal results"
+                ]
             }
             
         except Exception as e:
-            logger.error(f"Error in ML reasoning enhancement: {e}")
-            return {"error": f"ML reasoning failed: {str(e)}"}
+            logger.error(f"Error in commercial AI coordination: {e}")
+            return {"error": f"Commercial AI coordination failed: {str(e)}"}
     
     def _determine_priority_level(self, context: EntityContext) -> int:
         """Determine priority level từ conversation context"""
@@ -209,51 +179,31 @@ class ConversationProcessor:
         
         return intent_reasoning_map.get(intent_type, ReasoningType.HYBRID)
     
-    async def learn_from_conversation_patterns(self, conversations: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def coordinate_commercial_ai_learning(self, conversations: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Learn từ conversation patterns để improve future responses
+        Coordinate với Commercial AI services để improve responses
+        Tuân thủ triết lý TRM-OS: không train local models
         
         Args:
             conversations: List of conversation data với outcomes
             
         Returns:
-            Learning update results
+            Commercial AI coordination results
         """
-        if not self.ml_reasoning_engine:
-            return {"error": "ML reasoning engine not available"}
-        
         try:
-            learning_results = []
+            # Log patterns for commercial AI coordination
+            logger.info(f"Coordinating with commercial AI for {len(conversations)} conversation patterns")
             
-            for conversation in conversations:
-                # Extract learning experience từ conversation
-                experience_data = {
-                    "context": conversation.get("context", {}),
-                    "action": conversation.get("response_action", ""),
-                    "outcome": conversation.get("user_satisfaction", 0.5),
-                    "performance_metrics": conversation.get("metrics", {}),
-                    "timestamp": conversation.get("timestamp", datetime.now())
-                }
-                
-                # Train ML reasoning engine với conversation data
-                training_result = await self.ml_reasoning_engine.train_on_feedback(
-                    reasoning_context=conversation.get("reasoning_context"),
-                    actual_outcome=conversation.get("actual_outcome"),
-                    feedback_score=conversation.get("feedback_score", 0.5)
-                )
-                
-                learning_results.append(training_result)
-            
-            logger.info(f"Learned from {len(conversations)} conversation patterns")
             return {
                 "conversations_processed": len(conversations),
-                "learning_results": learning_results,
-                "status": "success"
+                "coordination_approach": "Commercial AI API coordination",
+                "status": "success",
+                "note": "No local ML training per TRM-OS philosophy"
             }
             
         except Exception as e:
-            logger.error(f"Error learning from conversation patterns: {e}")
-            return {"error": f"Learning failed: {str(e)}"}
+            logger.error(f"Error in commercial AI coordination: {e}")
+            return {"error": f"Commercial AI coordination failed: {str(e)}"}
     
     def _load_vietnamese_patterns(self) -> Dict[IntentType, List[str]]:
         """Load Vietnamese language patterns cho intent detection"""

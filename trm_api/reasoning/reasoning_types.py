@@ -78,6 +78,7 @@ class ReasoningContext(BaseModel):
     current_state: Dict[str, Any] = {}
     historical_events: List[Dict[str, Any]] = []
     related_entities: Dict[str, List[str]] = {}  # entity_type -> [entity_ids]
+    stakeholders: List[str] = []  # List of stakeholder IDs
     
     # Temporal context
     timestamp: datetime = Field(default_factory=datetime.now)
@@ -87,6 +88,7 @@ class ReasoningContext(BaseModel):
     domain: Optional[str] = None
     priority_level: int = Field(default=5, ge=1, le=10)
     complexity_score: float = Field(default=0.5, ge=0.0, le=1.0)
+    risk_tolerance: float = Field(default=0.5, ge=0.0, le=1.0)  # Risk tolerance level
 
 
 class ReasoningResult(BaseModel):

@@ -102,6 +102,24 @@ class TensionRepository:
         except GraphTension.DoesNotExist:
             return None
 
+    def get_all_tensions(self, skip: int = 0, limit: int = 100) -> List[GraphTension]:
+        """
+        Retrieves all tensions in the system with pagination.
+        """
+        # Query all tensions with pagination
+        results, meta = db.cypher_query(
+            """
+            MATCH (t:Tension)
+            RETURN t
+            ORDER BY t.creationDate DESC
+            SKIP $skip LIMIT $limit
+            """,
+            {'skip': skip, 'limit': limit}
+        )
+
+        # Convert the results to GraphTension objects
+        return [GraphTension.inflate(row[0]) for row in results]
+
     def list_tensions_for_project(self, project_id: str, skip: int = 0, limit: int = 100) -> List[GraphTension]:
         """
         Lists all tensions that are related to a specific project.

@@ -60,6 +60,14 @@ api_router.include_router(event.router, prefix="/events", tags=["Events"])
 from trm_api.api.v1.endpoints import validate
 api_router.include_router(validate.router, tags=["Validation"])
 
+# Reasoning Engine endpoints
+from trm_api.api.v1.endpoints import reasoning
+api_router.include_router(reasoning.router, tags=["Reasoning Engine"])
+
+# Commercial AI Coordination endpoints
+from trm_api.api.v1.endpoints import commercial_ai
+api_router.include_router(commercial_ai.router, tags=["Commercial AI Coordination"])
+
 # NEW: Import V2 Conversation endpoints - REMOVED (fake implementation)
 # from ..v2.endpoints.conversation import router as conversation_router
 from ...core.dependencies import cleanup_dependencies
@@ -108,23 +116,25 @@ app.include_router(api_router, prefix="/api/v1")
 async def root():
     """Root endpoint"""
     return {
-        "message": "TRM-OS API v2.0 - Adaptive Intelligence Operating System",
+        "message": "TRM-OS API v2.0 - Commercial AI Orchestration System",
         "version": "2.0.0",
         "status": "operational",
         "timestamp": datetime.now().isoformat(),
+        "philosophy": "Recognition → Event → WIN with Commercial AI Coordination",
         "features": [
-            "🤖 Adaptive Learning System",
-            "💬 Conversational Interface",
-            "🧠 Natural Language Processing",
-            "🔄 Real-time WebSocket",
-            "👥 Agent Templates",
-            "🎯 Advanced Reasoning",
-            "🚀 Genesis Engine"
+            "🤖 Commercial AI Coordination (OpenAI, Claude, Gemini)",
+            "🧠 Multi-AI Reasoning & Synthesis",
+            "💡 Intelligent AI Routing & Optimization",
+            "📊 AI Performance Analytics",
+            "🔄 Event-Driven Architecture",
+            "🎯 Advanced Reasoning Engine",
+            "🚀 Artificial Genesis Engine (AGE)",
+            "⚡ Quantum-Enhanced Processing"
         ],
         "endpoints": {
             "v1_api": "/api/v1",
-            # "v2_conversation": "/api/v2/conversation",  # REMOVED (fake implementation)
-            # "websocket": "/api/v2/conversation/realtime/{user_id}",  # REMOVED (fake implementation)
+            "commercial_ai": "/api/v1/commercial-ai",
+            "reasoning": "/api/v1/reasoning",
             "health": "/api/v2/health",
             "docs": "/docs"
         }
@@ -137,22 +147,31 @@ async def health_check_v2():
         "status": "healthy",
         "version": "2.0.0",
         "timestamp": datetime.now().isoformat(),
+        "philosophy": "Recognition → Event → WIN with Commercial AI Coordination",
         "components": {
-            "adaptive_learning": "operational",
-            "conversational_interface": "operational",
-            "natural_language_processing": "operational",
-            "real_time_websocket": "operational",
-            "agent_templates": "operational",
+            "commercial_ai_coordination": "operational",
+            "ai_routing_engine": "operational", 
+            "multi_ai_synthesis": "operational",
+            "performance_analytics": "operational",
+            "event_driven_architecture": "operational",
             "advanced_reasoning": "operational",
-            "genesis_engine": "operational"
+            "genesis_engine": "operational",
+            "quantum_enhancement": "operational"
+        },
+        "ai_services": {
+            "openai": "connected",
+            "claude": "connected", 
+            "gemini": "connected"
         },
         "capabilities": {
+            "commercial_ai_orchestration": True,
+            "multi_ai_reasoning": True,
+            "intelligent_routing": True,
+            "cost_optimization": True,
+            "performance_monitoring": True,
             "vietnamese_language": True,
             "english_language": True,
-            "multi_intent_processing": True,
-            "contextual_understanding": True,
-            "adaptive_learning": True,
-            "real_time_feedback": True,
-            "conversation_analytics": True
+            "event_driven_processing": True,
+            "quantum_enhanced_decisions": True
         }
     }

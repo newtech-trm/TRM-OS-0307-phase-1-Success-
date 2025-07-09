@@ -17,7 +17,7 @@ from datetime import datetime
 from ....reasoning import (
     ReasoningCoordinator, 
     ReasoningRequest, 
-    ReasoningResult,
+    CoordinatorResult as ReasoningResult,
     TensionAnalyzer,
     RuleEngine,
     SolutionGenerator,
@@ -26,7 +26,7 @@ from ....reasoning import (
 from ....core.config import get_settings
 from ....models.tension import Tension
 from ....repositories.tension_repository import TensionRepository
-from ....db.session import get_db_session
+# from ....db.session import get_db_session  # Not needed for reasoning endpoints
 
 # Initialize router
 router = APIRouter(prefix="/reasoning", tags=["reasoning"])
@@ -409,7 +409,7 @@ async def complete_reasoning_workflow(request: CompleteReasoningRequest):
         raise HTTPException(status_code=500, detail=f"Reasoning workflow failed: {str(e)}")
 
 @router.post("/tension/{tension_id}/analyze")
-async def analyze_existing_tension(tension_id: str, db_session=Depends(get_db_session)):
+async def analyze_existing_tension(tension_id: str):
     """
     Analyze an existing tension from database
     

@@ -124,12 +124,12 @@ async def analyze_conversation(
     current_user: UserResponse = Depends(get_current_user)
 ):
     """
-    Analyze natural language message và generate intelligent response với ML-Enhanced Reasoning
+    Analyze natural language message và generate intelligent response với Commercial AI Coordination
     
     Supports:
     - Vietnamese và English language processing
     - Intent detection và entity extraction
-    - ML-Enhanced reasoning cho intelligent insights
+    - Commercial AI coordination cho intelligent insights
     - Context-aware response generation
     - System action execution
     """
@@ -160,8 +160,8 @@ async def analyze_conversation(
         # Extract entities và context
         entity_context = await nlp_processor.extract_entities_and_context(parsed_intent)
         
-        # NEW: Enhance với ML reasoning
-        ml_insights = await nlp_processor.enhance_with_ml_reasoning(entity_context)
+        # NEW: Enhance với Commercial AI coordination
+        ai_insights = await nlp_processor.enhance_with_commercial_ai(entity_context)
         
         # Map intent to system actions
         system_actions = await nlp_processor.map_intent_to_system_actions(entity_context)
@@ -174,10 +174,10 @@ async def analyze_conversation(
             session.session_id, parsed_intent
         )
         
-        # NEW: Add ML reasoning insights to suggestions
-        if ml_insights and "recommendations" in ml_insights:
-            ml_recommendations = ml_insights["recommendations"]
-            suggestions.extend(ml_recommendations[:3])  # Add top 3 ML recommendations
+        # NEW: Add Commercial AI insights to suggestions
+        if ai_insights and "recommendations" in ai_insights:
+            ai_recommendations = ai_insights["recommendations"]
+            suggestions.extend(ai_recommendations[:3])  # Add top 3 Commercial AI recommendations
         
         # Generate natural language response
         response_context = ResponseContext(
@@ -185,7 +185,7 @@ async def analyze_conversation(
             conversation_context=conversation_context,
             action_results=action_results,
             suggestions=suggestions,
-            ml_insights=ml_insights  # Pass ML insights to response generator
+            ai_insights=ai_insights  # Pass Commercial AI insights to response generator
         )
         
         generated_response = await response_generator.generate_natural_language_response(response_context)
@@ -208,8 +208,8 @@ async def analyze_conversation(
                 "text": generated_response.text,
                 "intent": parsed_intent.intent_type.value,
                 "confidence": parsed_intent.confidence,
-                "ml_confidence": ml_insights.get("ml_confidence", 0.0),
-                "reasoning_type": ml_insights.get("reasoning_type", "unknown")
+                "ai_confidence": ai_insights.get("confidence", 0.0),
+                "reasoning_type": ai_insights.get("reasoning_type", "commercial_ai")
             })
         
         return ConversationResponse(

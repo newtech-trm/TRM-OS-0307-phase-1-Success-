@@ -32,6 +32,6 @@ async def v2_health_check():
             "Real-time WebSocket Chat",
             "Context-aware Response Generation",
             "Agent Integration",
-            "ML-Enhanced Real-time Communication"
+            "Commercial AI Coordination Real-time Communication"
         ]
     } 
