@@ -11,6 +11,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
 import statistics
+import pytest
 
 
 class MockWINPatternAnalyzer:
@@ -377,6 +378,7 @@ class MockFeedbackAutomation:
         }
 
 
+@pytest.mark.asyncio
 async def test_strategic_feedback_automation():
     """Comprehensive test suite for Phase 3B Strategic Feedback Automation"""
     
