@@ -26,7 +26,15 @@ from .mcp_connector_registry import (
     RegistryMetrics,
     get_mcp_registry
 )
-from .rabbitmq_mcp import RabbitMQMCPConnector, create_rabbitmq_connector
+
+# Import RabbitMQ connector if available
+try:
+    from .rabbitmq_mcp import RabbitMQMCPConnector, create_rabbitmq_connector
+    _HAS_RABBITMQ = True
+except ImportError:
+    _HAS_RABBITMQ = False
+    RabbitMQMCPConnector = None
+    create_rabbitmq_connector = None
 
 # Import Snowflake connector if available
 try:
@@ -49,10 +57,12 @@ __all__ = [
     'MCPResponse',
     'MCPHealthCheck',
     'MCPConnectionStatus',
-    'MCPOperationType',
-    'RabbitMQMCPConnector',
-    'create_rabbitmq_connector'
+    'MCPOperationType'
 ]
+
+# Add RabbitMQ exports if available
+if _HAS_RABBITMQ:
+    __all__.extend(['RabbitMQMCPConnector', 'create_rabbitmq_connector'])
 
 # Add Snowflake exports if available
 if _HAS_SNOWFLAKE:

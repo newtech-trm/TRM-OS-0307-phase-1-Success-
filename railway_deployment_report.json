@@ -1,0 +1,227 @@
+{
+  "deployment_score": 98.2464,
+  "production_ready": true,
+  "criteria_passed": "4/4",
+  "api_results": {
+    "total_endpoints": 5,
+    "healthy_endpoints": 5,
+    "avg_response_time": 175.36,
+    "success_rate": 100.0,
+    "details": [
+      {
+        "url": "https://trmosngonlanh.up.railway.app/api/v1/agents",
+        "status": "healthy",
+        "status_code": 307,
+        "response_time": 185.74,
+        "content_length": 0,
+        "headers": {
+          "content-length": "0",
+          "date": "Thu, 10 Jul 2025 03:53:33 GMT",
+          "location": "http://trmosngonlanh.up.railway.app/api/v1/agents/",
+          "server": "railway-edge",
+          "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+          "x-railway-request-id": "_ejRJeU3Soy5sXoQAQeqjw"
+        },
+        "error": null
+      },
+      {
+        "url": "https://trmosngonlanh.up.railway.app/api/v1/projects",
+        "status": "healthy",
+        "status_code": 307,
+        "response_time": 159.81,
+        "content_length": 0,
+        "headers": {
+          "content-length": "0",
+          "date": "Thu, 10 Jul 2025 03:53:33 GMT",
+          "location": "http://trmosngonlanh.up.railway.app/api/v1/projects/",
+          "server": "railway-edge",
+          "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+          "x-railway-request-id": "Kl5YZUcYQrSZ6cuFDcO5xA"
+        },
+        "error": null
+      },
+      {
+        "url": "https://trmosngonlanh.up.railway.app/api/v1/tasks",
+        "status": "healthy",
+        "status_code": 307,
+        "response_time": 169.07,
+        "content_length": 0,
+        "headers": {
+          "content-length": "0",
+          "date": "Thu, 10 Jul 2025 03:53:33 GMT",
+          "location": "http://trmosngonlanh.up.railway.app/api/v1/tasks/",
+          "server": "railway-edge",
+          "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+          "x-railway-request-id": "dBqewUriQoCNIthtAQeqjw"
+        },
+        "error": null
+      },
+      {
+        "url": "https://trmosngonlanh.up.railway.app/api/v1/wins",
+        "status": "healthy",
+        "status_code": 307,
+        "response_time": 181.65,
+        "content_length": 0,
+        "headers": {
+          "content-length": "0",
+          "date": "Thu, 10 Jul 2025 03:53:33 GMT",
+          "location": "http://trmosngonlanh.up.railway.app/api/v1/wins/",
+          "server": "railway-edge",
+          "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+          "x-railway-request-id": "wuCj3FNaQS-miPmYAQeqjw"
+        },
+        "error": null
+      },
+      {
+        "url": "https://trmosngonlanh.up.railway.app/api/v1/tensions",
+        "status": "healthy",
+        "status_code": 307,
+        "response_time": 180.52,
+        "content_length": 0,
+        "headers": {
+          "content-length": "0",
+          "date": "Thu, 10 Jul 2025 03:53:34 GMT",
+          "location": "http://trmosngonlanh.up.railway.app/api/v1/tensions/",
+          "server": "railway-edge",
+          "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+          "x-railway-request-id": "-tUaDLSQThauKEx-AQeqjw"
+        },
+        "error": null
+      }
+    ]
+  },
+  "infrastructure_results": {
+    "fastapi_backend": {
+      "url": "https://trmosngonlanh.up.railway.app/docs",
+      "status": "healthy",
+      "status_code": 200,
+      "response_time": 183.4,
+      "content_length": 952,
+      "headers": {
+        "content-length": "952",
+        "content-type": "text/html; charset=utf-8",
+        "date": "Thu, 10 Jul 2025 03:53:33 GMT",
+        "server": "railway-edge",
+        "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+        "x-railway-request-id": "BPmT7H81TQaeaarracI7Nw"
+      },
+      "error": null
+    },
+    "health_monitoring": {
+      "url": "https://trmosngonlanh.up.railway.app/health",
+      "status": "healthy",
+      "status_code": 200,
+      "response_time": 198.17,
+      "content_length": 15,
+      "headers": {
+        "content-length": "15",
+        "content-type": "application/json",
+        "date": "Thu, 10 Jul 2025 03:53:33 GMT",
+        "server": "railway-edge",
+        "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+        "x-railway-request-id": "C5wk233pQt-T1y_wacI7Nw"
+      },
+      "error": null
+    },
+    "api_gateway": {
+      "url": "https://trmosngonlanh.up.railway.app/api/v1/agents",
+      "status": "healthy",
+      "status_code": 307,
+      "response_time": 171.67,
+      "content_length": 0,
+      "headers": {
+        "content-length": "0",
+        "date": "Thu, 10 Jul 2025 03:53:34 GMT",
+        "location": "http://trmosngonlanh.up.railway.app/api/v1/agents/",
+        "server": "railway-edge",
+        "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+        "x-railway-request-id": "4TLsUypNRGOhn_LkAQeqjw"
+      },
+      "error": null
+    },
+    "main_app": {
+      "url": "https://trmosngonlanh.up.railway.app",
+      "status": "healthy",
+      "status_code": 200,
+      "response_time": 189.65,
+      "content_length": 45,
+      "headers": {
+        "content-length": "45",
+        "content-type": "application/json",
+        "date": "Thu, 10 Jul 2025 03:53:34 GMT",
+        "server": "railway-edge",
+        "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+        "x-railway-request-id": "qwgGrXe8QAa8rFIfacI7Nw"
+      },
+      "error": null
+    }
+  },
+  "basic_connectivity": [
+    {
+      "url": "https://trmosngonlanh.up.railway.app",
+      "status": "healthy",
+      "status_code": 200,
+      "response_time": 175.01,
+      "content_length": 45,
+      "headers": {
+        "content-length": "45",
+        "content-type": "application/json",
+        "date": "Thu, 10 Jul 2025 03:53:32 GMT",
+        "server": "railway-edge",
+        "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+        "x-railway-request-id": "Yom5cTT6SReR-RG2AQeqjw"
+      },
+      "error": null
+    },
+    {
+      "url": "https://trmosngonlanh.up.railway.app/health",
+      "status": "healthy",
+      "status_code": 200,
+      "response_time": 193.07,
+      "content_length": 15,
+      "headers": {
+        "content-length": "15",
+        "content-type": "application/json",
+        "date": "Thu, 10 Jul 2025 03:53:32 GMT",
+        "server": "railway-edge",
+        "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+        "x-railway-request-id": "mr7Cxf_DQZCeD4nIAQeqjw"
+      },
+      "error": null
+    },
+    {
+      "url": "https://trmosngonlanh.up.railway.app/docs",
+      "status": "healthy",
+      "status_code": 200,
+      "response_time": 186.23,
+      "content_length": 952,
+      "headers": {
+        "content-length": "952",
+        "content-type": "text/html; charset=utf-8",
+        "date": "Thu, 10 Jul 2025 03:53:32 GMT",
+        "server": "railway-edge",
+        "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+        "x-railway-request-id": "vvvQJslAS46Sl34DacI7Nw"
+      },
+      "error": null
+    },
+    {
+      "url": "https://trmosngonlanh.up.railway.app/api/v1/agents",
+      "status": "healthy",
+      "status_code": 307,
+      "response_time": 182.5,
+      "content_length": 0,
+      "headers": {
+        "content-length": "0",
+        "date": "Thu, 10 Jul 2025 03:53:33 GMT",
+        "location": "http://trmosngonlanh.up.railway.app/api/v1/agents/",
+        "server": "railway-edge",
+        "x-railway-edge": "railway/asia-southeast1-eqsg3a",
+        "x-railway-request-id": "SvYpgoRfQJS4YvcqDcO5xA"
+      },
+      "error": null
+    }
+  ],
+  "deployment_url": "https://trmosngonlanh.up.railway.app",
+  "timestamp": "2025-07-10T10:53:33.669644"
+}
