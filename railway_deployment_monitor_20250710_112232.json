@@ -1,0 +1,209 @@
+{
+  "deployment_success": false,
+  "deployment_time_seconds": 690.194194,
+  "total_attempts": 20,
+  "error": "Max attempts exceeded",
+  "deployment_log": [
+    {
+      "attempt": 1,
+      "timestamp": "2025-07-10T11:11:12.864278",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 2,
+      "timestamp": "2025-07-10T11:11:24.658743",
+      "connectivity": {
+        "success": false,
+        "status_code": 502,
+        "response_data": null,
+        "error": "HTTP 502"
+      }
+    },
+    {
+      "attempt": 3,
+      "timestamp": "2025-07-10T11:11:36.864588",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 4,
+      "timestamp": "2025-07-10T11:11:51.638501",
+      "connectivity": {
+        "success": false,
+        "status_code": 502,
+        "response_data": null,
+        "error": "HTTP 502"
+      }
+    },
+    {
+      "attempt": 5,
+      "timestamp": "2025-07-10T11:12:09.859715",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 6,
+      "timestamp": "2025-07-10T11:12:35.868615",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 7,
+      "timestamp": "2025-07-10T11:13:16.793195",
+      "connectivity": {
+        "success": false,
+        "status_code": 502,
+        "response_data": null,
+        "error": "HTTP 502"
+      }
+    },
+    {
+      "attempt": 8,
+      "timestamp": "2025-07-10T11:13:56.862482",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 9,
+      "timestamp": "2025-07-10T11:14:37.630513",
+      "connectivity": {
+        "success": false,
+        "status_code": 502,
+        "response_data": null,
+        "error": "HTTP 502"
+      }
+    },
+    {
+      "attempt": 10,
+      "timestamp": "2025-07-10T11:15:17.867332",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 11,
+      "timestamp": "2025-07-10T11:15:58.617739",
+      "connectivity": {
+        "success": false,
+        "status_code": 502,
+        "response_data": null,
+        "error": "HTTP 502"
+      }
+    },
+    {
+      "attempt": 12,
+      "timestamp": "2025-07-10T11:16:38.859138",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 13,
+      "timestamp": "2025-07-10T11:17:18.870237",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 14,
+      "timestamp": "2025-07-10T11:17:59.827613",
+      "connectivity": {
+        "success": false,
+        "status_code": 502,
+        "response_data": null,
+        "error": "HTTP 502"
+      }
+    },
+    {
+      "attempt": 15,
+      "timestamp": "2025-07-10T11:18:39.866244",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 16,
+      "timestamp": "2025-07-10T11:19:20.794514",
+      "connectivity": {
+        "success": false,
+        "status_code": 502,
+        "response_data": null,
+        "error": "HTTP 502"
+      }
+    },
+    {
+      "attempt": 17,
+      "timestamp": "2025-07-10T11:20:00.873656",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 18,
+      "timestamp": "2025-07-10T11:20:41.771583",
+      "connectivity": {
+        "success": false,
+        "status_code": 502,
+        "response_data": null,
+        "error": "HTTP 502"
+      }
+    },
+    {
+      "attempt": 19,
+      "timestamp": "2025-07-10T11:21:21.870645",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    },
+    {
+      "attempt": 20,
+      "timestamp": "2025-07-10T11:22:02.866275",
+      "connectivity": {
+        "success": false,
+        "status_code": null,
+        "response_data": null,
+        "error": ""
+      }
+    }
+  ],
+  "timestamp": "2025-07-10T11:22:32.886365"
+}

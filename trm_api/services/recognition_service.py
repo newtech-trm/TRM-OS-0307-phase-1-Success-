@@ -1,459 +1,220 @@
-from typing import List, Optional, Dict, Any, Union
+#!/usr/bin/env python3
+"""
+Recognition Service - AGE Semantic Architecture
+Handles Recognition phase của Recognition → Event → WIN pattern
+
+ELIMINATED: Legacy Agent, Project, Resource CRUD models
+REPLACED: AGEActor, StrategicUnit, CoordinatedResource semantic ontology
+"""
+
+from typing import List, Optional, Dict, Any
 from datetime import datetime
-import uuid
-import asyncio
+from neomodel import DoesNotExist
 
-from trm_api.schemas.recognition import RecognitionCreate, RecognitionUpdate
-from trm_api.graph_models.recognition import Recognition as RecognitionGraphModel
-from trm_api.graph_models.agent import Agent as AgentGraphModel
-from trm_api.graph_models.win import WIN as WINGraphModel
-from trm_api.graph_models.project import Project as ProjectGraphModel
-from trm_api.graph_models.task import Task as TaskGraphModel
-from trm_api.graph_models.resource import Resource as ResourceGraphModel
-from trm_api.graph_models.event import Event as EventGraphModel
-from trm_api.utils.datetime_adapter import adapt_model_to_schema, adapt_model_list_to_schema
+from trm_api.graph_models.recognition import Recognition as GraphRecognition
+from trm_api.models.recognition import RecognitionCreate, RecognitionUpdate, Recognition
 
+# AGE Semantic Ontology Imports
+from trm_api.ontology.age_actor import AGEActor  # Replaced AgentGraphModel
+from trm_api.ontology.strategic_unit import StrategicUnit  # Replaced ProjectGraphModel
+# TODO: Implement CoordinatedResource ontology model
+# from trm_api.ontology.coordinated_resource import CoordinatedResource  # Future implementation
+
+from trm_api.graph_models.win import WIN as GraphWIN
+from trm_api.repositories.recognition_repository import RecognitionRepository
+from trm_api.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 class RecognitionService:
     """
-    Service class for Recognition entity operations.
-    Refactored to use Neomodel OGM and follow Ontology V3.2.
+    AGE Recognition Service - Semantic recognition processing
+    Handles the Recognition phase of Recognition → Event → WIN cycle
     """
     
-    async def create_recognition(self, recognition_data: RecognitionCreate) -> Optional[Dict[str, Any]]:
-        """
-        Create a new Recognition and establish relationships according to Ontology V3.2.
-        
-        Args:
-            recognition_data: RecognitionCreate data from API request
-            
-        Returns:
-            Dict representation of RecognitionGraphModel if created successfully, None otherwise
-        """
+    def __init__(self):
+        self.repository = RecognitionRepository()
+    
+    def create_recognition(self, recognition_data: RecognitionCreate) -> Optional[Recognition]:
+        """Create strategic recognition using AGE semantic ontology"""
         try:
-            # Create the Recognition node
-            recognition = RecognitionGraphModel(
-                name=recognition_data.name,
-                message=recognition_data.message,
-                recognitionType=recognition_data.recognition_type.value,
-                status=recognition_data.status.value,
-                value_level=recognition_data.value_level,
-                tags=recognition_data.tags
-            ).save()
+            logger.info(f"AGE Recognition Service: Creating strategic recognition for type: {recognition_data.recognition_type}")
             
-            # Establish GIVEN_BY relationship with Agent
-            try:
-                # Kiểm tra xem có cần tạo Agent giả khi test không
-                if recognition_data.given_by_agent_id.startswith("test_") or recognition_data.given_by_agent_id.startswith("mock_"):
-                    # Tạo mock agent cho tests
-                    granter = AgentGraphModel(
-                        name=f"Test Agent {recognition_data.given_by_agent_id[:8]}", 
-                        contact_info={"email": f"test_{recognition_data.given_by_agent_id[:8]}@example.com"},
-                        agent_type="InternalAgent"
-                    ).save()
-                    recognition.given_by.connect(granter)
-                else:
-                    try:
-                        granter = AgentGraphModel.nodes.get(uid=recognition_data.given_by_agent_id)
-                        recognition.given_by.connect(granter)
-                    except AgentGraphModel.DoesNotExist:
-                        # Agent không tồn tại nhưng đây là test nên không cần báo lỗi
-                        print(f"Agent with ID {recognition_data.given_by_agent_id} does not exist (silently continuing)")
-            except Exception as e:
-                print(f"Warning: Failed to establish GIVEN_BY relationship: {e}")
+            # Create recognition using AGE semantic context
+            graph_recognition = self.repository.create_recognition(recognition_data)
             
-            # Establish RECEIVED_BY relationships with Agents
-            for recipient_id in recognition_data.received_by_agent_ids:
-                try:
-                    # Kiểm tra và tạo mock agent cho tests nếu cần
-                    if recipient_id.startswith("test_") or recipient_id.startswith("mock_"):
-                        # Tạo mock agent cho tests
-                        recipient = AgentGraphModel(
-                            name=f"Test Agent {recipient_id[:8]}", 
-                            contact_info={"email": f"test_{recipient_id[:8]}@example.com"},
-                            agent_type="InternalAgent"
-                        ).save()
-                        recognition.received_by.connect(recipient)
-                    else:
-                        try:
-                            recipient = AgentGraphModel.nodes.get(uid=recipient_id)
-                            recognition.received_by.connect(recipient)
-                        except AgentGraphModel.DoesNotExist:
-                            # Agent không tồn tại nhưng đây là test nên không cần báo lỗi
-                            print(f"Agent with ID {recipient_id} does not exist (silently continuing)")
-                except Exception as e:
-                    print(f"Warning: Failed to establish RECEIVED_BY relationship with {recipient_id}: {e}")
-            
-            # Establish RECOGNIZES_WIN relationship if applicable
-            if recognition_data.recognizes_win_id:
-                try:
-                    win = WINGraphModel.nodes.get(uid=recognition_data.recognizes_win_id)
-                    recognition.recognizes_win.connect(win)
-                except (WINGraphModel.DoesNotExist, Exception) as e:
-                    print(f"Warning: Failed to establish RECOGNIZES_WIN relationship: {e}")
-            
-            # Handle contributions to Projects/Tasks/Resources if provided
-            if recognition_data.recognizes_contributions:
-                contributions = recognition_data.recognizes_contributions
+            if graph_recognition:
+                # Convert to semantic Recognition model
+                recognition = Recognition(
+                    uid=graph_recognition.uid,
+                    recognition_type=graph_recognition.recognition_type,
+                    title=graph_recognition.title,
+                    description=graph_recognition.description,
+                    status=graph_recognition.status,
+                    recognition_value=graph_recognition.recognition_value,
+                    strategic_impact=graph_recognition.strategic_impact,
+                    created_at=graph_recognition.created_at,
+                    updated_at=graph_recognition.updated_at
+                )
                 
-                # Process project contributions
-                if recognition_data.recognizes_contributions and "project" in recognition_data.recognizes_contributions:
-                    for project_id in recognition_data.recognizes_contributions["project"]:
-                        try:
-                            # Tạo mock Project cho tests nếu cần
-                            if project_id.startswith("test_") or project_id.startswith("mock_"):
-                                project = ProjectGraphModel(
-                                    title=f"Test Project {project_id[:8]}",
-                                    description="Project created for testing",
-                                    status="active"
-                                ).save()
-                                recognition.recognizes_contribution_to_project.connect(project)
-                            else:
-                                try:
-                                    project = ProjectGraphModel.nodes.get(uid=project_id)
-                                    recognition.recognizes_contribution_to_project.connect(project)
-                                except ProjectGraphModel.DoesNotExist:
-                                    # Project không tồn tại nhưng đây là test nên không cần báo lỗi
-                                    print(f"Project with ID {project_id} does not exist (silently continuing)")
-                        except Exception as e:
-                            print(f"Warning: Failed to establish RECOGNIZES_CONTRIBUTION_TO with Project {project_id}: {e}")
-            
-                # Process task contributions
-                if recognition_data.recognizes_contributions and "task" in recognition_data.recognizes_contributions:
-                    for task_id in recognition_data.recognizes_contributions["task"]:
-                        try:
-                            # Tạo mock Task cho tests nếu cần
-                            if task_id.startswith("test_") or task_id.startswith("mock_"):
-                                task = TaskGraphModel(
-                                    name=f"Test Task {task_id[:8]}",
-                                    description="Task created for testing",
-                                    status="ToDo"
-                                ).save()
-                                recognition.recognizes_contribution_to_task.connect(task)
-                            else:
-                                try:
-                                    task = TaskGraphModel.nodes.get(uid=task_id)
-                                    recognition.recognizes_contribution_to_task.connect(task)
-                                except TaskGraphModel.DoesNotExist:
-                                    # Task không tồn tại nhưng đây là test nên không cần báo lỗi
-                                    print(f"Task with ID {task_id} does not exist (silently continuing)")
-                        except Exception as e:
-                            print(f"Warning: Failed to establish RECOGNIZES_CONTRIBUTION_TO with Task {task_id}: {e}")
-            
-                # Process resource contributions
-                if recognition_data.recognizes_contributions and "resource" in recognition_data.recognizes_contributions:
-                    for resource_id in recognition_data.recognizes_contributions["resource"]:
-                        try:
-                            # Tạo mock Resource cho tests nếu cần
-                            if resource_id.startswith("test_") or resource_id.startswith("mock_"):
-                                resource = ResourceGraphModel(
-                                    name=f"Test Resource {resource_id[:8]}",
-                                    description="Resource created for testing",
-                                    resourceType="DOCUMENT",
-                                    status="available"
-                                ).save()
-                                recognition.recognizes_contribution_to_resource.connect(resource)
-                            else:
-                                try:
-                                    resource = ResourceGraphModel.nodes.get(uid=resource_id)
-                                    recognition.recognizes_contribution_to_resource.connect(resource)
-                                except ResourceGraphModel.DoesNotExist:
-                                    # Resource không tồn tại nhưng đây là test nên không cần báo lỗi
-                                    print(f"Resource with ID {resource_id} does not exist (silently continuing)")
-                        except Exception as e:
-                            print(f"Warning: Failed to establish RECOGNIZES_CONTRIBUTION_TO with Resource {resource_id}: {e}")
-            
-            # Generate an Event for this Recognition
-            try:
-                event = EventGraphModel(
-                    name=f"Recognition: {recognition.name}",
-                    description=f"Recognition '{recognition.name}' was granted.",
-                    payload={
-                        "recognition_id": recognition.uid,
-                        "recognition_type": recognition.recognitionType,
-                        "given_by": recognition_data.given_by_agent_id
-                    },
-                    tags=["recognition", "event", recognition.recognitionType.lower() if recognition.recognitionType else ""]
-                ).save()
+                logger.info(f"AGE Recognition created successfully: {recognition.uid}")
+                return recognition
+            else:
+                logger.error("Failed to create recognition in AGE system")
+                return None
                 
-                # Connect the Event to the Recognition
-                recognition.generates_event.connect(event)
-                
-                # Connect the Event to the granter Agent as actor
-                try:
-                    granter = AgentGraphModel.nodes.get(uid=recognition_data.given_by_agent_id)
-                    event.triggered_by_actor.connect(granter)
-                except (AgentGraphModel.DoesNotExist, Exception) as e:
-                    print(f"Warning: Failed to establish TRIGGERED_BY relationship for Event: {e}")
-                
-            except Exception as e:
-                print(f"Warning: Failed to generate Event for Recognition: {e}")
+        except Exception as e:
+            logger.error(f"AGE Recognition Service error: {str(e)}")
+            return None
+
+    def get_recognition_by_id(self, recognition_id: str) -> Optional[Recognition]:
+        """Get recognition by ID with AGE semantic context"""
+        try:
+            graph_recognition = self.repository.get_recognition_by_id(recognition_id)
             
-            # Convert Neomodel object to dict before returning
-            recognition_dict = {
-                "uid": recognition.uid,
-                "id": recognition.uid,
-                "name": recognition.name,
-                "message": recognition.message,
-                "recognition_type": recognition.recognitionType,
-                "status": recognition.status,
-                "value_level": recognition.value_level,
-                "tags": recognition.tags or [],
-                "created_at": recognition.created_at.isoformat() if hasattr(recognition.created_at, 'isoformat') else str(recognition.created_at),
-                "updated_at": recognition.updated_at.isoformat() if hasattr(recognition.updated_at, 'isoformat') else str(recognition.updated_at)
-            }
-            
-            return recognition_dict
+            if graph_recognition:
+                return Recognition(
+                    uid=graph_recognition.uid,
+                    recognition_type=graph_recognition.recognition_type,
+                    title=graph_recognition.title,
+                    description=graph_recognition.description,
+                    status=graph_recognition.status,
+                    recognition_value=graph_recognition.recognition_value,
+                    strategic_impact=graph_recognition.strategic_impact,
+                    created_at=graph_recognition.created_at,
+                    updated_at=graph_recognition.updated_at
+                )
+            return None
             
         except Exception as e:
-            print(f"Error creating Recognition: {e}")
+            logger.error(f"AGE Recognition retrieval error: {str(e)}")
             return None
-    
-    async def get_recognition_by_id(self, recognition_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Get a Recognition by its ID.
-        
-        Args:
-            recognition_id: ID of the Recognition to retrieve
-            
-        Returns:
-            Dict representation of RecognitionGraphModel if found, None otherwise
-        """
+
+    def update_recognition(self, recognition_id: str, update_data: RecognitionUpdate) -> Optional[Recognition]:
+        """Update recognition with AGE semantic enhancements"""
         try:
-            recognition = RecognitionGraphModel.nodes.get(uid=recognition_id)
-            # Convert Neomodel object to dict before returning
-            recognition_dict = {
-                "uid": recognition.uid,
-                "id": recognition.uid,
-                "name": recognition.name,
-                "message": recognition.message,
-                "recognition_type": recognition.recognitionType,
-                "status": recognition.status,
-                "value_level": recognition.value_level,
-                "tags": recognition.tags or [],
-                "created_at": recognition.created_at.isoformat() if recognition.created_at else None,
-                "updated_at": recognition.updated_at.isoformat() if recognition.updated_at else None
-            }
-            return recognition_dict
-        except RecognitionGraphModel.DoesNotExist:
+            updated_graph = self.repository.update_recognition(recognition_id, update_data)
+            
+            if updated_graph:
+                return Recognition(
+                    uid=updated_graph.uid,
+                    recognition_type=updated_graph.recognition_type,
+                    title=updated_graph.title,
+                    description=updated_graph.description,
+                    status=updated_graph.status,
+                    recognition_value=updated_graph.recognition_value,
+                    strategic_impact=updated_graph.strategic_impact,
+                    created_at=updated_graph.created_at,
+                    updated_at=updated_graph.updated_at
+                )
             return None
+            
         except Exception as e:
-            print(f"Error retrieving Recognition {recognition_id}: {e}")
+            logger.error(f"AGE Recognition update error: {str(e)}")
             return None
-    
-    async def update_recognition(self, recognition_id: str, recognition_data: RecognitionUpdate) -> Optional[Dict[str, Any]]:
-        """
-        Update a Recognition by its ID theo Ontology V3.2.
-        
-        Args:
-            recognition_id: ID of the Recognition to update
-            recognition_data: RecognitionUpdate data containing fields to update
-            
-        Returns:
-            Updated Dict representation of RecognitionGraphModel if successful, None otherwise
-        """
+
+    def delete_recognition(self, recognition_id: str) -> bool:
+        """Delete recognition with AGE semantic validation"""
         try:
-            recognition = RecognitionGraphModel.nodes.get(uid=recognition_id)
-            
-            # Update fields if provided in update data
-            if recognition_data.name is not None:
-                recognition.name = recognition_data.name
-                
-            if recognition_data.message is not None:
-                recognition.message = recognition_data.message
-                
-            if recognition_data.recognition_type is not None:
-                recognition.recognitionType = recognition_data.recognition_type.value
-                
-            if recognition_data.status is not None:
-                recognition.status = recognition_data.status.value
-                
-            if recognition_data.value_level is not None:
-                recognition.value_level = recognition_data.value_level
-                
-            if recognition_data.tags is not None:
-                recognition.tags = recognition_data.tags
-            
-            # Save changes
-            recognition.save()
-            
-            # Note: RecognitionUpdate schema doesn't include relationship fields
-            # Relationship updates should be handled through separate endpoints
-            
-            # Convert Neomodel object to dict before returning
-            recognition_dict = {
-                "uid": recognition.uid,
-                "id": recognition.uid,
-                "name": recognition.name,
-                "message": recognition.message,
-                "recognition_type": recognition.recognitionType,
-                "status": recognition.status,
-                "value_level": recognition.value_level,
-                "tags": recognition.tags or [],
-                "created_at": recognition.created_at.isoformat() if recognition.created_at else None,
-                "updated_at": recognition.updated_at.isoformat() if recognition.updated_at else None
-            }
-            return recognition_dict
-            
-        except RecognitionGraphModel.DoesNotExist:
-            return None
+            return self.repository.delete_recognition(recognition_id)
         except Exception as e:
-            print(f"Error updating Recognition {recognition_id}: {e}")
-            return None
-    
-    async def delete_recognition(self, recognition_id: str) -> bool:
-        """
-        Delete a Recognition by its ID theo Ontology V3.2.
-        
-        Args:
-            recognition_id: ID of the Recognition to delete
-            
-        Returns:
-            True if deleted successfully, False otherwise
-        """
-        try:
-            recognition = RecognitionGraphModel.nodes.get(uid=recognition_id)
-            
-            # Xóa các relationship trước khi xóa node
-            # RECEIVED_BY relationships
-            for agent in recognition.received_by.all():
-                recognition.received_by.disconnect(agent)
-                
-            # GIVEN_BY relationships
-            for agent in recognition.given_by.all():
-                recognition.given_by.disconnect(agent)
-            
-            # RECOGNIZES_WIN relationships
-            for win in recognition.recognizes_win.all():
-                recognition.recognizes_win.disconnect(win)
-            
-            # RECOGNIZES_CONTRIBUTION_TO relationships
-            # Project
-            for project in recognition.recognizes_contribution_to_project.all():
-                recognition.recognizes_contribution_to_project.disconnect(project)
-                
-            # Task
-            for task in recognition.recognizes_contribution_to_task.all():
-                recognition.recognizes_contribution_to_task.disconnect(task)
-                
-            # Resource
-            for resource in recognition.recognizes_contribution_to_resource.all():
-                recognition.recognizes_contribution_to_resource.disconnect(resource)
-            
-            # GENERATES_EVENT relationships
-            for event in recognition.generates_event.all():
-                recognition.generates_event.disconnect(event)
-            
-            # Xóa node
-            recognition.delete()
-            return True
-        except RecognitionGraphModel.DoesNotExist:
+            logger.error(f"AGE Recognition deletion error: {str(e)}")
             return False
-        except Exception as e:
-            print(f"Error deleting Recognition {recognition_id}: {e}")
-            return False
-    
-    async def list_recognitions(self, skip: int = 0, limit: int = 100) -> List[Dict[str, Any]]:
-        """
-        List all Recognitions with pagination.
-        
-        Args:
-            skip: Number of records to skip
-            limit: Maximum number of records to return
-            
-        Returns:
-            List of Dict representations of RecognitionGraphModel objects
-        """
+
+    def list_recognitions(self, skip: int = 0, limit: int = 100) -> List[Recognition]:
+        """List recognitions with AGE semantic context"""
         try:
-            # Get all recognitions and apply pagination
-            all_recognitions = RecognitionGraphModel.nodes.all()
-            paginated_recognitions = list(all_recognitions)[skip:skip+limit]
+            graph_recognitions = self.repository.list_recognitions(skip=skip, limit=limit)
             
-            # Convert each recognition to dict
-            recognition_dicts = []
-            for recognition in paginated_recognitions:
-                recognition_dict = {
-                    "uid": recognition.uid,
-                    "id": recognition.uid,
-                    "name": recognition.name,
-                    "message": recognition.message,
-                    "recognition_type": recognition.recognitionType,
-                    "status": recognition.status,
-                    "value_level": recognition.value_level,
-                    "tags": recognition.tags or [],
-                    "created_at": recognition.created_at.isoformat() if recognition.created_at else None,
-                    "updated_at": recognition.updated_at.isoformat() if recognition.updated_at else None
-                }
-                recognition_dicts.append(recognition_dict)
+            recognitions = []
+            for graph_recognition in graph_recognitions:
+                recognition = Recognition(
+                    uid=graph_recognition.uid,
+                    recognition_type=graph_recognition.recognition_type,
+                    title=graph_recognition.title,
+                    description=graph_recognition.description,
+                    status=graph_recognition.status,
+                    recognition_value=graph_recognition.recognition_value,
+                    strategic_impact=graph_recognition.strategic_impact,
+                    created_at=graph_recognition.created_at,
+                    updated_at=graph_recognition.updated_at
+                )
+                recognitions.append(recognition)
+                
+            logger.info(f"AGE Recognition Service: Listed {len(recognitions)} strategic recognitions")
+            return recognitions
             
-            return recognition_dicts
         except Exception as e:
-            print(f"Error listing Recognitions: {e}")
+            logger.error(f"AGE Recognition listing error: {str(e)}")
             return []
-    
-    async def get_recognition_with_relationships(self, recognition_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Get a Recognition by ID with all its relationships.
-        
-        Args:
-            recognition_id: ID of the Recognition to retrieve
-            
-        Returns:
-            Dictionary with Recognition data and relationships if found, None otherwise
-        """
+
+    def get_strategic_recognitions_analytics(self) -> Dict[str, Any]:
+        """Get strategic recognition analytics using AGE intelligence"""
         try:
-            recognition = RecognitionGraphModel.nodes.get(uid=recognition_id)
+            all_recognitions = self.list_recognitions(limit=1000)
             
-            # Start with the basic recognition data
-            recognition_data = adapt_model_to_schema(recognition, id_field_name="uid", target_id_name="id")
+            analytics = {
+                "total_recognitions": len(all_recognitions),
+                "recognition_types": {},
+                "status_distribution": {},
+                "average_strategic_impact": 0.0,
+                "total_recognition_value": 0.0,
+                "age_insights": {
+                    "high_impact_recognitions": 0,
+                    "strategic_patterns": [],
+                    "recommendation": ""
+                }
+            }
             
-            # Add relationships
-            # Get giver Agent
-            given_by_agents = list(recognition.given_by.all())
-            if given_by_agents:
-                recognition_data["given_by"] = adapt_model_to_schema(given_by_agents[0], id_field_name="uid", target_id_name="id")
-            else:
-                recognition_data["given_by"] = None
+            total_impact = 0.0
+            total_value = 0.0
+            high_impact_count = 0
             
-            # Get recipient Agents
-            recipients = list(recognition.received_by.all())
-            recognition_data["received_by"] = adapt_model_list_to_schema(recipients, id_field_name="uid", target_id_name="id")
+            for recognition in all_recognitions:
+                # Recognition types
+                rec_type = recognition.recognition_type
+                analytics["recognition_types"][rec_type] = analytics["recognition_types"].get(rec_type, 0) + 1
+                
+                # Status distribution
+                status = recognition.status
+                analytics["status_distribution"][status] = analytics["status_distribution"].get(status, 0) + 1
+                
+                # Impact and value aggregation
+                if recognition.strategic_impact:
+                    total_impact += recognition.strategic_impact
+                    if recognition.strategic_impact >= 0.8:
+                        high_impact_count += 1
+                
+                if recognition.recognition_value:
+                    total_value += recognition.recognition_value
             
-            # Get recognized WIN
-            recognized_wins = list(recognition.recognizes_win.all())
-            if recognized_wins:
-                recognition_data["recognizes_win"] = adapt_model_to_schema(recognized_wins[0], id_field_name="uid", target_id_name="id")
-            else:
-                recognition_data["recognizes_win"] = None
+            # Calculate averages
+            if len(all_recognitions) > 0:
+                analytics["average_strategic_impact"] = total_impact / len(all_recognitions)
+                analytics["total_recognition_value"] = total_value
+                
+                # AGE insights
+                analytics["age_insights"]["high_impact_recognitions"] = high_impact_count
+                
+                # Strategic patterns detection
+                if high_impact_count > 0:
+                    analytics["age_insights"]["strategic_patterns"].append("High-impact recognition pattern detected")
+                
+                # AGE recommendation
+                if analytics["average_strategic_impact"] < 0.5:
+                    analytics["age_insights"]["recommendation"] = "Consider reviewing recognition criteria to increase strategic impact"
+                else:
+                    analytics["age_insights"]["recommendation"] = "Strong strategic recognition performance"
             
-            # Get contributions
-            contributions = {}
+            logger.info(f"AGE Recognition Analytics: {analytics['total_recognitions']} recognitions analyzed")
+            return analytics
             
-            # Get Projects
-            project_contributions = list(recognition.recognizes_contribution_to_project.all())
-            if project_contributions:
-                contributions["project"] = adapt_model_list_to_schema(project_contributions, id_field_name="uid", target_id_name="id")
-            
-            # Get Tasks
-            task_contributions = list(recognition.recognizes_contribution_to_task.all())
-            if task_contributions:
-                contributions["task"] = adapt_model_list_to_schema(task_contributions, id_field_name="uid", target_id_name="id")
-            
-            # Get Resources
-            resource_contributions = list(recognition.recognizes_contribution_to_resource.all())
-            if resource_contributions:
-                contributions["resource"] = adapt_model_list_to_schema(resource_contributions, id_field_name="uid", target_id_name="id")
-            
-            recognition_data["recognizes_contributions"] = contributions if contributions else None
-            
-            return recognition_data
-            
-        except RecognitionGraphModel.DoesNotExist:
-            return None
         except Exception as e:
-            print(f"Error retrieving Recognition with relationships {recognition_id}: {e}")
-            return None
+            logger.error(f"AGE Recognition analytics error: {str(e)}")
+            return {
+                "error": "Failed to generate AGE recognition analytics",
+                "total_recognitions": 0
+            }
 
-
-# Singleton instance
+# Create service instance for import
 recognition_service = RecognitionService()

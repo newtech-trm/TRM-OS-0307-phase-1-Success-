@@ -15,6 +15,7 @@ import json
 from .quantum_types import QuantumState, QuantumStateType, WINCategory, WINProbability, StateTransition, ProbabilityDistribution
 from ..learning.adaptive_learning_system import AdaptiveLearningSystem
 from ..learning.learning_types import LearningExperience, ExperienceType
+from trm_api.core.commercial_ai_coordinator import get_commercial_ai_coordinator, AIRequest, TaskType
 
 
 @dataclass
@@ -713,3 +714,165 @@ class WINProbabilityCalculator:
         except Exception as e:
             print(f"Statistics calculation error: {e}")
             return self.calculation_stats 
+
+    async def _analyze_patterns_via_ai(self, historical_data: List[Dict[str, Any]], 
+                                     current_context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Analyze WIN patterns sử dụng commercial AI
+        Real integration với OpenAI/Claude/Gemini APIs
+        """
+        try:
+            # Get commercial AI coordinator
+            coordinator = await get_commercial_ai_coordinator()
+            
+            # Prepare pattern analysis data
+            pattern_data = {
+                "historical_data": historical_data[-50:],  # Last 50 records
+                "current_context": current_context,
+                "analysis_goals": [
+                    "Identify successful WIN patterns",
+                    "Predict optimal probability calculations",
+                    "Recommend parameter adjustments",
+                    "Assess quantum advantage opportunities"
+                ]
+            }
+            
+            # Request AI pattern analysis
+            analysis_response = await coordinator.analyze_data(
+                data=json.dumps(pattern_data),
+                analysis_type="quantum_win_pattern_analysis"
+            )
+            
+            # Parse AI analysis results
+            analysis_results = await self._parse_ai_pattern_analysis(analysis_response, historical_data, current_context)
+            
+            return analysis_results
+            
+        except Exception as e:
+            self.logger.error(f"AI pattern analysis error: {e}")
+            # Fallback to heuristic analysis
+            return self._heuristic_pattern_analysis(historical_data, current_context)
+    
+    async def _parse_ai_pattern_analysis(
+        self,
+        ai_response: str,
+        historical_data: List[Dict[str, Any]],
+        current_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Parse AI pattern analysis response"""
+        try:
+            analysis_results = {
+                "success_patterns": [],
+                "probability_recommendations": {},
+                "parameter_adjustments": {},
+                "quantum_advantage_score": 0.0,
+                "confidence_score": 0.0
+            }
+            
+            ai_lower = ai_response.lower()
+            
+            # Extract success patterns
+            if "high success" in ai_lower or "winning pattern" in ai_lower:
+                analysis_results["success_patterns"].append("high_confidence_scenarios")
+            if "quantum advantage" in ai_lower:
+                analysis_results["success_patterns"].append("quantum_enhanced_decisions")
+            if "optimal timing" in ai_lower:
+                analysis_results["success_patterns"].append("timing_synchronization")
+            
+            # Extract probability recommendations
+            import re
+            probabilities = re.findall(r'(\d+\.?\d*)%?\s*probability', ai_response)
+            if probabilities:
+                base_prob = float(probabilities[0].replace('%', '')) / 100.0
+                analysis_results["probability_recommendations"] = {
+                    "base_probability": min(1.0, base_prob),
+                    "quantum_boost": min(0.3, base_prob * 0.2),
+                    "confidence_adjustment": min(0.2, base_prob * 0.1)
+                }
+            
+            # Extract parameter adjustments
+            if "increase" in ai_lower and "quantum" in ai_lower:
+                analysis_results["parameter_adjustments"]["quantum_factor"] = 1.15
+            if "enhance" in ai_lower and "coherence" in ai_lower:
+                analysis_results["parameter_adjustments"]["coherence_factor"] = 1.1
+            if "boost" in ai_lower and "entanglement" in ai_lower:
+                analysis_results["parameter_adjustments"]["entanglement_factor"] = 1.05
+            
+            # Calculate quantum advantage score
+            if "quantum" in ai_lower:
+                quantum_mentions = ai_lower.count("quantum")
+                advantage_mentions = ai_lower.count("advantage") + ai_lower.count("benefit")
+                analysis_results["quantum_advantage_score"] = min(1.0, (quantum_mentions + advantage_mentions) * 0.1)
+            
+            # Extract confidence score
+            confidence_matches = re.findall(r'confidence.*?(\d+\.?\d*)%?', ai_lower)
+            if confidence_matches:
+                analysis_results["confidence_score"] = min(1.0, float(confidence_matches[0]) / 100.0)
+            else:
+                analysis_results["confidence_score"] = 0.8  # Default confident
+            
+            return analysis_results
+            
+        except Exception as e:
+            self.logger.error(f"Error parsing AI pattern analysis: {e}")
+            return self._get_default_pattern_analysis()
+
+    def _heuristic_pattern_analysis(self, historical_data: List[Dict[str, Any]], 
+                                   current_context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Heuristic analysis for WIN patterns
+        """
+        analysis_results = {
+            "success_patterns": [],
+            "probability_recommendations": {},
+            "parameter_adjustments": {},
+            "quantum_advantage_score": 0.0,
+            "confidence_score": 0.0
+        }
+
+        # Example heuristic logic
+        if len(historical_data) > 10 and historical_data[-1]["quantum_probability"] > 0.7:
+            analysis_results["success_patterns"].append("high_confidence_scenarios")
+        if "quantum_state" in current_context and current_context["quantum_state"]["coherence"] > 0.8:
+            analysis_results["success_patterns"].append("quantum_enhanced_decisions")
+        if "time_horizon" in current_context and current_context["time_horizon"] < timedelta(hours=12):
+            analysis_results["success_patterns"].append("timing_synchronization")
+
+        # Heuristic probability recommendation
+        if "quantum_probability" in historical_data[-1]:
+            current_prob = historical_data[-1]["quantum_probability"]
+            analysis_results["probability_recommendations"] = {
+                "base_probability": min(1.0, current_prob + 0.1),
+                "quantum_boost": min(0.3, current_prob * 0.2),
+                "confidence_adjustment": min(0.2, current_prob * 0.1)
+            }
+
+        # Heuristic parameter adjustment
+        if "superposition_factor" in current_context and current_context["superposition_factor"] > 0.5:
+            analysis_results["parameter_adjustments"]["quantum_factor"] = 1.1
+        if "entanglement_boost" in current_context and current_context["entanglement_boost"] > 0.4:
+            analysis_results["parameter_adjustments"]["coherence_factor"] = 1.05
+        if "time_sensitivity" in current_context and current_context["time_sensitivity"] > 0.6:
+            analysis_results["parameter_adjustments"]["entanglement_factor"] = 1.02
+
+        # Heuristic quantum advantage score
+        if "quantum_probability" in historical_data[-1]:
+            current_prob = historical_data[-1]["quantum_probability"]
+            if current_prob > 0.6:
+                analysis_results["quantum_advantage_score"] = min(1.0, (current_prob - 0.6) * 2.0)
+
+        # Heuristic confidence score
+        if "confidence_level" in historical_data[-1]:
+            analysis_results["confidence_score"] = min(1.0, historical_data[-1]["confidence_level"] + 0.1)
+
+        return analysis_results
+
+    def _get_default_pattern_analysis(self) -> Dict[str, Any]:
+        """Returns default pattern analysis results"""
+        return {
+            "success_patterns": [],
+            "probability_recommendations": {},
+            "parameter_adjustments": {},
+            "quantum_advantage_score": 0.0,
+            "confidence_score": 0.8
+        } 

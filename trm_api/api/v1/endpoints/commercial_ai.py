@@ -15,11 +15,9 @@ from datetime import datetime
 import logging
 import asyncio
 from enum import Enum
+import json
 
-# Commercial AI Service imports (to be implemented)
-# from ....services.commercial_ai_service import CommercialAIService
-# from ....services.ai_router_service import AIRouterService  
-# from ....services.ai_synthesizer_service import AISynthesizerService
+from trm_api.core.commercial_ai_coordinator import get_commercial_ai_coordinator, AIRequest, TaskType, AIProvider
 
 router = APIRouter(prefix="/commercial-ai", tags=["Commercial AI Coordination"])
 logger = logging.getLogger(__name__)
@@ -121,29 +119,31 @@ async def coordinate_ai_services(request: AICoordinationRequest):
     try:
         start_time = datetime.now()
         
-        # TODO: Implement actual commercial AI coordination
-        # For now, return mock response following the architecture
+        # Get commercial AI coordinator
+        coordinator = await get_commercial_ai_coordinator()
         
-        # Simulate AI service selection
-        if request.preferred_service == "auto":
-            # Intelligent routing logic would go here
-            selected_service = "openai"  # Mock selection
-        else:
-            selected_service = request.preferred_service
+        # Create AI request
+        ai_request = AIRequest(
+            task_type=TaskType.REASONING if request.reasoning_type != "direct" else TaskType.GENERATION,
+            content=request.query,
+            context=f"Apply {request.reasoning_type} reasoning to provide optimal response",
+            preferred_provider=AIProvider(request.preferred_service) if request.preferred_service != "auto" else AIProvider.AUTO,
+            temperature=0.7
+        )
         
-        # Mock AI response generation
-        mock_response = f"AI coordination response for: '{request.query}' using {selected_service} with {request.reasoning_type} reasoning."
+        # Process request with real Commercial AI
+        ai_response = await coordinator.process_request(ai_request)
         
         processing_time = (datetime.now() - start_time).total_seconds()
         
         return AICoordinationResponse(
-            response=mock_response,
-            service_used=selected_service,
+            response=ai_response.content,
+            service_used=ai_response.provider_used.value,
             reasoning_type=request.reasoning_type,
-            confidence_score=0.85,
+            confidence_score=ai_response.confidence_score,
             processing_time=processing_time,
-            tokens_used=150,
-            cost_estimate=0.003
+            tokens_used=ai_response.tokens_used,
+            cost_estimate=ai_response.cost_estimate
         )
         
     except Exception as e:
@@ -161,29 +161,56 @@ async def perform_ai_reasoning(request: AIReasoningRequest):
     - Returns conclusion with confidence assessment
     """
     try:
-        # TODO: Implement actual AI reasoning coordination
+        # Get commercial AI coordinator
+        coordinator = await get_commercial_ai_coordinator()
         
-        # Mock reasoning chain
-        reasoning_chain = [
-            f"Context analysis: {request.context}",
-            f"Applying {request.reasoning_type} reasoning methodology",
-            f"Goal identification: {request.goal}",
-            "Evidence evaluation and pattern recognition",
-            "Logical inference and conclusion generation"
-        ]
+        # Perform real AI reasoning
+        reasoning_result = await coordinator.perform_reasoning(
+            query=request.goal,
+            context=request.context,
+            reasoning_type=request.reasoning_type
+        )
         
-        mock_conclusion = f"Based on {request.reasoning_type} reasoning, the conclusion is: [AI-generated conclusion for '{request.goal}']"
+        # Parse reasoning result to extract chain và conclusion
+        lines = reasoning_result.split('\n')
+        reasoning_chain = []
+        conclusion = ""
+        
+        for line in lines:
+            line = line.strip()
+            if line and not conclusion:
+                if "conclusion" in line.lower() or "therefore" in line.lower():
+                    conclusion = line
+                    # Add remaining lines to conclusion
+                    remaining_lines = lines[lines.index(line):]
+                    conclusion = '\n'.join(remaining_lines).strip()
+                    break
+                else:
+                    reasoning_chain.append(line)
+        
+        if not conclusion:
+            conclusion = lines[-1] if lines else "Reasoning completed"
+        
+        # Generate alternatives using different approach
+        alt_request = AIRequest(
+            task_type=TaskType.REASONING,
+            content=f"Provide 2 alternative conclusions for: {request.goal}",
+            context=f"Context: {request.context}. Use different reasoning approaches.",
+            preferred_provider=AIProvider.AUTO,
+            temperature=0.8
+        )
+        
+        alt_response = await coordinator.process_request(alt_request)
+        alternative_lines = alt_response.content.split('\n')
+        alternative_conclusions = [line.strip() for line in alternative_lines if line.strip()][:2]
         
         return AIReasoningResponse(
             reasoning_chain=reasoning_chain,
-            conclusion=mock_conclusion,
-            confidence_score=0.82,
+            conclusion=conclusion,
+            confidence_score=0.85,
             reasoning_type=request.reasoning_type,
-            service_used="openai",
-            alternative_conclusions=[
-                "Alternative conclusion 1 based on different assumptions",
-                "Alternative conclusion 2 with different emphasis"
-            ]
+            service_used="commercial_ai_coordinator",
+            alternative_conclusions=alternative_conclusions
         )
         
     except Exception as e:
@@ -357,15 +384,24 @@ async def _run_optimization():
     try:
         logger.info("Starting AI coordination optimization...")
         
-        # TODO: Implement actual optimization logic
-        # - Analyze performance metrics
-        # - Adjust routing weights
-        # - Update cost optimization parameters
-        # - Retrain selection models
+        # Get commercial AI coordinator
+        coordinator = await get_commercial_ai_coordinator()
         
-        await asyncio.sleep(5)  # Simulate optimization work
+        # Get current performance stats
+        stats = coordinator.get_coordinator_stats()
+        
+        # Perform optimization analysis
+        optimization_request = AIRequest(
+            task_type=TaskType.OPTIMIZATION,
+            content=f"Current AI coordination stats: {json.dumps(stats)}",
+            context="Analyze AI coordination performance và suggest optimizations for routing, cost, và response time",
+            preferred_provider=AIProvider.AUTO
+        )
+        
+        optimization_response = await coordinator.process_request(optimization_request)
         
         logger.info("AI coordination optimization completed")
+        logger.info(f"Optimization suggestions: {optimization_response.content}")
         
     except Exception as e:
         logger.error(f"Optimization failed: {str(e)}") 

@@ -27,29 +27,41 @@ def project_repo():
 class TestAssignedToProjectRelCreate:
     """Test creating AssignedToProjectRel relationships"""
     
-    def test_assign_resource_to_project_api_success(self, test_test_client: TestClient):
+    def test_assign_resource_to_project_api_success(self, test_client: TestClient):
         """Test successful resource assignment via API"""
         # Create entities via API (using real APIs that create Neo4j entities)
         resource_data = {
             "name": "Test Resource",
             "description": "Resource for testing assignment",
-            "resourceType": "Tool"
+            "resourceType": "Tool",
+            "details": {
+                "type": "software",
+                "version": "1.0",
+                "license_info": "MIT License"
+            }
         }
-        resource_response = test_test_client.post("/api/v1/resources/", json=resource_data)
+        resource_response = test_client.post("/api/v1/resources/", json=resource_data)
+        print(f"Resource creation response: {resource_response.status_code}")
+        if resource_response.status_code != 201:
+            print(f"Resource creation error: {resource_response.json()}")
         assert resource_response.status_code == 201
         resource = resource_response.json()
         
         project_data = {
+            "title": "Test Project for Assignment",
             "name": "Test Project for Assignment",
             "description": "Project for testing resource assignment",
             "status": "Planning"
         }
-        project_response = test_test_client.post("/api/v1/projects/", json=project_data)
+        project_response = test_client.post("/api/v1/projects/", json=project_data)
+        project = project_response.json()
+        print(f"DEBUG: Project response: {project}")
+        print(f"DEBUG: Project keys: {list(project.keys())}")
         assert project_response.status_code == 201
         project = project_response.json()
         
         # Test assignment via API endpoint
-        response = test_test_client.post(
+        response = test_client.post(
             f"/api/v1/projects/{project['uid']}/resources/{resource['uid']}",
             params={
                 "allocation_percentage": 75,
@@ -66,16 +78,21 @@ class TestAssignedToProjectRelCreate:
         assert "project" in result
         
         # Cleanup
-        test_test_client.delete(f"/api/v1/resources/{resource['uid']}")
-        test_test_client.delete(f"/api/v1/projects/{project['uid']}")
+        test_client.delete(f"/api/v1/resources/{resource['uid']}")
+        test_client.delete(f"/api/v1/projects/{project['uid']}")
     
     def test_assign_resource_via_repository(self, resource_repo, project_repo):
         """Test resource assignment via repository layer"""
         # Create entities using graph models directly
-        resource = GraphResource.create(
+        resource = GraphResource.create_resource(
             name="Repository Test Resource",
             description="Resource for repo testing",
-            resourceType="Equipment"
+            resourceType="Equipment",
+            details={
+                "model": "Dell Server",
+                "manufacturer": "Dell Inc.",
+                "serial_number": "DS-001"
+            }
         )
         
         project = GraphProject(
@@ -121,10 +138,15 @@ class TestAssignedToProjectRelCreate:
         percentages = [25, 50, 75, 100]
         
         for i, percentage in enumerate(percentages):
-            resource = GraphResource.create(
+            resource = GraphResource.create_resource(
                 name=f"Resource {percentage}%",
                 description=f"Resource with {percentage}% allocation",
-                resourceType="Human"
+                resourceType="Human",
+                details={
+                    "user_id": f"user_{i}",
+                    "role": "developer",
+                    "availability": "full-time"
+                }
             )
             
             project = GraphProject(
@@ -154,15 +176,20 @@ class TestAssignedToProjectRelCreate:
         assignment_types = ["full", "partial", "on-demand", "temporary", "contract"]
         
         for assignment_type in assignment_types:
-            resource = GraphResource.create(
+            resource = GraphResource.create_resource(
                 name=f"Resource {assignment_type}",
                 description=f"Resource with {assignment_type} assignment",
-                resourceType="Financial"
+                resourceType="Financial",
+                details={
+                    "amount": 10000.0,
+                    "currency": "USD",
+                    "budget_code": f"BDG_{assignment_type.upper()}"
+                }
             )
             
             project = GraphProject(
-            title=f"Project {assignment_type}",
-            name=f"Project {assignment_type}",
+                title=f"Project {assignment_type}",
+                name=f"Project {assignment_type}",
                 description=f"Project with {assignment_type} assignment",
                 status="Active"
             ).save()
@@ -187,15 +214,20 @@ class TestAssignedToProjectRelCreate:
         statuses = ["active", "completed", "on-hold", "cancelled", "pending"]
         
         for status in statuses:
-            resource = GraphResource.create(
+            resource = GraphResource.create_resource(
                 name=f"Resource {status}",
                 description=f"Resource with {status} status",
-                resourceType="Knowledge"
+                resourceType="Knowledge",
+                details={
+                    "format": "document",
+                    "location": f"https://docs.example.com/{status}",
+                    "access_level": "public"
+                }
             )
             
             project = GraphProject(
-            title=f"Project {status}",
-            name=f"Project {status}",
+                title=f"Project {status}",
+                name=f"Project {status}",
                 description=f"Project with {status} status",
                 status="Active"
             ).save()
@@ -223,12 +255,15 @@ class TestAssignedToProjectRelRead:
         """Test getting project resources via API"""
         # Create project
         project_data = {
+            "title": "Project with Resources",
             "name": "Project with Resources",
             "description": "Project for testing resource retrieval",
             "status": "Active"
         }
         project_response = test_client.post("/api/v1/projects/", json=project_data)
         project = project_response.json()
+        print(f"DEBUG: Project response: {project}")
+        print(f"DEBUG: Project keys: {list(project.keys())}")
         
         # Create and assign multiple resources
         resource_uids = []
@@ -236,7 +271,12 @@ class TestAssignedToProjectRelRead:
             resource_data = {
                 "name": f"Resource {i+1}",
                 "description": f"Resource {i+1} description",
-                "resourceType": "Tool"
+                "resourceType": "Tool",
+                "details": {
+                    "type": "software",
+                    "version": f"1.{i}",
+                    "license_info": "MIT License"
+                }
             }
             resource_response = test_client.post("/api/v1/resources/", json=resource_data)
             resource = resource_response.json()
@@ -273,7 +313,7 @@ class TestAssignedToProjectRelRead:
         # Create and assign resources
         resources = []
         for i in range(2):
-            resource = GraphResource.create(
+            resource = GraphResource.create_resource(
                 name=f"List Resource {i+1}",
                 description=f"Resource {i+1} for listing test",
                 resourceType="Space"
@@ -290,8 +330,8 @@ class TestAssignedToProjectRelRead:
         project_resources = project_repo.get_project_resources(project.uid)
         assert len(project_resources) == 2
         
-        # Verify resources
-        resource_names = [r.name for r in project_resources]
+        # Verify resources (project_resources returns dictionaries, not objects)
+        resource_names = [r['name'] for r in project_resources]
         assert "List Resource 1" in resource_names
         assert "List Resource 2" in resource_names
         
@@ -311,7 +351,7 @@ class TestAssignedToProjectRelRead:
         ).save()
         
         # Create resource with detailed assignment
-        resource = GraphResource.create(
+        resource = GraphResource.create_resource(
             name="Detailed Resource",
             description="Resource with detailed assignment",
             resourceType="Human"
@@ -356,12 +396,18 @@ class TestAssignedToProjectRelUpdate:
         resource_data = {
             "name": "Updatable Resource",
             "description": "Resource for update testing",
-            "resourceType": "Equipment"
+            "resourceType": "Equipment",
+            "details": {
+                "serial_number": "UPD001",
+                "model": "Test Equipment",
+                "manufacturer": "TestCorp"
+            }
         }
         resource_response = test_client.post("/api/v1/resources/", json=resource_data)
         resource = resource_response.json()
         
         project_data = {
+            "title": "Project for Update Test",
             "name": "Project for Update Test",
             "description": "Project for testing assignment updates",
             "status": "Active"
@@ -399,7 +445,7 @@ class TestAssignedToProjectRelUpdate:
     def test_update_resource_assignment_repository(self, project_repo):
         """Test updating resource assignment via repository"""
         # Create and assign
-        resource = GraphResource.create(
+        resource = GraphResource.create_resource(
             name="Update Test Resource",
             description="Resource for update testing",
             resourceType="Financial"
@@ -447,7 +493,7 @@ class TestAssignedToProjectRelUpdate:
     def test_update_assignment_with_dates(self, project_repo):
         """Test updating assignments with expected/actual end dates"""
         # Create entities
-        resource = GraphResource.create(
+        resource = GraphResource.create_resource(
             name="Date Test Resource",
             description="Resource for date testing",
             resourceType="Knowledge"
@@ -500,12 +546,18 @@ class TestAssignedToProjectRelDelete:
         resource_data = {
             "name": "Removable Resource",
             "description": "Resource for removal testing",
-            "resourceType": "Tool"
+            "resourceType": "Tool",
+            "details": {
+                "type": "software",
+                "version": "1.0",
+                "license_info": "MIT License"
+            }
         }
         resource_response = test_client.post("/api/v1/resources/", json=resource_data)
         resource = resource_response.json()
         
         project_data = {
+            "title": "Project for Removal Test",
             "name": "Project for Removal Test",
             "description": "Project for testing assignment removal",
             "status": "Active"
@@ -538,7 +590,7 @@ class TestAssignedToProjectRelDelete:
     def test_unassign_resource_repository(self, project_repo):
         """Test removing resource assignment via repository"""
         # Create and assign
-        resource = GraphResource.create(
+        resource = GraphResource.create_resource(
             name="Removal Test Resource",
             description="Resource for removal testing",
             resourceType="Space"
@@ -600,7 +652,7 @@ class TestAssignedToProjectRelValidation:
     
     def test_assign_to_nonexistent_project(self, project_repo):
         """Test assigning resource to non-existent project"""
-        resource = GraphResource.create(
+        resource = GraphResource.create_resource(
             name="Valid Resource",
             description="Valid resource for testing",
             resourceType="Tool"
@@ -619,7 +671,7 @@ class TestAssignedToProjectRelValidation:
     
     def test_duplicate_assignment(self, project_repo):
         """Test duplicate resource assignment"""
-        resource = GraphResource.create(
+        resource = GraphResource.create_resource(
             name="Duplicate Test Resource",
             description="Resource for duplicate testing",
             resourceType="Human"
@@ -660,12 +712,18 @@ class TestAssignedToProjectRelValidation:
         resource_data = {
             "name": "Test Resource",
             "description": "Resource for validation testing",
-            "resourceType": "Equipment"
+            "resourceType": "Equipment",
+            "details": {
+                "serial_number": "VAL001",
+                "model": "Test Equipment",
+                "manufacturer": "TestCorp"
+            }
         }
         resource_response = test_client.post("/api/v1/resources/", json=resource_data)
         resource = resource_response.json()
         
         project_data = {
+            "title": "Test Project",
             "name": "Test Project",
             "description": "Project for validation testing",
             "status": "Active"
@@ -707,7 +765,7 @@ class TestAssignedToProjectRelPerformance:
         resources = []
         # Create 10 resources
         for i in range(10):
-            resource = GraphResource.create(
+            resource = GraphResource.create_resource(
                 name=f"Bulk Resource {i+1}",
                 description=f"Resource {i+1} for bulk testing",
                 resourceType="Knowledge"
@@ -736,7 +794,7 @@ class TestAssignedToProjectRelPerformance:
     def test_cross_entity_assignments(self, project_repo):
         """Test resources assigned to multiple projects"""
         # Create one resource
-        resource = GraphResource.create(
+        resource = GraphResource.create_resource(
             name="Multi-Project Resource",
             description="Resource assigned to multiple projects",
             resourceType="Financial"
@@ -746,17 +804,18 @@ class TestAssignedToProjectRelPerformance:
         # Create 3 projects
         for i in range(3):
             project = GraphProject(
-            title=f"Cross Project {i+1}",
-            name=f"Cross Project {i+1}",
+                title=f"Cross Project {i+1}",
+                name=f"Cross Project {i+1}",
                 description=f"Project {i+1} for cross testing",
                 status="Active"
             ).save()
             projects.append(project)
         
         # Assign resource to all projects with different allocations
+        allocations = [20, 30, 50]  # 20%, 30%, 50% = 100%
         total_allocation = 0
         for i, project in enumerate(projects):
-            allocation = 25 + i * 10  # 25%, 35%, 45%
+            allocation = allocations[i]
             total_allocation += allocation
             
             result = project_repo.assign_resource_to_project(
@@ -771,9 +830,8 @@ class TestAssignedToProjectRelPerformance:
         for project in projects:
             assert resource.assigned_to_projects.is_connected(project)
         
-        # Total allocation should not exceed 100% in real scenarios
-        # but for testing we allow it
-        assert total_allocation == 100  # 25 + 35 + 45 = 105, but our math is 25+35+45=105, wait let me recalculate: 25+35+45=105, that's over 100
+        # Total allocation should equal 100%
+        assert total_allocation == 100  # 20 + 30 + 50 = 100
         
         # Cleanup
         for project in projects:

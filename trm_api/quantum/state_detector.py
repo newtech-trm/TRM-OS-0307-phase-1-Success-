@@ -9,10 +9,12 @@ import numpy as np
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta
 from dataclasses import dataclass
+import json
 
 from .quantum_types import QuantumState, QuantumStateType, WINCategory, ProbabilityDistribution
 from ..learning.adaptive_learning_system import AdaptiveLearningSystem
 from ..learning.learning_types import LearningExperience, ExperienceType
+from trm_api.core.commercial_ai_coordinator import get_commercial_ai_coordinator, AIRequest, TaskType, AIProvider
 
 
 @dataclass
@@ -348,107 +350,146 @@ class AdaptiveStateDetector:
                                     features: List[float]) -> Dict[str, Any]:
         """
         Analyze organizational signals using commercial AI
-        TODO: Tích hợp với OpenAI/Claude/Gemini APIs cho intelligent analysis
+        Real integration với OpenAI/Claude/Gemini APIs cho intelligent analysis
         """
         try:
+            # Get commercial AI coordinator
+            coordinator = await get_commercial_ai_coordinator()
+            
             # Update AI coordination stats
             self.ai_coordination_stats["ai_calls_made"] += 1
             
-            # For now, use intelligent heuristics
-            # TODO: Replace với actual commercial AI API calls
-            
-            # Analyze signal patterns
-            signal_strength = np.mean([signal.value for signal in signals]) if signals else 0.0
-            signal_variability = np.std([signal.value for signal in signals]) if len(signals) > 1 else 0.0
-            
-            # Determine most likely quantum states based on patterns
-            detected_states = []
-            state_probabilities = {}
-            
-            # COHERENCE detection
-            if signal_strength > 0.7 and signal_variability < 0.2:
-                detected_states.append({
-                    "type": "COHERENCE",
-                    "confidence": min(0.9, signal_strength + 0.1),
-                    "reasoning": "High signal strength với low variability indicates coherent state"
-                })
-                state_probabilities["COHERENCE"] = signal_strength
-            
-            # ENTANGLEMENT detection
-            performance_signals = [s for s in signals if s.signal_type == "performance"]
-            communication_signals = [s for s in signals if s.signal_type == "communication"]
-            if len(performance_signals) > 0 and len(communication_signals) > 0:
-                correlation = self._calculate_signal_correlation(performance_signals, communication_signals)
-                if correlation > 0.6:
-                    detected_states.append({
-                        "type": "ENTANGLEMENT",
-                        "confidence": correlation,
-                        "reasoning": "Strong correlation between performance and communication signals"
-                    })
-                    state_probabilities["ENTANGLEMENT"] = correlation
-            
-            # SUPERPOSITION detection
-            decision_signals = [s for s in signals if s.signal_type == "decision"]
-            if len(decision_signals) > 2 and signal_variability > 0.3:
-                superposition_confidence = min(0.8, signal_variability + 0.2)
-                detected_states.append({
-                    "type": "SUPERPOSITION",
-                    "confidence": superposition_confidence,
-                    "reasoning": "Multiple decision signals với high variability suggests superposition"
-                })
-                state_probabilities["SUPERPOSITION"] = superposition_confidence
-            
-            # OPTIMIZATION detection
-            outcome_signals = [s for s in signals if s.signal_type == "outcome"]
-            if len(outcome_signals) > 0:
-                avg_outcome = np.mean([s.value for s in outcome_signals])
-                if avg_outcome > 0.8:
-                    detected_states.append({
-                        "type": "OPTIMIZATION",
-                        "confidence": avg_outcome,
-                        "reasoning": "High outcome values indicate optimization state"
-                    })
-                    state_probabilities["OPTIMIZATION"] = avg_outcome
-            
-            # Calculate WIN probability
-            win_probability = (signal_strength + (1.0 - signal_variability)) / 2.0
-            
-            # Calculate anomaly score
-            anomaly_score = self._calculate_heuristic_anomaly_score(features)
-            
-            # Overall analysis confidence
-            overall_confidence = np.mean([state["confidence"] for state in detected_states]) if detected_states else 0.5
-            
-            analysis = {
-                "detected_states": detected_states,
-                "state_probabilities": state_probabilities,
-                "win_probability": win_probability,
-                "anomaly_score": anomaly_score,
-                "overall_confidence": overall_confidence,
-                "signal_analysis": {
-                    "signal_strength": signal_strength,
-                    "signal_variability": signal_variability,
-                    "signal_count": len(signals),
-                    "signal_quality": np.mean([1.0 if 0.0 <= s.value <= 1.0 else 0.5 for s in signals]) if signals else 0.0
-                },
-                "recommendations": [
-                    "Monitor signal coherence",
-                    "Enhance entanglement detection",
-                    "Optimize decision processes"
-                ]
+            # Prepare signal analysis data
+            signal_data = {
+                "signals": [
+                    {
+                        "type": signal.signal_type,
+                        "value": signal.value,
+                        "source": signal.source,
+                        "timestamp": signal.timestamp.isoformat()
+                    } for signal in signals
+                ],
+                "features": features,
+                "signal_statistics": {
+                    "count": len(signals),
+                    "mean_value": np.mean([s.value for s in signals]) if signals else 0.0,
+                    "std_value": np.std([s.value for s in signals]) if len(signals) > 1 else 0.0
+                }
             }
             
-            return analysis
+            # Request AI analysis
+            analysis_response = await coordinator.analyze_data(
+                data=json.dumps(signal_data),
+                analysis_type="quantum_organizational_state_detection"
+            )
+            
+            # Parse AI analysis
+            analysis_result = await self._parse_ai_signal_analysis(analysis_response, signals, features)
+            
+            return analysis_result
             
         except Exception as e:
             print(f"AI signal analysis error: {e}")
+            # Fallback to heuristic analysis
+            return self._heuristic_signal_analysis(signals, features)
+    
+    async def _parse_ai_signal_analysis(
+        self, 
+        ai_response: str, 
+        signals: List[OrganizationalSignal],
+        features: List[float]
+    ) -> Dict[str, Any]:
+        """Parse AI signal analysis response"""
+        try:
+            # Calculate basic statistics
+            signal_strength = np.mean([signal.value for signal in signals]) if signals else 0.0
+            signal_variability = np.std([signal.value for signal in signals]) if len(signals) > 1 else 0.0
+            
+            # Initialize results
+            detected_states = []
+            state_probabilities = {}
+            
+            # Parse AI response for state detection
+            ai_lower = ai_response.lower()
+            
+            # COHERENCE detection với AI insights
+            if ("coherence" in ai_lower or "stable" in ai_lower or "consistent" in ai_lower):
+                coherence_confidence = min(0.95, signal_strength + 0.1)
+                if "high" in ai_lower:
+                    coherence_confidence = min(0.95, coherence_confidence * 1.2)
+                
+                detected_states.append({
+                    "type": "COHERENCE",
+                    "confidence": coherence_confidence,
+                    "reasoning": f"AI detected coherence patterns: {ai_response[:100]}..."
+                })
+                state_probabilities["COHERENCE"] = coherence_confidence
+            
+            # ENTANGLEMENT detection với AI insights
+            if ("entanglement" in ai_lower or "correlation" in ai_lower or "synchronized" in ai_lower):
+                performance_signals = [s for s in signals if s.signal_type == "performance"]
+                communication_signals = [s for s in signals if s.signal_type == "communication"]
+                
+                if performance_signals and communication_signals:
+                    # Calculate correlation
+                    perf_values = [s.value for s in performance_signals]
+                    comm_values = [s.value for s in communication_signals]
+                    
+                    if len(perf_values) > 1 and len(comm_values) > 1:
+                        correlation = abs(np.corrcoef(perf_values[:len(comm_values)], comm_values[:len(perf_values)])[0, 1])
+                        entanglement_confidence = min(0.9, correlation + 0.1)
+                        
+                        detected_states.append({
+                            "type": "ENTANGLEMENT", 
+                            "confidence": entanglement_confidence,
+                            "reasoning": f"AI detected entanglement with correlation {correlation:.3f}: {ai_response[:100]}..."
+                        })
+                        state_probabilities["ENTANGLEMENT"] = entanglement_confidence
+            
+            # SUPERPOSITION detection với AI insights
+            if ("superposition" in ai_lower or "multiple" in ai_lower or "simultaneous" in ai_lower):
+                if signal_variability > 0.3:  # High variability suggests superposition
+                    superposition_confidence = min(0.85, signal_variability + 0.2)
+                    
+                    detected_states.append({
+                        "type": "SUPERPOSITION",
+                        "confidence": superposition_confidence,
+                        "reasoning": f"AI detected superposition patterns: {ai_response[:100]}..."
+                    })
+                    state_probabilities["SUPERPOSITION"] = superposition_confidence
+            
+            # DECOHERENCE detection với AI insights
+            if ("decoherence" in ai_lower or "unstable" in ai_lower or "degrading" in ai_lower):
+                if signal_strength < 0.4 or signal_variability > 0.6:
+                    decoherence_confidence = min(0.8, (1.0 - signal_strength) + signal_variability)
+                    
+                    detected_states.append({
+                        "type": "DECOHERENCE",
+                        "confidence": decoherence_confidence,
+                        "reasoning": f"AI detected decoherence patterns: {ai_response[:100]}..."
+                    })
+                    state_probabilities["DECOHERENCE"] = decoherence_confidence
+            
+            # Extract confidence adjustments from AI
+            import re
+            confidence_adjustments = re.findall(r'confidence.*?(\d+\.?\d*)%', ai_lower)
+            if confidence_adjustments:
+                adjustment_factor = float(confidence_adjustments[0]) / 100.0
+                for state in detected_states:
+                    state["confidence"] = min(0.95, state["confidence"] * adjustment_factor)
+            
             return {
-                "detected_states": [],
-                "state_probabilities": {},
-                "win_probability": 0.5,
-                "anomaly_score": 0.0,
-                "overall_confidence": 0.0
+                "detected_states": detected_states,
+                "state_probabilities": state_probabilities,
+                "ai_analysis_summary": ai_response[:200] + "..." if len(ai_response) > 200 else ai_response,
+                "signal_strength": signal_strength,
+                "signal_variability": signal_variability,
+                "analysis_method": "commercial_ai_enhanced"
             }
+            
+        except Exception as e:
+            print(f"Error parsing AI signal analysis: {e}")
+            return self._heuristic_signal_analysis(signals, features)
     
     def _calculate_signal_correlation(self, signals1: List[OrganizationalSignal], 
                                     signals2: List[OrganizationalSignal]) -> float:

@@ -1,0 +1,64 @@
+{
+  "deployment_success": true,
+  "deployment_time_seconds": 1.241801,
+  "total_attempts": 1,
+  "validation_results": {
+    "/": {
+      "success": true,
+      "status_code": 200,
+      "response_time_ms": 355.47828674316406,
+      "has_data": true,
+      "data_keys": [
+        "message"
+      ]
+    },
+    "/health": {
+      "success": true,
+      "status_code": 200,
+      "response_time_ms": 62.69526481628418,
+      "has_data": true,
+      "data_keys": [
+        "status"
+      ]
+    },
+    "/v1/agents/": {
+      "success": false,
+      "status_code": 404,
+      "response_time_ms": 63.58027458190918,
+      "error": "HTTP 404"
+    },
+    "/v2/conversation/health": {
+      "success": false,
+      "status_code": 404,
+      "response_time_ms": 64.54873085021973,
+      "error": "HTTP 404"
+    },
+    "overall_success_rate": 50.0,
+    "successful_endpoints": 2,
+    "total_endpoints": 4
+  },
+  "mcp_fixes_validated": {
+    "graceful_import_handling": false,
+    "no_runtime_crashes": true,
+    "mcp_registry_available": true,
+    "error_messages": [
+      "Main API affected: 404"
+    ],
+    "overall_fix_success": false
+  },
+  "deployment_log": [
+    {
+      "attempt": 1,
+      "timestamp": "2025-07-10T11:25:12.553642",
+      "connectivity": {
+        "success": true,
+        "status_code": 200,
+        "response_data": {
+          "status": "ok"
+        },
+        "error": null
+      }
+    }
+  ],
+  "timestamp": "2025-07-10T11:25:13.428793"
+}
