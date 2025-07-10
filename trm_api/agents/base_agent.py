@@ -48,6 +48,11 @@ class BaseAgent(ABC):
         
         logger.info(f"AGE Actor initialized: {metadata.actor_id} - {metadata.semantic_purpose}")
 
+    @property
+    def agent_id(self) -> str:
+        """Backward compatibility property for agent_id"""
+        return self.metadata.actor_id
+
     @abstractmethod
     async def execute_strategic_action(self, action_context: Dict[str, Any]) -> Dict[str, Any]:
         """

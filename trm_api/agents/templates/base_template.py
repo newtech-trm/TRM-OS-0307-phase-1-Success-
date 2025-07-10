@@ -333,19 +333,28 @@ class BaseAgentTemplate(BaseAgent, ABC):
             import time
             agent_id = f"{self.template_metadata.template_name}_{int(time.time() * 1000000)}"
         
-        # Create AgentMetadata from template_metadata if not provided
+        # Create AgentMetadata from template_metadata if not provided - AGE Actor structure
         if not metadata:
             metadata = AgentMetadata(
-                name=self.template_metadata.template_name,
-                agent_type=self.template_metadata.template_name,
-                description=f"Agent template for {self.template_metadata.primary_domain}",
+                actor_id=agent_id,
+                actor_type=f"AGE_AGENT_TEMPLATE_{self.template_metadata.template_name.upper()}",
+                semantic_purpose=f"AGE Actor specialized in {self.template_metadata.primary_domain} - performs Recognition→Event→WIN cycles for {self.template_metadata.template_name} domain expertise",
                 capabilities=[cap.name for cap in self.template_metadata.capabilities] if self.template_metadata.capabilities else [],
-                status="active",
-                version=self.template_metadata.version or "1.0.0",
-                creation_date=datetime.now()
+                strategic_context={
+                    "template_name": self.template_metadata.template_name,
+                    "primary_domain": self.template_metadata.primary_domain,
+                    "version": self.template_metadata.version or "1.0.0",
+                    "creation_date": datetime.now().isoformat(),
+                    "age_integration": True
+                },
+                performance_metrics={
+                    "initialization_timestamp": datetime.now().timestamp(),
+                    "template_readiness": 1.0,
+                    "domain_expertise_level": 0.8
+                }
             )
         
-        super().__init__(agent_id, metadata)
+        super().__init__(metadata)
         
         self.tension_analyzer = TensionAnalyzer()
         self.solution_generator = SolutionGenerator()
