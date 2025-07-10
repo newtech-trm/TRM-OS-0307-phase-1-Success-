@@ -16,29 +16,22 @@ async def get_task_service() -> TaskService:
 
 @router.get("/", response_model=PaginatedResponse[Task])
 @adapt_task_response(response_item_key="items")
-async def list_tasks(
+async def list_tasks_for_project(
     *, 
-    project_id: str = None,
+    project_id: str,
     page: int = Query(1, ge=1, description="Page number, 1-indexed"),
     page_size: int = Query(10, ge=1, le=100, description="Number of items per page"),
     service: TaskService = Depends(get_task_service)
 ) -> Any:
     """
-    Retrieve paginated tasks. If project_id provided, filters by project, otherwise returns all tasks.
+    Retrieve paginated tasks for a specific project.
     """
-    if project_id:
-        # Use TaskService to handle pagination logic for specific project
-        return service.get_paginated_tasks_for_project(
-            project_id=project_id, 
-            page=page, 
-            page_size=page_size
-        )
-    else:
-        # Return all tasks when no project_id specified
-        return service.get_paginated_all_tasks(
-            page=page, 
-            page_size=page_size
-        )
+    # Use TaskService to handle pagination logic
+    return service.get_paginated_tasks_for_project(
+        project_id=project_id, 
+        page=page, 
+        page_size=page_size
+    )
 
 @router.post("/", response_model=Task, status_code=status.HTTP_201_CREATED)
 @adapt_task_response()

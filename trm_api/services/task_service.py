@@ -111,29 +111,6 @@ class TaskService:
             page_size=page_size
         )
     
-    def get_paginated_all_tasks(self, page: int = 1, page_size: int = 10) -> PaginatedResponse[Task]:
-        """
-        Gets paginated tasks for all tasks in the system.
-        
-        Args:
-            page: Page number (1-indexed)
-            page_size: Number of items per page
-            
-        Returns:
-            PaginatedResponse containing tasks and pagination metadata
-        """
-        tasks, total_count, page_count = self.repository.get_paginated_all_tasks(
-            page=page, 
-            page_size=page_size
-        )
-        
-        return PaginatedResponse.create(
-            items=tasks, 
-            total_count=total_count, 
-            page=page, 
-            page_size=page_size
-        )
-    
     def assign_task_to_user(self, task_id: str, user_id: str,
                            assignment_type: str = 'Primary',
                            priority_level: int = 3,

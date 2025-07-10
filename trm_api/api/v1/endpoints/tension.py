@@ -11,21 +11,17 @@ def get_tension_repo() -> TensionRepository:
     return TensionRepository()
 
 @router.get("/", response_model=List[Tension])
-def list_tensions(
+def list_tensions_for_project(
     *, 
-    project_id: str = None,
+    project_id: str,
     skip: int = 0,
     limit: int = 100,
     repo: TensionRepository = Depends(get_tension_repo)
 ) -> Any:
     """
-    Retrieve tensions. If project_id provided, filters by project, otherwise returns all tensions.
+    Retrieve tensions for a specific project.
     """
-    if project_id:
-        tensions = repo.list_tensions_for_project(project_id=project_id, skip=skip, limit=limit)
-    else:
-        # Get all tensions when no project_id specified
-        tensions = repo.get_all_tensions(skip=skip, limit=limit)
+    tensions = repo.list_tensions_for_project(project_id=project_id, skip=skip, limit=limit)
     return tensions
 
 @router.post("/", response_model=Tension, status_code=status.HTTP_201_CREATED)

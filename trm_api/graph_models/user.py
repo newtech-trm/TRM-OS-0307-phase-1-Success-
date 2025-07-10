@@ -1,6 +1,8 @@
 from neomodel import StringProperty, DateTimeProperty, RelationshipTo, RelationshipFrom, ZeroOrMore, ArrayProperty
 from .base import BaseNode
 from trm_api.graph_models.assigns_task import AssignsTaskRel
+from trm_api.graph_models.has_skill import HasSkillRel
+from trm_api.graph_models.manages_project import ManagesProjectRel
 
 class User(BaseNode):
     """
@@ -26,10 +28,10 @@ class User(BaseNode):
     assigns_tasks = RelationshipTo('trm_api.graph_models.task.Task', 'ASSIGNS_TASK', model=AssignsTaskRel)
     
     # User manages projects
-    manages_projects = RelationshipTo('trm_api.graph_models.project.Project', 'MANAGES_PROJECT')
+    manages_projects = RelationshipTo('trm_api.graph_models.project.Project', 'MANAGES_PROJECT', model=ManagesProjectRel)
     
     # User has skills
-    has_skills = RelationshipTo('trm_api.graph_models.skill.GraphSkill', 'HAS_SKILL')
+    has_skills = RelationshipTo('trm_api.graph_models.skill.GraphSkill', 'HAS_SKILL', model=HasSkillRel)
     
     def __str__(self):
         return self.username or self.uid

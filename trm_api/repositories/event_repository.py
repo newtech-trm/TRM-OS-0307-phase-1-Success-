@@ -7,7 +7,7 @@ from trm_api.graph_models.event import Event as GraphEvent
 from trm_api.graph_models.project import Project as GraphProject
 from trm_api.graph_models.task import Task as GraphTask
 from trm_api.graph_models.agent import Agent as GraphAgent
-from trm_api.models.event import EventCreate, EventUpdate  # Pydantic model for API data
+from trm_api.models.event import EventCreate  # Pydantic model for API data
 
 class EventRepository:
     def create_event(self, event_data: EventCreate) -> GraphEvent:
@@ -15,7 +15,8 @@ class EventRepository:
         Creates a new event.
         """
         event = GraphEvent(
-            event_type=event_data.event_type,
+            name=event_data.event_type,  # Use event_type as name for GraphEvent
+            description=getattr(event_data, 'description', None),
             payload=event_data.payload
         ).save()
         return event
@@ -39,7 +40,7 @@ class EventRepository:
         else:
             return GraphEvent.nodes.all()[skip:skip + limit]
 
-    def update_event(self, uid: str, event_data: EventUpdate) -> Optional[GraphEvent]:
+    def update_event(self, uid: str, **kwargs) -> Optional[GraphEvent]:
         """
         Updates an existing event.
         Note: In many cases, events should be immutable, but this method is provided
@@ -49,9 +50,9 @@ class EventRepository:
         if not event:
             return None
 
-        update_data = event_data.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(event, key, value)
+        for key, value in kwargs.items():
+            if hasattr(event, key):
+                setattr(event, key, value)
         
         event.save()
         return event

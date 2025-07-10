@@ -2,6 +2,8 @@ from neomodel import StringProperty, IntegerProperty, RelationshipTo, Relationsh
 from trm_api.graph_models.generates_event import GeneratesEventRel
 from trm_api.graph_models.is_part_of_project import IsPartOfProjectRel
 from trm_api.graph_models.assigns_task import AssignsTaskRel
+from trm_api.graph_models.requires_resource import RequiresResourceRel
+from trm_api.graph_models.resolves_tension import ResolvesTensionRel
 from .base import BaseNode
 
 class Task(BaseNode):
@@ -79,8 +81,12 @@ class Task(BaseNode):
     # Use GeneratesEventRel to store relationship properties according to ontology V3.2
     generates_events = RelationshipTo('trm_api.graph_models.event.Event', 'GENERATES_EVENT', model=GeneratesEventRel)
     
+    # A task can require resources
+    # Use RequiresResourceRel to store relationship properties according to ontology V3.2
+    requires_resources = RelationshipTo('trm_api.graph_models.resource.Resource', 'REQUIRES_RESOURCE', model=RequiresResourceRel)
+    
     # A task can resolve tensions - alignment with Ontology V3.2
-    resolves = RelationshipTo('trm_api.graph_models.tension.Tension', 'RESOLVES', cardinality=ZeroOrMore)
+    resolves_tensions = RelationshipTo('trm_api.graph_models.tension.Tension', 'RESOLVES_TENSION', model=ResolvesTensionRel, cardinality=ZeroOrMore)
 
     def __str__(self):
         return self.name

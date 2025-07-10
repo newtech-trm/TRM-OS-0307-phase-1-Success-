@@ -1,152 +1,95 @@
-# TRM-OS DOCUMENTATION - MASTER INDEX
+# TRM-OS DOCUMENTATION INDEX
+**Artificial Genesis Engine - Complete Documentation Hub**
 
-**Version:** 2.0 - Commercial AI Orchestration System  
-**Philosophy:** Recognition → Event → WIN với Commercial AI Coordination  
-**Last Updated:** 09-07-2025
-**Production URL:** https://trmosngonlanh.up.railway.app/docs
-
----
-
-## 🎯 OVERVIEW
-
-TRM-OS documentation đã được **chuẩn hóa hoàn toàn** theo triết lý **Commercial AI Orchestration**. Thay vì training local ML models, hệ thống điều phối thông minh các commercial AI APIs (OpenAI, Claude, Gemini) để tạo ra living system.
+**Version:** 2.0 - Living System  
+**Philosophy:** Recognition → Event → WIN with Commercial AI Orchestration  
+**Last Updated:** 2024-12-28
 
 ---
 
-## 📚 MASTER DOCUMENTATION STRUCTURE
+## 🎯 MASTER DOCUMENTS
 
-### 🏗️ Architecture & Design
+### 📘 [AGE Comprehensive System Design V2.0](AGE_COMPREHENSIVE_SYSTEM_DESIGN_V2.md)
+**THE MASTER BLUEPRINT** - Complete living system architecture with self-healing, evolution, and strategic learning.
 
-#### 📘 [AGE_COMPREHENSIVE_SYSTEM_DESIGN_V2.md](AGE_COMPREHENSIVE_SYSTEM_DESIGN_V2.md)
-**THE MASTER BLUEPRINT** - Complete production-ready architecture cho TRM-OS Artificial Genesis Engine
+### 📙 [Master Doctrine](master-doctrine/README-master-doctrine.md)
+Core philosophy, laws, and strategic framework for TRM-OS.
 
-```yaml
-Content:
-  - Technology Stack: FastAPI, Neo4j Aura Cloud, RabitMQ Cloud, Supabase Cloud, Snowflake Cloud, Commercial AI APIs
-  - Living System Architecture: Self-healing, Evolution, Strategic learning
-  - Commercial AI Coordination: OpenAI, Claude, Gemini integration
-  - API Endpoints: Full AGE orchestration endpoints
-  - Implementation Roadmap: 12-week plan to completion
-  - Success Metrics: KPIs cho living system
-```
-
-### 📊 Progress Tracking
-
-#### 📙 [GAP_ANALYSIS_BETWEEN_CURRENT_STATE_AND_AGE_V2.md](GAP_ANALYSIS_BETWEEN_CURRENT_STATE_AND_AGE_V2.md)
-**PROGRESS TRACKER** - Current implementation status vs AGE target design
-
-```yaml
-Content:
-  - Implementation Status Matrix: 30% complete → 100% target
-  - Critical Gaps: Commercial AI, Self-healing, Evolution
-  - Technology Stack Gaps: Missing AI libraries
-  - Implementation Roadmap: Phase-by-phase execution plan
-  - Success Metrics Tracking: Weekly progress milestones
-```
+### 📗 [Technical Architecture](architecture/)
+Event-driven architecture and ontology-first approach specifications.
 
 ---
 
-## 🏛️ ARCHIVE
+## 🏗️ ARCHITECTURE & CORE SPECS
 
-#### 📁 [archive/](archive/)
-Chứa tất cả outdated documents, legacy designs, và historical reports đã được superseded bởi AGE V2.0 design.
-
----
-
-## 🎯 DOCUMENT HIERARCHY & USAGE
-
-### 1. **FOR DEVELOPERS**: Bắt đầu với AGE_COMPREHENSIVE_SYSTEM_DESIGN_V2.md
-- Master blueprint cho toàn bộ hệ thống
-- Technology stack requirements
-- API endpoint specifications  
-- Implementation guidelines
-
-### 2. **FOR PROJECT MANAGEMENT**: Sử dụng GAP_ANALYSIS_BETWEEN_CURRENT_STATE_AND_AGE_V2.md
-- Current status tracking
-- Implementation roadmap
-- Progress milestones
-- Risk mitigation strategies
-
-### 3. **FOR FUTURE AI AGENTS**: 
-- Chỉ cần đọc 2 files master trên
-- Archive folder cho historical context
-- Clear, simple structure không bị confuse bởi outdate docs
+| Document | Description | Status |
+|----------|-------------|---------|
+| [Core Entities & Relationships](core-specs/) | MVP entities, agent workflows, philosophy implementation | ✅ Active |
+| [Event-Driven Architecture](architecture/event-driven-architecture.md) | System event patterns and bus design | ✅ Active |
+| [Ontology-First Approach](architecture/ontology-first-approach.md) | Knowledge graph strategy | ✅ Active |
 
 ---
 
-## 🔄 DOCUMENTATION PRINCIPLES
+## 🚀 IMPLEMENTATION & ROADMAPS
 
-### ✅ **Single Source of Truth**
-- AGE_COMPREHENSIVE_SYSTEM_DESIGN_V2.md = Master blueprint
-- Không duplicate information
-- All decisions traceable to master design
-
-### ✅ **Living Documents**
-- Update theo implementation progress
-- Version controlled
-- Clear change history
-
-### ✅ **Simple Structure**
-- Minimal files
-- Clear naming
-- Easy navigation
-- No confusion
+| Document | Description | Status |
+|----------|-------------|---------|
+| [Phase 2: Agent Ecosystem](roadmap/phase-2-agent-ecosystem.md) | Current development phase | 🚧 In Progress |
+| [API Evolution Roadmap](master-doctrine/08_API_Evolution_Roadmap.md) | Commercial AI API integration plan | ✅ Active |
+| [Integration Patterns](integration-specs/) | External service integration guides | ✅ Active |
 
 ---
 
-## 🚀 CURRENT STATUS
+## 🔧 TECHNICAL DECISIONS
 
-### API Deployment Status
-```yaml
-Production URL: https://trmosngonlanh.up.railway.app/docs
-Current Progress: 30% (Foundation complete)
-Next Milestone: Commercial AI Integration (Week 3)
-
-Working Endpoints: 7/25 (28%)
-Missing Critical: Commercial AI, AGE Core, Self-healing
-```
-
-### Technology Stack Status
-```yaml
-✅ Infrastructure: FastAPI, Neo4j Cloud, Railway, Supabase Cloud, Snowflake
-❌ Commercial AI: OpenAI, Claude, Gemini (CRITICAL)
-❌ Advanced Features: Self-healing, Evolution
-```
+| Document | Description | Status |
+|----------|-------------|---------|
+| [Async API Pattern](technical-decisions/async-api-pattern.md) | Asynchronous processing design | ✅ Active |
+| [Enum Adapter Pattern](technical-decisions/enum-adapter-pattern.md) | Type safety and data validation | ✅ Active |
+| [Security Framework](technical-decisions/security-basics.md) | Authentication and authorization | ✅ Active |
+| [Scalability Considerations](technical-decisions/scalability-considerations.md) | Performance and scaling strategy | ✅ Active |
+| [Tech Stack Final](technical-decisions/tech-stack-final.md) | Official technology stack | ✅ Active |
 
 ---
 
-## 📋 NEXT ACTIONS
+## 🧪 TESTING & INTEGRATION
 
-### Immediate (Step 1)
-1. Fix validation errors (tensions/tasks endpoints)
-2. Update requirements.txt với Commercial AI dependencies
-3. Setup API keys cho OpenAI, Claude, Gemini
-4. Test current endpoint stability
-
-### Short-term (Step 2)
-1. Implement Commercial AI coordination layer
-2. Build AGE orchestration core
-3. Add strategic feedback loop
-4. Implement self-healing system
-
-### Medium-term (Step 3)
-1. Evolution pathway implementation
-2. Temporal reasoning engine
-3. Full system integration
-4. Production optimization
+| Document | Description | Status |
+|----------|-------------|---------|
+| [Integration Testing Guide](integration-testing/async-testing-guide.md) | Comprehensive testing strategy | ✅ Active |
+| [Coverage Analysis](../tests/integration/COMPREHENSIVE_COVERAGE_ANALYSIS.md) | Current test coverage status | 📊 Reference |
 
 ---
 
-## 🎯 SUCCESS CRITERIA
+## 📚 ARCHIVED DOCUMENTS
 
-- ✅ All 25 AGE endpoints operational
-- ✅ Multi-AI response time < 3 seconds
-- ✅ System uptime > 99.5% with auto-healing
-- ✅ Strategic learning from WIN/FAIL active
-- ✅ Evolution pathway creating new capabilities
-- ✅ Neo4j with full and accracy onotlogy reaady to use
+Historical documents moved to preserve development history:
+
+| Document | Reason for Archive | Date Archived |
+|----------|-------------------|---------------|
+| [Gap Analysis V3.2](archive/GAP_ANALYSIS_ONTOLOGY_V3.2.md) | Refactored to Commercial AI approach | 2024-12-28 |
 
 ---
 
-**Document Maintainer**: TRM-OS Development Team  
-**Master Reference**: AGE_COMPREHENSIVE_SYSTEM_DESIGN_V2.md 
+## 🎯 QUICK START GUIDE
+
+1. **Start Here:** [AGE Comprehensive System Design V2.0](AGE_COMPREHENSIVE_SYSTEM_DESIGN_V2.md)
+2. **Understand Philosophy:** [Master Doctrine](master-doctrine/00_Philosophy_and_Core_Laws.md)
+3. **Technical Overview:** [System Architecture](master-doctrine/07_System_Architecture_and_Patterns.md)
+4. **Implementation:** [Agent Workflows](core-specs/agent-workflows.md)
+5. **Integration:** [API Evolution Roadmap](master-doctrine/08_API_Evolution_Roadmap.md)
+
+---
+
+## 📋 DOCUMENTATION STANDARDS
+
+- **Master Document:** AGE_COMPREHENSIVE_SYSTEM_DESIGN_V2.md drives all decisions
+- **Philosophy:** Commercial AI APIs only (no local ML models)
+- **Architecture:** Event-driven, ontology-first approach
+- **Versioning:** Semantic versioning for major architectural changes
+- **Status:** All active documents are maintained and up-to-date
+
+---
+
+**TRM-OS Team**  
+*Building the future of AI orchestration* 

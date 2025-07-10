@@ -5,10 +5,12 @@ Simple test cho quantum system để đảm bảo hoạt động cơ bản
 import asyncio
 import sys
 import os
+import pytest
 
 # Add project root to path
 sys.path.insert(0, os.path.abspath('.'))
 
+@pytest.mark.asyncio
 async def test_quantum_basic():
     """Test basic quantum functionality"""
     

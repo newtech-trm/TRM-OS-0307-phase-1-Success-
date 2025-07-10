@@ -6,6 +6,7 @@ from datetime import datetime
 import uuid
 
 from trm_api.graph_models.base import BaseNode
+from trm_api.graph_models.assigned_to_project import AssignedToProjectRel
 
 class Resource(BaseNode):
     """
@@ -23,14 +24,17 @@ class Resource(BaseNode):
     used_by_projects = RelationshipFrom('trm_api.graph_models.project.Project', 'HAS_RESOURCE')
     used_by_tasks = RelationshipFrom('trm_api.graph_models.task.Task', 'USES_RESOURCE')
     
+    # AssignedToProject relationship - Resource được assign to Project
+    assigned_to_projects = RelationshipTo('trm_api.graph_models.project.Project', 'ASSIGNED_TO_PROJECT', 
+                                         model=AssignedToProjectRel)
+    
     @classmethod
-    def create(cls, **props):
+    def create_single(cls, **props):
         """
-        Create a new Resource node with a generated resourceId.
+        Create a single new Resource node.
+        Returns a single Resource instance.
         """
-        # Set default values for required fields
-        props.setdefault('uid', str(uuid.uuid4()))
-        props.setdefault('createdAt', datetime.utcnow())
-        props.setdefault('updatedAt', datetime.utcnow())
-
-        return super(Resource, cls).create(**props)
+        # Create instance và save
+        instance = cls(**props)
+        instance.save()
+        return instance

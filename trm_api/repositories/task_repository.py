@@ -149,32 +149,6 @@ class TaskRepository:
         except GraphProject.DoesNotExist:
             return [], 0, 0
 
-    def get_paginated_all_tasks(self, page: int = 1, page_size: int = 10) -> Tuple[List[GraphTask], int, int]:
-        """
-        Gets paginated tasks from all projects with total count and page count.
-        
-        Args:
-            page: Page number (1-indexed)
-            page_size: Number of items per page
-            
-        Returns:
-            Tuple of (tasks, total_count, page_count)
-        """
-        # Get all tasks from all projects
-        all_tasks = list(GraphTask.nodes.all())
-        
-        # Calculate pagination
-        total_count = len(all_tasks)
-        page_count = math.ceil(total_count / page_size) if total_count > 0 else 1
-        
-        # Calculate offset using the page and page_size
-        offset = (page - 1) * page_size
-        
-        # Return paginated result
-        paginated_tasks = all_tasks[offset:offset + page_size]
-        
-        return paginated_tasks, total_count, page_count
-
     def update_task(self, uid: str, task_data: TaskUpdate) -> Optional[GraphTask]:
         """
         Updates an existing task with attributes from Ontology V3.2.

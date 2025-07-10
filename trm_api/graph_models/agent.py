@@ -2,6 +2,7 @@ from neomodel import StringProperty, RelationshipTo, BooleanProperty, JSONProper
 from trm_api.graph_models.custom_properties import Neo4jDateTimeProperty
 from trm_api.graph_models.has_skill import HasSkillRel
 from trm_api.graph_models.generates_event import GeneratesEventRel
+from trm_api.graph_models.manages_project import ManagesProjectRel
 from .base import BaseNode
 from trm_api.graph_models.resource import Resource
 from trm_api.graph_models.project import Project
@@ -55,6 +56,9 @@ class Agent(BaseNode):
     
     # An agent can have skills (with proficiency levels, etc.)
     has_skills = RelationshipTo('trm_api.graph_models.skill.GraphSkill', 'HAS_SKILL', model=HasSkillRel)
+    
+    # An agent can manage projects
+    manages_projects = RelationshipTo('trm_api.graph_models.project.Project', 'MANAGES_PROJECT', model=ManagesProjectRel)
     
     # An agent can generate events
     # Use GeneratesEventRel to store relationship properties according to ontology V3.2

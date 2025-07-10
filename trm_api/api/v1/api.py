@@ -68,6 +68,10 @@ api_router.include_router(reasoning.router, tags=["Reasoning Engine"])
 from trm_api.api.v1.endpoints import commercial_ai
 api_router.include_router(commercial_ai.router, tags=["Commercial AI Coordination"])
 
+# MCP Universal Data Access endpoints  
+from trm_api.api.v1.endpoints import mcp_endpoints
+api_router.include_router(mcp_endpoints.router, tags=["MCP - Universal Data Access"])
+
 # NEW: Import V2 Conversation endpoints - REMOVED (fake implementation)
 # from ..v2.endpoints.conversation import router as conversation_router
 from ...core.dependencies import cleanup_dependencies

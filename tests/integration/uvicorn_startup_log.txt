@@ -1,0 +1,12 @@
+2025-07-09 21:18:33.456352: --- Uvicorn/FastAPI Startup --- 
+2025-07-09 21:18:33.456352: PYTHON_EXECUTABLE_IN_MAIN: C:\Program Files\Python311\python.exe
+2025-07-09 21:18:33.457352: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches\\tests\\integration', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Users\\devpc\\AppData\\Roaming\\Python\\Python311\\site-packages', 'C:\\Users\\devpc\\AppData\\Roaming\\Python\\Python311\\site-packages\\win32', 'C:\\Users\\devpc\\AppData\\Roaming\\Python\\Python311\\site-packages\\win32\\lib', 'C:\\Users\\devpc\\AppData\\Roaming\\Python\\Python311\\site-packages\\Pythonwin', 'C:\\Program Files\\Python311', 'C:\\Program Files\\Python311\\Lib\\site-packages']
+2025-07-09 21:18:33.457352: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches\tests\integration
+2025-07-09 21:18:33.457352: PYTHONPATH: None
+2025-07-09 21:18:33.457352: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
+2025-07-09 21:43:55.585009: --- Uvicorn/FastAPI Startup --- 
+2025-07-09 21:43:55.586010: PYTHON_EXECUTABLE_IN_MAIN: C:\Program Files\Python311\python.exe
+2025-07-09 21:43:55.586010: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches\\tests', 'E:\\tech\\trm-os-branches', 'E:\\tech\\trm-os-branches\\tests\\integration', 'C:\\Program Files\\Python311\\python311.zip', 'C:\\Program Files\\Python311\\Lib', 'C:\\Program Files\\Python311\\DLLs', 'C:\\Users\\devpc\\AppData\\Roaming\\Python\\Python311\\site-packages', 'C:\\Users\\devpc\\AppData\\Roaming\\Python\\Python311\\site-packages\\win32', 'C:\\Users\\devpc\\AppData\\Roaming\\Python\\Python311\\site-packages\\win32\\lib', 'C:\\Users\\devpc\\AppData\\Roaming\\Python\\Python311\\site-packages\\Pythonwin', 'C:\\Program Files\\Python311', 'C:\\Program Files\\Python311\\Lib\\site-packages']
+2025-07-09 21:43:55.586010: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches\tests\integration
+2025-07-09 21:43:55.586010: PYTHONPATH: None
+2025-07-09 21:43:55.586010: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm

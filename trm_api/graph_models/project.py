@@ -5,6 +5,7 @@ from trm_api.graph_models.leads_to_win import LeadsToWinRel
 from trm_api.graph_models.is_part_of_project import IsPartOfProjectRel
 from trm_api.graph_models.manages_project import ManagesProjectRel
 from trm_api.graph_models.assigned_to_project import AssignedToProjectRel
+from trm_api.graph_models.requires_resource import RequiresResourceRel
 from .base import BaseNode
 
 class Project(BaseNode):
@@ -54,9 +55,19 @@ class Project(BaseNode):
     # Use AssignedToProjectRel to store relationship properties according to ontology V3.2
     assigned_resources = RelationshipFrom('trm_api.graph_models.resource.Resource', 'ASSIGNED_TO_PROJECT', model=AssignedToProjectRel)
     
-    # Agents who manage this project
+    # Resources required by this project
+    # Use RequiresResourceRel to store relationship properties according to ontology V3.2
+    requires_resources = RelationshipTo('trm_api.graph_models.resource.Resource', 'REQUIRES_RESOURCE', model=RequiresResourceRel)
+    
+    # Agents and Users who manage this project
     # Use ManagesProjectRel to store relationship properties according to ontology V3.2
-    managed_by = RelationshipFrom('trm_api.graph_models.agent.Agent', 'MANAGES_PROJECT', model=ManagesProjectRel)
+    managed_by_agents = RelationshipFrom('trm_api.graph_models.agent.Agent', 'MANAGES_PROJECT', model=ManagesProjectRel)
+    managed_by_users = RelationshipFrom('trm_api.graph_models.user.User', 'MANAGES_PROJECT', model=ManagesProjectRel)
+    
+    @property
+    def managed_by(self):
+        """Combined managers (both agents and users)"""
+        return list(self.managed_by_agents.all()) + list(self.managed_by_users.all())
     
     # Parent project (if this is a sub-project)
     parent_project = RelationshipTo('Project', 'IS_SUBPROJECT_OF')
