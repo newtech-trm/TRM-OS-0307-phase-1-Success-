@@ -9641,3 +9641,15 @@ RECTORY_IN_MAIN: E:\tech\trm-os-branches
 2025-07-10 11:19:50.702880: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
 2025-07-10 11:19:50.702992: PYTHONPATH: None
 2025-07-10 11:19:50.703176: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
+2025-07-10 11:21:58.336264: --- Uvicorn/FastAPI Startup --- 
+2025-07-10 11:21:58.336471: PYTHON_EXECUTABLE_IN_MAIN: C:\Users\devpc\AppData\Local\Programs\Python\Python313\python.exe
+2025-07-10 11:21:58.336620: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\uvicorn.exe', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\python313.zip', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\DLLs', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\Lib', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages']
+2025-07-10 11:21:58.336749: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-07-10 11:21:58.336893: PYTHONPATH: None
+2025-07-10 11:21:58.337024: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
+2025-07-10 11:22:00.546517: --- Uvicorn/FastAPI Startup --- 
+2025-07-10 11:22:00.546766: PYTHON_EXECUTABLE_IN_MAIN: C:\Users\devpc\AppData\Local\Programs\Python\Python313\python.exe
+2025-07-10 11:22:00.546924: SYS_PATH_IN_MAIN: ['E:\\tech\\trm-os-branches', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\uvicorn.exe', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\python313.zip', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\DLLs', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\Lib', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313', 'C:\\Users\\devpc\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages']
+2025-07-10 11:22:00.547061: CURRENT_WORKING_DIRECTORY_IN_MAIN: E:\tech\trm-os-branches
+2025-07-10 11:22:00.547166: PYTHONPATH: None
+2025-07-10 11:22:00.547307: VIRTUAL_ENV: E:\tech\trm-os-branches\venv-trm
