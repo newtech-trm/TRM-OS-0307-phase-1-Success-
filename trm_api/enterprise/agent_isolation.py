@@ -172,7 +172,9 @@ class AgentIsolationManager:
             self._docker_client.ping()
             logger.info("Docker client initialized successfully")
         except Exception as e:
-            logger.warning(f"Docker not available: {e}")
+            # In cloud environments like Railway, Docker may not be available
+            # This is expected behavior, so we use debug level instead of warning
+            logger.debug(f"Docker not available in current environment: {e}")
             self._docker_client = None
     
     # ================================

@@ -30,7 +30,7 @@ class MCPResourceRequest(BaseModel):
     resource_uri: str = Field(..., description="Resource URI to access")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "server_name": "supabase",
                 "resource_uri": "supabase://tables/entities"
@@ -45,7 +45,7 @@ class MCPToolRequest(BaseModel):
     arguments: Dict[str, Any] = Field(..., description="Tool arguments")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "server_name": "supabase",
                 "tool_name": "query_database",
@@ -64,7 +64,7 @@ class MCPUnifiedQueryRequest(BaseModel):
     preferred_sources: Optional[List[str]] = Field(None, description="Preferred data sources")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "query": "Find all projects related to user john@example.com",
                 "context": {"user_id": "user123"},
@@ -81,7 +81,7 @@ class MCPResourceResponse(BaseModel):
     timestamp: datetime
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "server_name": "supabase",
                 "resource_uri": "supabase://tables/entities",
@@ -100,7 +100,7 @@ class MCPToolResponse(BaseModel):
     timestamp: datetime
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "server_name": "supabase",
                 "tool_name": "query_database",
@@ -120,7 +120,7 @@ class MCPUnifiedQueryResponse(BaseModel):
     timestamp: datetime
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "query": "Find all projects",
                 "context": {},
