@@ -70,16 +70,26 @@ class SpecializedAgent(BaseAgent):
     """Base class cho specialized agents"""
     
     def __init__(self, agent_id: str, specialization: AgentSpecialization, name: str = None):
-        # Create metadata for BaseAgent
+        # Create metadata for BaseAgent - AGE Actor structure
         metadata = AgentMetadata(
-            name=name or f"{specialization.value}_agent",
-            agent_type=specialization.value,
-            description=f"Specialized agent for {specialization.value.replace('_', ' ')}",
+            actor_id=agent_id,
+            actor_type=f"AGE_SPECIALIZED_AGENT_{specialization.value.upper()}",
+            semantic_purpose=f"AGE Actor specialized in {specialization.value.replace('_', ' ')} - performs Recognition→Event→WIN cycles for {specialization.value} domain expertise",
             capabilities=[],
-            status="active"
+            strategic_context={
+                "specialization": specialization.value,
+                "domain": specialization.value.replace('_', ' '),
+                "creation_date": datetime.now().isoformat(),
+                "age_integration": True
+            },
+            performance_metrics={
+                "initialization_timestamp": datetime.now().timestamp(),
+                "specialization_readiness": 1.0,
+                "domain_expertise_level": 0.8
+            }
         )
         
-        super().__init__(agent_id, metadata)
+        super().__init__(metadata)
         self.specialization = specialization
         self.capabilities: Dict[str, AgentCapability] = {}
         self.collaboration_history: List[AgentCollaborationRequest] = []

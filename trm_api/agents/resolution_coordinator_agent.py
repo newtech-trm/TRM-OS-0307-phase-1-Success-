@@ -20,10 +20,16 @@ class ResolutionCoordinatorAgent(BaseAgent):
     """
     
     def __init__(self, agent_id: Optional[str] = None):
+        # Auto-generate agent_id if not provided
+        if not agent_id:
+            import uuid
+            import time
+            agent_id = f"ResolutionCoordinatorAgent_{int(time.time() * 1000000)}"
+        
         metadata = AgentMetadata(
-            name="ResolutionCoordinatorAgent",
-            agent_type="coordinator",
-            description="Điều phối quá trình giải quyết các Tension trong hệ thống TRM-OS",
+            actor_id=agent_id,
+            actor_type="AGE_RESOLUTION_COORDINATOR_AGENT",
+            semantic_purpose="AGE Actor specialized in coordinating tension resolution processes - performs Recognition→Event→WIN cycles for system-wide tension management and solution integration",
             capabilities=[
                 "tension_analysis", 
                 "priority_assessment", 
@@ -31,10 +37,19 @@ class ResolutionCoordinatorAgent(BaseAgent):
                 "process_coordination", 
                 "solution_integration"
             ],
-            status="active",
-            version="1.0.0"
+            strategic_context={
+                "agent_role": "resolution_coordinator",
+                "domain": "tension_management",
+                "creation_date": datetime.now().isoformat(),
+                "age_integration": True
+            },
+            performance_metrics={
+                "initialization_timestamp": datetime.now().timestamp(),
+                "coordination_readiness": 1.0,
+                "resolution_expertise_level": 0.9
+            }
         )
-        super().__init__(agent_id=agent_id, metadata=metadata)
+        super().__init__(metadata)
         self.tension_repository = TensionRepository()
         self.active_tensions: Dict[str, Dict[str, Any]] = {}  # Lưu trữ các tension đang xử lý
         self.pending_tasks: Dict[str, List[Dict[str, Any]]] = {}  # Các nhiệm vụ đang chờ xử lý cho mỗi tension
