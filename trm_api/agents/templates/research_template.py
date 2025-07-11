@@ -30,17 +30,7 @@ class ResearchAgent(BaseAgentTemplate):
     """
     
     def __init__(self, agent_id: Optional[str] = None, metadata: Optional[AgentMetadata] = None):
-        # Tạo metadata cho Research nếu chưa có
-        if not metadata:
-            metadata = AgentMetadata(
-                name="ResearchAgent",
-                agent_type="Research",
-                description="AI Agent chuyên biệt xử lý tensions liên quan đến research và knowledge gathering",
-                capabilities=["market_research", "technical_research", "knowledge_synthesis", "trend_analysis", "literature_review", "data_mining"],
-                status="active",
-                version="1.0.0"
-            )
-        
+        # Use BaseAgentTemplate constructor - no need to override AgentMetadata creation
         super().__init__(agent_id, metadata)
         
         # Research-specific patterns

@@ -31,17 +31,7 @@ class UserInterfaceAgent(BaseAgentTemplate):
     """
     
     def __init__(self, agent_id: Optional[str] = None, metadata: Optional[AgentMetadata] = None):
-        # Tạo metadata cho UserInterface nếu chưa có
-        if not metadata:
-            metadata = AgentMetadata(
-                name="UserInterfaceAgent",
-                agent_type="UserInterface",
-                description="AI Agent chuyên biệt xử lý tensions liên quan đến UI/UX và frontend development",
-                capabilities=["ui_design", "ux_research", "frontend_development", "design_systems", "accessibility", "performance_optimization"],
-                status="active",
-                version="1.0.0"
-            )
-        
+        # Use BaseAgentTemplate constructor - no need to override AgentMetadata creation
         super().__init__(agent_id, metadata)
         
         # UI/UX-specific patterns

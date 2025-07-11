@@ -76,15 +76,8 @@ class CodeGeneratorAgent(BaseAgentTemplate):
             )
         ]
         
-        # Create metadata với proper template info
-        metadata = AgentMetadata(
-            name="CodeGeneratorAgent",
-            agent_type="template",
-            description="Specialized agent for high-quality code generation and software development",
-            capabilities=[cap.name for cap in capabilities],
-            status="active",
-            version="2.0.0"
-        )
+        # Create metadata với proper template info - REMOVED LEGACY AgentMetadata
+        # Use BaseAgentTemplate constructor instead
         
         template_metadata = AgentTemplateMetadata(
             template_name="CodeGeneratorAgent",

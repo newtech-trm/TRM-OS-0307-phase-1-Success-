@@ -31,17 +31,7 @@ class IntegrationAgent(BaseAgentTemplate):
     """
     
     def __init__(self, agent_id: Optional[str] = None, metadata: Optional[AgentMetadata] = None):
-        # Tạo metadata cho Integration nếu chưa có
-        if not metadata:
-            metadata = AgentMetadata(
-                name="IntegrationAgent",
-                agent_type="Integration",
-                description="AI Agent chuyên biệt xử lý tensions liên quan đến system integration và connectivity",
-                capabilities=["api_integration", "data_synchronization", "enterprise_connectivity", "workflow_automation", "message_queuing", "real_time_streaming"],
-                status="active",
-                version="1.0.0"
-            )
-        
+        # Use BaseAgentTemplate constructor - no need to override AgentMetadata creation
         super().__init__(agent_id, metadata)
         
         # Integration-specific patterns

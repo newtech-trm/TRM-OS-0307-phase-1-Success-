@@ -215,7 +215,7 @@ class ReasoningService:
             
             # Ensure score is between 0 and 1
             return max(0.0, min(1.0, combined_score))
-            
+                
         except Exception as e:
             logger.error(f"WIN Score calculation error: {str(e)}")
             return 0.0
