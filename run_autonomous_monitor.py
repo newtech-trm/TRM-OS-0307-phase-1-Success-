@@ -17,17 +17,29 @@ import subprocess
 import sys
 import time
 import logging
+import os
 from pathlib import Path
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - LAUNCHER - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('autonomous_launcher.log'),
-        logging.StreamHandler()
-    ]
-)
+# Set UTF-8 encoding for Windows compatibility
+if sys.platform == "win32":
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+
+# Setup safe logging without emoji
+def setup_safe_launcher_logging():
+    """Setup logging without emoji for Windows compatibility"""
+    file_handler = logging.FileHandler('autonomous_launcher.log', encoding='utf-8')
+    console_handler = logging.StreamHandler()
+    
+    safe_formatter = logging.Formatter('%(asctime)s - LAUNCHER - %(levelname)s - %(message)s')
+    file_handler.setFormatter(safe_formatter)
+    console_handler.setFormatter(safe_formatter)
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        handlers=[file_handler, console_handler]
+    )
+
+setup_safe_launcher_logging()
 logger = logging.getLogger("AutonomousLauncher")
 
 class AutonomousLauncher:
@@ -40,34 +52,34 @@ class AutonomousLauncher:
         
     async def run_with_auto_restart(self):
         """Run autonomous monitor với auto-restart"""
-        logger.info("🚀 Starting Autonomous Railway Monitor with Auto-Restart")
+        logger.info("[ROCKET] Starting Autonomous Railway Monitor with Auto-Restart")
         
         while self.is_running and self.restart_count < self.max_restarts:
             try:
                 # Import và run autonomous monitor
                 from scripts.autonomous_railway_monitor import main as monitor_main
                 
-                logger.info(f"🔄 Starting monitor (Attempt {self.restart_count + 1})")
+                logger.info(f"[CYCLE] Starting monitor (Attempt {self.restart_count + 1})")
                 await monitor_main()
                 
             except KeyboardInterrupt:
-                logger.info("⏹️ Shutdown requested by user")
+                logger.info("[STOP] Shutdown requested by user")
                 self.is_running = False
                 break
                 
             except Exception as e:
                 self.restart_count += 1
-                logger.error(f"❌ Monitor crashed (Attempt {self.restart_count}): {e}")
+                logger.error(f"[ERROR] Monitor crashed (Attempt {self.restart_count}): {e}")
                 
                 if self.restart_count < self.max_restarts:
                     wait_time = min(60 * self.restart_count, 300)  # Max 5 minutes
-                    logger.info(f"🔄 Restarting in {wait_time} seconds...")
+                    logger.info(f"[CYCLE] Restarting in {wait_time} seconds...")
                     await asyncio.sleep(wait_time)
                 else:
-                    logger.critical("💀 Max restart attempts reached. Stopping.")
+                    logger.critical("[SKULL] Max restart attempts reached. Stopping.")
                     break
         
-        logger.info("🏁 Autonomous launcher finished")
+        logger.info("[FINISH] Autonomous launcher finished")
 
 async def main():
     """Main launcher function"""
@@ -76,11 +88,11 @@ async def main():
 
 if __name__ == "__main__":
     # Check if running on Windows/PowerShell
-    logger.info("🎯 Autonomous Railway Monitor - Complete Self-Healing System")
-    logger.info("📋 Features: Auto-detection, Auto-fix, Auto-deploy, Auto-restart")
+    logger.info("[TARGET] Autonomous Railway Monitor - Complete Self-Healing System")
+    logger.info("[CHECKLIST] Features: Auto-detection, Auto-fix, Auto-deploy, Auto-restart")
     
     try:
         asyncio.run(main())
     except Exception as e:
-        logger.critical(f"💀 Launcher failed: {e}")
+        logger.critical(f"[SKULL] Launcher failed: {e}")
         sys.exit(1) 
